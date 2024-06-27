@@ -36,6 +36,11 @@ public class ChessBoard {
         return squares[position.getRow() - 1][position.getColumn() - 1];
     }
 
+    //Function helper to check is a position is occupied or not. Will be used for capturing enemies or double moves.
+    public boolean isOccupied(ChessPosition position){
+        return squares[position.getRow() - 1][position.getColumn() - 1] != null;
+    }
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)

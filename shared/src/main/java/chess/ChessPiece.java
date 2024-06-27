@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Objects;
@@ -19,6 +20,18 @@ public class ChessPiece {
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
+        movesCalculate();
+    }
+
+    void movesCalculate(){
+        switch (this.type){
+            case KING:
+                this.movesCalculator = new King();
+                break;
+            case KNIGHT:
+                this.movesCalculator = new Knight();
+                break;
+        }
     }
 
     /**
@@ -55,7 +68,10 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        if(this.movesCalculator != null){
+            return this.movesCalculator.calculateValidMoves(board, myPosition);
+        }
+        return new ArrayList<>();
     }
 
     @Override
