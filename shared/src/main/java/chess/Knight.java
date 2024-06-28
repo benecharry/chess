@@ -7,6 +7,7 @@ public class Knight implements CaculateMovesCalculator{
     @Override
     public Collection<ChessMove> calculateValidMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> validMoves = new ArrayList<>();
+        // New movements tested.
         int[][] directions = {{2,-1}, {-2,1}, {2,1}, {-2,-1}, {-1,2}, {1,-2}, {-1,-2}, {1,2}};
         for(int[] direction : directions){
             int nextRow = position.getRow() + direction[0];
