@@ -31,6 +31,9 @@ public class ChessPiece {
             case KNIGHT:
                 this.movesCalculator = new Knight();
                 break;
+            case PAWN:
+                this.movesCalculator = new Pawn();
+                break;
         }
     }
 
