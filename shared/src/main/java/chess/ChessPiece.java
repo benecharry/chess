@@ -1,9 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents a single chess piece
@@ -36,6 +33,13 @@ public class ChessPiece {
                 break;
             case BISHOP:
                 this.movesCalculator = new Bishop();
+                break;
+            case ROOK:
+                this.movesCalculator = new Rook();
+                break;
+            case QUEEN:
+                this.movesCalculator = new Queen();
+                break;
         }
     }
 
