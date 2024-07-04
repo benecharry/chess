@@ -80,7 +80,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return false;
+        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -90,7 +91,8 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return false;
+        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -101,7 +103,8 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return false;
+        //throw new RuntimeException("Not implemented");
     }
 
     /**
