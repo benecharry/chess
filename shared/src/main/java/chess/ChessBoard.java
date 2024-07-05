@@ -1,6 +1,9 @@
 package chess;
 
+import javax.security.auth.kerberos.KerberosKey;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -75,6 +78,24 @@ public class ChessBoard {
         squares[7][6] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
         squares[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
 
+    }
+
+    public ChessPosition findTheKing(ChessGame.TeamColor teamColor) {
+        Collection<ChessPosition> positions = new ArrayList<>();
+        for (int i = 0; i <= 8; i++) {
+            for (int j = 0; j <= 8; j++) {
+                positions.add(new ChessPosition(i, j));
+            }
+        }
+        for (ChessPosition position : positions) {
+            if (isOccupied(position)) {
+                ChessPiece piece = getPiece(position);
+                if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    return position;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
