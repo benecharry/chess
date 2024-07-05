@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -19,6 +20,7 @@ public class ChessGame {
     public ChessGame() {
         this.board = new ChessBoard();
         this.board.resetBoard();
+        //For later. White always starts.
         this.teamTurn = TeamColor.WHITE;
         this.newGame = true;
     }
@@ -60,7 +62,7 @@ public class ChessGame {
         }
         // Save piece from location.
         ChessPiece piece = board.getPiece(startPosition);
-        piece.movesCalculate();
+        //piece.movesCalculate();
         return piece.pieceMoves(board, startPosition);
     }
 
@@ -73,7 +75,6 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         throw new RuntimeException("Not implemented");
     }
-
     /**
      * Determines if the given team is in check
      *
@@ -84,12 +85,35 @@ public class ChessGame {
         if(this.newGame == true){
             return false;
         }
+        TeamColor colorOfOpponent = null;
+        if(teamColor == TeamColor.WHITE){
+            colorOfOpponent = TeamColor.BLACK;
+        }
+        else if(teamColor == TeamColor.BLACK){
+            colorOfOpponent = TeamColor.WHITE;
+        }
+
         ChessPosition kingPosition = board.findTheKing(teamColor);
         if (kingPosition == null) {
             throw new RuntimeException("Not implemented");
         }
 
-        return true;
+        Collection<ChessPosition> positions = board.allPosition();
+        for (ChessPosition position : positions) {
+            if (board.isOccupied(position)) {
+                ChessPiece piece = board.getPiece(position);
+                if(piece.getTeamColor() == colorOfOpponent) {
+                    Collection<ChessMove> moves = piece.pieceMoves(board, position);
+                    for (ChessMove move : moves) {
+                        if (move.getEndPosition().equals(kingPosition)) {
+                            //If same location (?) as kingPosition?
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**

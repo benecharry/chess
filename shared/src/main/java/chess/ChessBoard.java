@@ -81,12 +81,7 @@ public class ChessBoard {
     }
 
     public ChessPosition findTheKing(ChessGame.TeamColor teamColor) {
-        Collection<ChessPosition> positions = new ArrayList<>();
-        for (int i = 0; i <= 8; i++) {
-            for (int j = 0; j <= 8; j++) {
-                positions.add(new ChessPosition(i, j));
-            }
-        }
+        Collection<ChessPosition> positions = allPosition();
         for (ChessPosition position : positions) {
             if (isOccupied(position)) {
                 ChessPiece piece = getPiece(position);
@@ -96,6 +91,16 @@ public class ChessBoard {
             }
         }
         return null;
+    }
+
+    public Collection<ChessPosition> allPosition() {
+        Collection<ChessPosition> positions = new ArrayList<>();
+            for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                positions.add(new ChessPosition(i, j));
+            }
+        }
+            return positions;
     }
 
     @Override
