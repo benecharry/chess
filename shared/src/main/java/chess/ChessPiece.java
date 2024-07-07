@@ -20,6 +20,12 @@ public class ChessPiece {
         movesCalculate();
     }
 
+    public ChessPiece(ChessPiece copy){
+        this.pieceColor = copy.pieceColor;
+        this.type = copy.type;
+        movesCalculate();
+    }
+
     void movesCalculate(){
         switch (this.type){
             case KING:

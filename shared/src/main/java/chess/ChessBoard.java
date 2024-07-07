@@ -15,7 +15,20 @@ public class ChessBoard {
     ChessPiece[][] squares = new ChessPiece[8][8];
 
     public ChessBoard() {
-        
+
+    }
+    //Referencing Copying Objects from the class gitHub. There must be a simpler way.
+    public ChessBoard(ChessBoard copy){
+        for(int i = 0; i < 8; i ++){
+            for(int j = 0; j < 8; j ++){
+                if(copy.squares[i][j] != null){
+                    this.squares[i][j] = new ChessPiece(copy.squares[i][j]);
+                }
+                else {
+                    this.squares[i][j] = null;
+                }
+            }
+        }
     }
 
     /**
@@ -96,9 +109,9 @@ public class ChessBoard {
     public Collection<ChessPosition> allPosition() {
         Collection<ChessPosition> positions = new ArrayList<>();
             for (int i = 1; i <= 8; i++) {
-            for (int j = 1; j <= 8; j++) {
-                positions.add(new ChessPosition(i, j));
-            }
+                for (int j = 1; j <= 8; j++) {
+                    positions.add(new ChessPosition(i, j));
+                }
         }
             return positions;
     }
