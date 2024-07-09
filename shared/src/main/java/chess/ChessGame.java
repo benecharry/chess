@@ -50,13 +50,19 @@ public class ChessGame {
     }
 
     public void changeTeamTurn(){
-        if(this.teamTurn == TeamColor.WHITE){
-            this.teamTurn = TeamColor.BLACK;
-        }
-        else{
-            this.teamTurn = TeamColor.WHITE;
-        }
+        this.teamTurn = getColorOfOpponent(this.teamTurn);
         this.newGame = false;
+    }
+
+    private TeamColor getColorOfOpponent(TeamColor teamColor) {
+        TeamColor colorOfOpponent = null;
+        if(teamColor == TeamColor.WHITE){
+            colorOfOpponent = TeamColor.BLACK;
+        }
+        else if(teamColor == TeamColor.BLACK){
+            colorOfOpponent = TeamColor.WHITE;
+        }
+        return colorOfOpponent;
     }
 
     /**
@@ -113,14 +119,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        TeamColor colorOfOpponent = null;
-        if(teamColor == TeamColor.WHITE){
-            colorOfOpponent = TeamColor.BLACK;
-        }
-        else if(teamColor == TeamColor.BLACK){
-            colorOfOpponent = TeamColor.WHITE;
-        }
-
+        TeamColor colorOfOpponent = getColorOfOpponent(teamColor);
         ChessPosition kingPosition = board.findTheKing(teamColor);
 
         if (kingPosition == null) {
