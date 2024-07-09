@@ -94,12 +94,12 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(move.getStartPosition());
 
         if (piece == null) {
-            throw new InvalidMoveException("No piece in given position");
+            throw new InvalidMoveException("No piece at given position " + startPosition);
         }
 
         Collection<ChessMove> validMoves = piece.pieceMoves(board, startPosition);
         if(!validMoves.contains(move)){
-            throw new InvalidMoveException("Invalid move");
+            throw new InvalidMoveException("Invalid move from " + startPosition + " to " + endPosition);
         }
 
         try{
@@ -108,7 +108,7 @@ public class ChessGame {
             this.newGame = false;
             changeTeamTurn();
         } catch (Exception ex){
-            throw new InvalidMoveException("Error");
+            throw new InvalidMoveException("Error during move", ex);
         }
     }
 
@@ -123,7 +123,7 @@ public class ChessGame {
         ChessPosition kingPosition = board.findTheKing(teamColor);
 
         if (kingPosition == null) {
-            throw new RuntimeException("Not implemented");
+            throw new RuntimeException("King not found for " + teamColor);
         }
 
         Collection<ChessPosition> positions = board.allPosition();
@@ -152,17 +152,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        if(this.newGame){
-            return false;
-        }
-        TeamColor colorOfOpponent = null;
-        if(teamColor == TeamColor.WHITE){
-            colorOfOpponent = TeamColor.BLACK;
-        }
-        else if(teamColor == TeamColor.BLACK){
-            colorOfOpponent = TeamColor.WHITE;
-        }
-
+        TeamColor colorOfOpponent = getColorOfOpponent(teamColor);
         ChessPosition kingPosition = board.findTheKing(teamColor);
 
         if (kingPosition == null) {
