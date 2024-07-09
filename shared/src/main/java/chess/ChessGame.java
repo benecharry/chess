@@ -96,15 +96,25 @@ public class ChessGame {
         if (piece == null) {
             throw new InvalidMoveException("No piece at given position " + startPosition);
         }
+        if(piece.getTeamColor() != teamTurn){
+            throw new InvalidMoveException("It's not your turn.");
+        }
 
         Collection<ChessMove> validMoves = piece.pieceMoves(board, startPosition);
-        if(!validMoves.contains(move)){
+        boolean isValidMove = false;
+        for(ChessMove validMove : validMoves){
+            if(validMove.getEndPosition().equals(endPosition)){
+                isValidMove = true;
+                break;
+            }
+        }
+        if (!isValidMove) {
             throw new InvalidMoveException("Invalid move from " + startPosition + " to " + endPosition);
         }
 
         try{
-            board.addPiece(startPosition, piece);
-            board.addPiece(endPosition, null);
+            board.addPiece(endPosition, piece);
+            board.addPiece(startPosition, null);
             this.newGame = false;
             changeTeamTurn();
         } catch (Exception ex){
