@@ -102,11 +102,15 @@ public class ChessGame {
             throw new InvalidMoveException("It's not your turn.");
         }
 
-        Collection<ChessMove> validMoves = piece.pieceMoves(board, startPosition);
+        //I should use validMoves instead.
+        Collection<ChessMove> validMoves = validMoves(startPosition);
         boolean isValidMove = false;
         for(ChessMove validMove : validMoves){
             if(validMove.getEndPosition().equals(endPosition)){
                 isValidMove = true;
+                if(piece.getPieceType() == ChessPiece.PieceType.PAWN && validMove.getPromotionPiece() != null){
+                    piece = new ChessPiece(piece.getTeamColor(), validMove.getPromotionPiece());
+                }
                 break;
             }
         }
@@ -183,9 +187,36 @@ public class ChessGame {
         ChessPosition kingPosition = board.findTheKing(teamColor);
 
         if (kingPosition == null) {
-            throw new RuntimeException("Not implemented");
+            throw new RuntimeException("King not found for " + teamColor);
         }
 
+        if(!isInCheck(teamColor)){
+            return false;
+        }
+
+        Collection<ChessPosition> startPositions = new ArrayList<>();
+        Collection<ChessPosition> positions = board.allPosition();
+        for(ChessPosition position : positions){
+            if(board.isOccupied(position) && board.getPiece(position).getTeamColor() == teamColor){
+                startPositions.add(position);
+            }
+        }
+        for(ChessPosition startPosition : startPositions){
+            Collection<ChessMove> validMoves = validMoves(startPosition);
+            for(ChessMove validMove : validMoves){
+                ChessBoard temporaryBoard = new ChessBoard(board);
+                ChessPiece movePiece = temporaryBoard.getPiece(startPosition);
+                temporaryBoard.addPiece(validMove.getEndPosition(), movePiece);
+                temporaryBoard.addPiece(startPosition, null);
+                if(!isInCheck(teamColor)){
+                    temporaryBoard.addPiece(startPosition, movePiece);
+                    temporaryBoard.addPiece(validMove.getEndPosition(), null);
+                    return false;
+                }
+                temporaryBoard.addPiece(startPosition, movePiece);
+                temporaryBoard.addPiece(validMove.getEndPosition(), null);
+            }
+        }
         return true;
     }
 
