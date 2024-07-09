@@ -108,12 +108,12 @@ public class ChessBoard {
 
     public Collection<ChessPosition> allPosition() {
         Collection<ChessPosition> positions = new ArrayList<>();
-            for (int i = 1; i <= 8; i++) {
-                for (int j = 1; j <= 8; j++) {
-                    positions.add(new ChessPosition(i, j));
-                }
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                positions.add(new ChessPosition(i, j));
+            }
         }
-            return positions;
+        return positions;
     }
 
     @Override

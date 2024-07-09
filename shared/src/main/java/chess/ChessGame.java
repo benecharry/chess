@@ -93,6 +93,7 @@ public class ChessGame {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = board.getPiece(move.getStartPosition());
+        ChessPiece.PieceType promotionType = move.getPromotionPiece();
 
         if (piece == null) {
             throw new InvalidMoveException("No piece at given position " + startPosition + ".");
@@ -100,15 +101,15 @@ public class ChessGame {
         if(piece.getTeamColor() != teamTurn){
             throw new InvalidMoveException("It's not your turn.");
         }
-        //I should use validMoves instead.
+
         Collection<ChessMove> validMoves = validMoves(startPosition);
         boolean isValidMove = false;
+        ChessPiece.PieceType promotionPiece = null;
+
         for(ChessMove validMove : validMoves){
             if(validMove.getEndPosition().equals(endPosition)){
                 isValidMove = true;
-                if(piece.getPieceType() == ChessPiece.PieceType.PAWN && validMove.getPromotionPiece() != null){
-                    piece = new ChessPiece(piece.getTeamColor(), validMove.getPromotionPiece());
-                }
+                promotionPiece = validMove.getPromotionPiece();
                 break;
             }
         }
@@ -117,19 +118,15 @@ public class ChessGame {
         }
         //For moves that lead to check.
         ChessBoard temporaryBoard = new ChessBoard(board);
-        temporaryBoard.addPiece(endPosition, piece);
+        addPromotedPiece(endPosition, piece, promotionPiece);
         temporaryBoard.addPiece(startPosition, null);
-        ChessBoard originalBoard = board;
 
         if(isInCheck(piece.getTeamColor())){
-            board = originalBoard;
             throw new InvalidMoveException("Move leads to king being in check.");
         }
 
-        board = originalBoard;
-
         try{
-            board.addPiece(endPosition, piece);
+            addPromotedPiece(endPosition, piece, promotionPiece);
             board.addPiece(startPosition, null);
             this.newGame = false;
             changeTeamTurn();
@@ -137,6 +134,16 @@ public class ChessGame {
             throw new InvalidMoveException("Error during move", ex);
         }
     }
+
+    private void addPromotedPiece(ChessPosition position, ChessPiece piece, ChessPiece.PieceType promotionPiece) {
+        if (promotionPiece != null) {
+            ChessPiece promotedPiece = new ChessPiece(piece.getTeamColor(), promotionPiece);
+            board.addPiece(position, promotedPiece);
+        } else {
+            board.addPiece(position, piece);
+        }
+    }
+
 
     /**
      * Determines if the given team is in check
