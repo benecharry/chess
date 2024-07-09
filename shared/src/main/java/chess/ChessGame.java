@@ -208,13 +208,15 @@ public class ChessGame {
                 ChessPiece movePiece = temporaryBoard.getPiece(startPosition);
                 temporaryBoard.addPiece(validMove.getEndPosition(), movePiece);
                 temporaryBoard.addPiece(startPosition, null);
+
+                ChessBoard originalBoard = this.board;
+                board = temporaryBoard;
+
                 if(!isInCheck(teamColor)){
-                    temporaryBoard.addPiece(startPosition, movePiece);
-                    temporaryBoard.addPiece(validMove.getEndPosition(), null);
+                    this.board = originalBoard;
                     return false;
                 }
-                temporaryBoard.addPiece(startPosition, movePiece);
-                temporaryBoard.addPiece(validMove.getEndPosition(), null);
+                board = originalBoard;
             }
         }
         return true;
