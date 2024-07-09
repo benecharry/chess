@@ -56,6 +56,7 @@ public class ChessGame {
         else{
             this.teamTurn = TeamColor.WHITE;
         }
+        this.newGame = false;
     }
 
     /**
@@ -87,9 +88,22 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(move.getStartPosition());
 
         if (piece == null) {
-            throw new InvalidMoveException("Not implemented");
+            throw new InvalidMoveException("No piece in given position");
         }
 
+        Collection<ChessMove> validMoves = piece.pieceMoves(board, startPosition);
+        if(!validMoves.contains(move)){
+            throw new InvalidMoveException("Invalid move");
+        }
+
+        try{
+            board.addPiece(startPosition, piece);
+            board.addPiece(endPosition, null);
+            this.newGame = false;
+            changeTeamTurn();
+        } catch (Exception ex){
+            throw new InvalidMoveException("Error");
+        }
     }
 
     /**
