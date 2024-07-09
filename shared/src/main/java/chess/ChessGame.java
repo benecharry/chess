@@ -23,6 +23,8 @@ public class ChessGame {
         //For later. White always starts.
         this.teamTurn = TeamColor.WHITE;
         this.newGame = true;
+        this.board.resetBoard();
+
     }
 
     /**
@@ -94,7 +96,7 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(move.getStartPosition());
 
         if (piece == null) {
-            throw new InvalidMoveException("No piece at given position " + startPosition);
+            throw new InvalidMoveException("No piece at given position " + startPosition + ".");
         }
         if(piece.getTeamColor() != teamTurn){
             throw new InvalidMoveException("It's not your turn.");
@@ -109,8 +111,22 @@ public class ChessGame {
             }
         }
         if (!isValidMove) {
-            throw new InvalidMoveException("Invalid move from " + startPosition + " to " + endPosition);
+            throw new InvalidMoveException("Invalid move from " + startPosition + " to " + endPosition + ".");
         }
+
+        //For moves that lead to check.
+        ChessBoard temporaryBoard = new ChessBoard(board);
+        temporaryBoard.addPiece(endPosition, piece);
+        temporaryBoard.addPiece(startPosition, null);
+        ChessBoard originalBoard = board;
+
+
+        if(isInCheck(piece.getTeamColor())){
+            board = originalBoard;
+            throw new InvalidMoveException("Move leads to king being in check.");
+        }
+
+        board = originalBoard;
 
         try{
             board.addPiece(endPosition, piece);
@@ -120,6 +136,7 @@ public class ChessGame {
         } catch (Exception ex){
             throw new InvalidMoveException("Error during move", ex);
         }
+
     }
 
     /**

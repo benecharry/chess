@@ -17,7 +17,7 @@ public class ChessBoard {
     public ChessBoard() {
 
     }
-    //Referencing Copying Objects from the class gitHub. There must be a simpler way.
+    //Referencing Copying Objects from the class gitHub. There must be a simpler a way
     public ChessBoard(ChessBoard copy){
         for(int i = 0; i < 8; i ++){
             for(int j = 0; j < 8; j ++){
