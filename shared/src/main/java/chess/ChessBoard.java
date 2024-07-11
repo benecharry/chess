@@ -1,6 +1,5 @@
 package chess;
 
-import javax.security.auth.kerberos.KerberosKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -94,7 +93,7 @@ public class ChessBoard {
     }
 
     public ChessPosition findTheKing(ChessGame.TeamColor teamColor) {
-        Collection<ChessPosition> positions = allPosition();
+        Collection<ChessPosition> positions = getAllPosition();
         for (ChessPosition position : positions) {
             if (isOccupied(position)) {
                 ChessPiece piece = getPiece(position);
@@ -106,7 +105,7 @@ public class ChessBoard {
         return null;
     }
 
-    public Collection<ChessPosition> allPosition() {
+    public Collection<ChessPosition> getAllPosition() {
         Collection<ChessPosition> positions = new ArrayList<>();
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {

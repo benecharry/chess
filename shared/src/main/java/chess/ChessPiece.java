@@ -17,16 +17,16 @@ public class ChessPiece {
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
-        movesCalculate();
+        calculateMoves();
     }
 
     public ChessPiece(ChessPiece copy){
         this.pieceColor = copy.pieceColor;
         this.type = copy.type;
-        movesCalculate();
+        calculateMoves();
     }
 
-    void movesCalculate(){
+    void calculateMoves(){
         switch (this.type){
             case KING:
                 this.movesCalculator = new MovementKing();

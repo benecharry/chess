@@ -15,7 +15,7 @@ public class ChessGame {
     private TeamColor teamTurn;
     private ChessGame.TeamColor teamColor;
     private ChessBoard board;
-    private boolean newGame;
+    private boolean isANewGame;
     private boolean ignoreCheckForValidMoves;
 
     public ChessGame() {
@@ -23,7 +23,7 @@ public class ChessGame {
         this.board.resetBoard();
         //For later. White always starts.
         this.teamTurn = TeamColor.WHITE;
-        this.newGame = true;
+        this.isANewGame = true;
         //this.board.resetBoard();
         //Flag for validMoves;
         this.ignoreCheckForValidMoves = false;
@@ -56,7 +56,7 @@ public class ChessGame {
 
     public void changeTeamTurn(){
         this.teamTurn = getColorOfOpponent(this.teamTurn);
-        this.newGame = false;
+        this.isANewGame = false;
     }
 
     private TeamColor getColorOfOpponent(TeamColor teamColor) {
@@ -171,13 +171,13 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        if(this.newGame == true){
+        if(this.isANewGame == true){
             return false;
         }
         TeamColor colorOfOpponent = getColorOfOpponent(teamColor);
         ChessPosition kingPosition = board.findTheKing(teamColor);
 
-        Collection<ChessPosition> positions = board.allPosition();
+        Collection<ChessPosition> positions = board.getAllPosition();
         for (ChessPosition position : positions) {
             if (board.isOccupied(position)) {
                 ChessPiece piece = board.getPiece(position);
@@ -203,7 +203,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        if(this.newGame == true){
+        if(this.isANewGame == true){
             return false;
         }
         if(!isInCheck(teamColor)){
@@ -222,7 +222,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if(this.newGame == true){
+        if(this.isANewGame == true){
             return false;
         }
         if(isInCheck(teamColor)){
@@ -233,7 +233,7 @@ public class ChessGame {
     }
 
     private boolean hasMoveToEscapeCheck(TeamColor teamColor) {
-        Collection<ChessPosition> positions = board.allPosition();
+        Collection<ChessPosition> positions = board.getAllPosition();
         for (ChessPosition startPosition : positions) {
             if (board.isOccupied(startPosition) && board.getPiece(startPosition).getTeamColor() == teamColor) {
                 Collection<ChessMove> validMoves = validMoves(startPosition);
@@ -267,7 +267,7 @@ public class ChessGame {
     public void setBoard(ChessBoard board) {
         this.board = new ChessBoard(board);
         //Set this to false so pinned king woks!!!!!
-        this.newGame = false;
+        this.isANewGame = false;
     }
 
     /**
