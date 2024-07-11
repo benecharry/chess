@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 
-public class Pawn implements CaculateMovesCalculator{
+public class MovementPawn implements MovesCalculator {
 
 
     @Override

@@ -12,7 +12,7 @@ public class ChessPiece {
 
     private ChessGame.TeamColor pieceColor;
     private ChessPiece.PieceType type;
-    private CaculateMovesCalculator movesCalculator;
+    private MovesCalculator movesCalculator;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
@@ -29,22 +29,22 @@ public class ChessPiece {
     void movesCalculate(){
         switch (this.type){
             case KING:
-                this.movesCalculator = new King();
+                this.movesCalculator = new MovementKing();
                 break;
             case KNIGHT:
-                this.movesCalculator = new Knight();
+                this.movesCalculator = new MovementKnight();
                 break;
             case PAWN:
-                this.movesCalculator = new Pawn();
+                this.movesCalculator = new MovementPawn();
                 break;
             case BISHOP:
-                this.movesCalculator = new Bishop();
+                this.movesCalculator = new MovementBishop();
                 break;
             case ROOK:
-                this.movesCalculator = new Rook();
+                this.movesCalculator = new MovementRook();
                 break;
             case QUEEN:
-                this.movesCalculator = new Queen();
+                this.movesCalculator = new MovementQueen();
                 break;
         }
     }
