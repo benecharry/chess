@@ -86,7 +86,7 @@ public class ChessPiece {
         if(this.movesCalculator != null){
             return this.movesCalculator.calculateValidMoves(board, myPosition);
         }
-        return new ArrayList<>();
+        else return new ArrayList<>();
     }
 
     @Override
