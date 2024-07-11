@@ -171,6 +171,9 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        if(this.newGame == true){
+            return false;
+        }
         TeamColor colorOfOpponent = getColorOfOpponent(teamColor);
         ChessPosition kingPosition = board.findTheKing(teamColor);
 
@@ -202,6 +205,9 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
         TeamColor colorOfOpponent = getColorOfOpponent(teamColor);
         ChessPosition kingPosition = board.findTheKing(teamColor);
+        if(this.newGame == true){
+            return false;
+        }
 
         if(isInCheck(teamColor) == true){
             return false;
@@ -234,10 +240,9 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if(this.newGame){
+        if(this.newGame == true){
             return false;
         }
-
         if(isInCheck(teamColor)){
             return false;
         }
@@ -245,23 +250,23 @@ public class ChessGame {
         Collection<ChessPosition> positions = board.allPosition();
         for (ChessPosition startPosition : positions) {
             if (board.isOccupied(startPosition) && board.getPiece(startPosition).getTeamColor() == teamColor) {
-                ChessPiece piece = board.getPiece(startPosition);
                 Collection<ChessMove> validMoves = validMoves(startPosition);
                 for(ChessMove move : validMoves){
-                    ChessBoard temporaryBoard = new ChessBoard(board);
-                    ChessPosition endPosition = move.getEndPosition();
+                    ChessPiece movingPiece = board.getPiece(move.getStartPosition());
+                    ChessPiece targetPiece = board.getPiece(move.getEndPosition());
 
-                    temporaryBoard.addPiece(endPosition, piece);
-                    temporaryBoard.addPiece(startPosition, null);
-
-                    ChessBoard originalBoard = this.board;
-                    board = temporaryBoard;
+                    board.addPiece(move.getStartPosition(), null);
+                    board.addPiece(move.getEndPosition(), movingPiece);
 
                     if(!isInCheck(teamColor)){
-                        board = originalBoard;
+                        board.addPiece(move.getStartPosition(), movingPiece);
+                        board.addPiece(move.getEndPosition(), targetPiece);
                         return false;
                     }
-                    board = originalBoard;
+
+                    board.addPiece(move.getStartPosition(), movingPiece);
+                    board.addPiece(move.getEndPosition(), targetPiece);
+
                 }
             }
         }
