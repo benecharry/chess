@@ -18,6 +18,23 @@ public class ChessPosition {
         this.col = col;
     }
 
+    public ChessPosition(String position) {
+        if (position != null && position.length() == 2) {
+            char file = Character.toLowerCase(position.charAt(0));
+            char rank = position.charAt(1);
+
+            if (file >= 'a' && file <= 'h' && rank >= '1' && rank <= '8') {
+                this.col = file - 'a' + 1;
+                this.row = rank - '1' + 1;
+                return;
+            }
+        }
+
+        this.col = 1;
+        this.row = 1;
+        System.out.println("Invalid position: " + position + ". Defaulting to A1.");
+    }
+
     /**
      * @return which row this position is in
      * 1 codes for the bottom row
