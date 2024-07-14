@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -44,12 +45,59 @@ public class ChessMove {
         return promotionPiece;
     }
 
+    public static void singleSquareMove(Collection<ChessMove> validMoves, ChessBoard board, ChessPosition position,
+                                        int[][] directions){
+        //For each loop as suggested by the professor.
+        for(int[] direction : directions){
+            int nextRow = position.getRow() + direction[0];
+            int nextCol = position.getColumn() + direction[1];
+            if(nextRow >= 1 && nextCol >=1 && nextRow <= 8 && nextCol <=8 ){
+                ChessPosition nextPosition = new ChessPosition(nextRow, nextCol);
+                if(board.isOccupied(nextPosition)){
+                    if(board.getPiece(position).getTeamColor() != board.getPiece(nextPosition).getTeamColor()){
+                        validMoves.add(new ChessMove(position, nextPosition, null));
+                    }
+                }
+                else {validMoves.add(new ChessMove(position, nextPosition, null));
+                }
+            }
+        }
+    }
+
+    public static void multipleSquareMove(Collection<ChessMove> validMoves, ChessBoard board, ChessPosition position,
+                                          int[][] directions){
+        for(int[] direction:directions){
+            int nextRow = position.getRow();
+            int nextCol = position.getColumn();
+            while(true){
+                nextRow += direction[0];
+                nextCol += direction[1];
+                if(nextRow < 1 || nextCol < 1 || nextRow > 8 || nextCol > 8){
+                    break;
+                }
+                ChessPosition nextPosition = new ChessPosition(nextRow, nextCol);
+                if(board.isOccupied(nextPosition)){
+                    if(board.getPiece(position).getTeamColor() != board.getPiece(nextPosition).getTeamColor()){
+                        validMoves.add(new ChessMove(position, nextPosition, null));
+                    }
+                    break;
+                }
+                else{
+                    validMoves.add(new ChessMove(position, nextPosition, null));
+                }
+            }
+        }
+
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()) {return false;}
         ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(startPosition, chessMove.startPosition) && Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
+        return Objects.equals(startPosition, chessMove.startPosition) &&
+                Objects.equals(endPosition, chessMove.endPosition) &&
+                promotionPiece == chessMove.promotionPiece;
     }
 
     @Override

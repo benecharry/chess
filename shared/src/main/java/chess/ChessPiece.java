@@ -86,13 +86,13 @@ public class ChessPiece {
         if(this.movesCalculator != null){
             return this.movesCalculator.calculateValidMoves(board, myPosition);
         }
-        else return new ArrayList<>();
+        else {return new ArrayList<>();}
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()) {return false;}
         ChessPiece that = (ChessPiece) o;
         return pieceColor == that.pieceColor && type == that.type;
     }

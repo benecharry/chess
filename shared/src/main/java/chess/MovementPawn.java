@@ -6,8 +6,6 @@ import java.util.Collection;
 
 
 public class MovementPawn implements MovesCalculator {
-
-
     @Override
     public Collection<ChessMove> calculateValidMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> validMoves = new ArrayList<>();
@@ -29,35 +27,45 @@ public class MovementPawn implements MovesCalculator {
                 if(direction[1] == 0){
                     if(!board.isOccupied(nextPosition)) {
                         if (forward == 1 && nextRow == 8 || forward == -1 && nextRow == 1) {
-                            promotionPiece(validMoves, position, nextPosition);
+                            pawnPromotionPiece(validMoves, position, nextPosition);
                         } else {
                             validMoves.add(new ChessMove(position, nextPosition, null));
                         }
-                        if (forward == 1 && position.getRow() == 2 || forward == -1 && position.getRow() == 7) {
-                            ChessPosition doubleMove = new ChessPosition(nextRow + forward, nextCol);
-                            if (!board.isOccupied(doubleMove)) {
-                                validMoves.add(new ChessMove(position, doubleMove, null));
-                            }
-                        }
+                        pawnDoubleMove(validMoves, forward, nextRow, nextCol, board, position);
                     }
                 }
-                else if(board.isOccupied(nextPosition) && board.getPiece(position).getTeamColor() != board.getPiece(nextPosition).getTeamColor()){
-                    if(forward == 1 && nextRow == 8 || forward == -1 && nextRow == 1){
-                        promotionPiece(validMoves, position, nextPosition);
-                    }
-                    else{
-                        validMoves.add(new ChessMove(position, nextPosition, null));
-                    }
+                else {
+                    pawnCapturePromotion(validMoves, nextPosition, forward, board, position, nextRow);
                 }
             }
         }
         return validMoves;
+    }
 
+    public void pawnDoubleMove(Collection<ChessMove> validMoves, int forward, int nextRow, int nextCol, ChessBoard board,
+                           ChessPosition position){
+            if (forward == 1 && position.getRow() == 2 || forward == -1 && position.getRow() == 7) {
+                ChessPosition doubleMove = new ChessPosition(nextRow + forward, nextCol);
+                if (!board.isOccupied(doubleMove)) {
+                    validMoves.add(new ChessMove(position, doubleMove, null));
+                }
+        }
+    }
 
+    public void pawnCapturePromotion(Collection<ChessMove> validMoves, ChessPosition nextPosition, int forward, ChessBoard board,
+                                     ChessPosition position, int nextRow){
+        if(board.isOccupied(nextPosition) && board.getPiece(position).getTeamColor() != board.getPiece(nextPosition).getTeamColor()){
+            if(forward == 1 && nextRow == 8 || forward == -1 && nextRow == 1){
+                pawnPromotionPiece(validMoves, position, nextPosition);
+            }
+            else{
+                validMoves.add(new ChessMove(position, nextPosition, null));
+            }
+        }
     }
 
 
-    public void promotionPiece(Collection<ChessMove> validMoves, ChessPosition position, ChessPosition nextPosition){
+    public void pawnPromotionPiece(Collection<ChessMove> validMoves, ChessPosition position, ChessPosition nextPosition){
         validMoves.add(new ChessMove(position, nextPosition, ChessPiece.PieceType.ROOK));
         validMoves.add(new ChessMove(position, nextPosition, ChessPiece.PieceType.BISHOP));
         validMoves.add(new ChessMove(position, nextPosition, ChessPiece.PieceType.QUEEN));
