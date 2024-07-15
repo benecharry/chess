@@ -51,7 +51,7 @@ public class ChessMove {
         for(int[] direction : directions){
             int nextRow = position.getRow() + direction[0];
             int nextCol = position.getColumn() + direction[1];
-            if(nextRow >= 1 && nextCol >=1 && nextRow <= 8 && nextCol <=8 ){
+            if(ChessMove.isWithinBounds(nextRow, nextCol, true)){
                 ChessPosition nextPosition = new ChessPosition(nextRow, nextCol);
                 if(board.isOccupied(nextPosition)){
                     if(board.getPiece(position).getTeamColor() != board.getPiece(nextPosition).getTeamColor()){
@@ -72,7 +72,7 @@ public class ChessMove {
             while(true){
                 nextRow += direction[0];
                 nextCol += direction[1];
-                if(nextRow < 1 || nextCol < 1 || nextRow > 8 || nextCol > 8){
+                if(ChessMove.isWithinBounds(nextRow, nextCol, false)){
                     break;
                 }
                 ChessPosition nextPosition = new ChessPosition(nextRow, nextCol);
@@ -87,7 +87,14 @@ public class ChessMove {
                 }
             }
         }
+    }
 
+    public static boolean isWithinBounds(int nextRow, int nextCol, boolean singleMove){
+        if (singleMove) {
+            return nextRow >= 1 && nextCol >= 1 && nextRow <= 8 && nextCol <= 8;
+        } else {
+            return nextRow < 1 || nextCol < 1 || nextRow > 8 || nextCol > 8;
+        }
     }
 
     @Override
