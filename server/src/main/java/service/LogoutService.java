@@ -1,6 +1,6 @@
 package service;
 
-public class Logout {
+public class LogoutService {
     //Find authToken and delete it.
     //Add auth token.
 }
