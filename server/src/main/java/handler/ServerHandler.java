@@ -1,13 +1,16 @@
 package handler;
 
-import com.google.gson.Gson;
+import service.RegisterService;
+import spark.Spark;
 
 public class ServerHandler {
-    protected final Gson gson;
+    private final RegisterService registerService;
 
-    public ServerHandler(Gson gson) {
-        this.gson = new Gson();
+    public ServerHandler(RegisterService registerService) {
+        this.registerService = registerService;
     }
 
-
+    public static void createRoutes() {
+        Spark.post("/user", new RegisterHandler());
+    }
 }

@@ -1,10 +1,7 @@
 package server;
 
-import com.sun.net.httpserver.HttpServer;
-import dataaccess.AuthDataMemoryDataAccess;
-import dataaccess.UserDataMemoryDataAccess;
-import handler.RegisterHandler;
-import service.RegisterService;
+import handler.ServerHandler;
+import manager.ServiceManager;
 import spark.*;
 
 public class Server {
@@ -12,6 +9,12 @@ public class Server {
     //Request type!
     //Needs to parse the info and put it in an object call Request and sends it to the handler
     // process it and construct the response object that is translated to an HTTP object.
+    private final ServerHandler serverHandler;
+
+    public Server(ServerHandler serverHandler) {
+        ServiceManager serviceManager = new ServiceManager();
+        this.serverHandler = new ServerHandler(serviceManager.getRegisterService());
+    }
 
     public int run(int desiredPort) {
         System.out.println("Initializing port.");
@@ -20,12 +23,7 @@ public class Server {
         Spark.staticFiles.location("web");
         //TO-DO
         // Register your endpoints and handle exceptions here.
-        var userDataDataAccess = new UserDataMemoryDataAccess();
-        var authDataDataAccess = new AuthDataMemoryDataAccess();
-        var registerService = new RegisterService(userDataDataAccess, authDataDataAccess);
-        var registerHandler = new RegisterHandler(registerService);
-
-
+        ServerHandler.createRoutes();
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 
@@ -33,7 +31,6 @@ public class Server {
         System.out.println("Listening on port.");
         return Spark.port();
     }
-
 
     public void stop() {
         Spark.stop();
