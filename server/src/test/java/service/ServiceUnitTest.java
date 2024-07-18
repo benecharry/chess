@@ -1,13 +1,16 @@
 package service;
 
 import dataaccess.AuthDataMemoryDataAccess;
+import dataaccess.GameDataMemoryDataAccess;
 import dataaccess.UserDataMemoryDataAccess;
 import exception.AlreadyTakenException;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import request.ClearApplicationRequest;
 import request.RegisterRequest;
+import result.ClearApplicationResult;
 import result.RegisterResult;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,17 +18,20 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ServiceUnitTest {
     private UserDataMemoryDataAccess userDataDataAccess;
     private AuthDataMemoryDataAccess authDataDataAccess;
+    private GameDataMemoryDataAccess gameDataMemoryDataAccess;
     private RegisterService registerService;
+    private ClearApplicationService clearApplicationService;
 
     @BeforeEach
     public void setup() {
         userDataDataAccess = new UserDataMemoryDataAccess();
         authDataDataAccess = new AuthDataMemoryDataAccess();
+        gameDataMemoryDataAccess = new GameDataMemoryDataAccess();
         registerService = new RegisterService(userDataDataAccess, authDataDataAccess);
+        clearApplicationService = new ClearApplicationService(userDataDataAccess, authDataDataAccess, gameDataMemoryDataAccess);
     }
 
     // Register Service Tests
-
     @Test
     @DisplayName("Successful Registration")
     public void testSuccessfulRegistration() throws Exception {
@@ -56,5 +62,22 @@ public class ServiceUnitTest {
         });
         assertEquals("Username is already taken.", exception.getMessage());
     }
+
+    //Clear Service Tests
+    @Test
+    @DisplayName("Successful Clear")
+    public void testSuccessfulClear() throws Exception {
+        userDataDataAccess.createUser(new UserData("username", "password", "email"));
+        authDataDataAccess.createAuth("username");
+        //TO DO
+        // Add game when implemented cause is not working as for right now.
+        ClearApplicationRequest request = new ClearApplicationRequest();
+        ClearApplicationResult result = clearApplicationService.clearApplication(request);
+
+        assertNotNull(result);
+        assertNull(userDataDataAccess.getUser("username"));
+        assertNull(authDataDataAccess.getAuth("username"));
+    }
+
 
 }

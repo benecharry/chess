@@ -7,5 +7,5 @@ public interface UserDataDataAccess {
 
     UserData getUser(String username) throws DataAccessException;
 
-
+    void clear();
 }

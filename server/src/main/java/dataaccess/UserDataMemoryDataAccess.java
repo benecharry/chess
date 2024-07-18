@@ -23,4 +23,9 @@ public class UserDataMemoryDataAccess implements UserDataDataAccess {
     public UserData getUser(String username) throws DataAccessException {
         return users.get(username);
     }
+
+    @Override
+    public void clear(){
+        users.clear();
+    }
 }
