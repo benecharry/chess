@@ -1,10 +1,8 @@
 package dataaccess;
 
-import model.AuthData;
 import model.UserData;
 
 import java.util.HashMap;
-
 public class UserDataMemoryDataAccess implements UserDataDataAccess {
     //final private HashMap<>
     //Create user

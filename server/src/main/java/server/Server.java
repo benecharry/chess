@@ -11,9 +11,13 @@ public class Server {
     // process it and construct the response object that is translated to an HTTP object.
     private final ServerHandler serverHandler;
 
-    public Server(ServerHandler serverHandler) {
+    public Server() {
         ServiceManager serviceManager = new ServiceManager();
-        this.serverHandler = new ServerHandler(serviceManager.getRegisterService());
+        this.serverHandler = new ServerHandler(serviceManager);
+    }
+
+    public Server(ServerHandler serverHandler) {
+        this.serverHandler = serverHandler;
     }
 
     public int run(int desiredPort) {
@@ -23,7 +27,7 @@ public class Server {
         Spark.staticFiles.location("web");
         //TO-DO
         // Register your endpoints and handle exceptions here.
-        ServerHandler.createRoutes();
+        serverHandler.createRoutes();
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 

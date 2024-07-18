@@ -3,6 +3,7 @@ package service;
 import dataaccess.AuthDataDataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.UserDataDataAccess;
+import exception.AlreadyTakenException;
 import model.UserData;
 import request.RegisterRequest;
 import result.RegisterResult;
@@ -23,14 +24,13 @@ public class RegisterService {
         this.authDataDataAccess = authDataDataAccess;
     }
 
-    RegisterResult register(RegisterRequest request) throws DataAccessException {
+    public RegisterResult register(RegisterRequest request) throws DataAccessException, AlreadyTakenException {
         if(request.username() == null || request.password() == null || request.email() == null){
-            //I was not sure to use this or to use the DataAccessException
             throw new IllegalArgumentException("Missing required parameter");
         }
 
         if(userDataDataAccess.getUser(request.username()) != null){
-            throw new IllegalArgumentException("Username is already taken.");
+            throw new AlreadyTakenException("Username is already taken.");
         }
 
         UserData newUser = new UserData(request.username(), request.password(), request.email());

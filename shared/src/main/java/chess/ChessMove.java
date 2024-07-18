@@ -45,13 +45,13 @@ public class ChessMove {
         return promotionPiece;
     }
 
-    public static void singleSquareMove(Collection<ChessMove> validMoves, ChessBoard board, ChessPosition position,
-                                        int[][] directions){
+    public static void addValidSingleSquareMoves(Collection<ChessMove> validMoves, ChessBoard board,
+                                                 ChessPosition position, int[][] directions){
         //For each loop as suggested by the professor.
         for(int[] direction : directions){
             int nextRow = position.getRow() + direction[0];
             int nextCol = position.getColumn() + direction[1];
-            if(ChessMove.isWithinBounds(nextRow, nextCol, true)){
+            if(ChessMove.isMoveWithinBounds(nextRow, nextCol, true)){
                 ChessPosition nextPosition = new ChessPosition(nextRow, nextCol);
                 if(board.isOccupied(nextPosition)){
                     if(board.getPiece(position).getTeamColor() != board.getPiece(nextPosition).getTeamColor()){
@@ -64,15 +64,15 @@ public class ChessMove {
         }
     }
 
-    public static void multipleSquareMove(Collection<ChessMove> validMoves, ChessBoard board, ChessPosition position,
-                                          int[][] directions){
+    public static void addValidMultipleSquareMoves(Collection<ChessMove> validMoves, ChessBoard board,
+                                                   ChessPosition position, int[][] directions){
         for(int[] direction:directions){
             int nextRow = position.getRow();
             int nextCol = position.getColumn();
             while(true){
                 nextRow += direction[0];
                 nextCol += direction[1];
-                if(ChessMove.isWithinBounds(nextRow, nextCol, false)){
+                if(ChessMove.isMoveWithinBounds(nextRow, nextCol, false)){
                     break;
                 }
                 ChessPosition nextPosition = new ChessPosition(nextRow, nextCol);
@@ -89,7 +89,7 @@ public class ChessMove {
         }
     }
 
-    public static boolean isWithinBounds(int nextRow, int nextCol, boolean singleMove){
+    public static boolean isMoveWithinBounds(int nextRow, int nextCol, boolean singleMove){
         if (singleMove) {
             return nextRow >= 1 && nextCol >= 1 && nextRow <= 8 && nextCol <= 8;
         } else {

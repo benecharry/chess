@@ -17,34 +17,34 @@ public class ChessPiece {
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
-        calculateMoves();
+        initializeMoveCalculator();
     }
 
     public ChessPiece(ChessPiece copy){
         this.pieceColor = copy.pieceColor;
         this.type = copy.type;
-        calculateMoves();
+        initializeMoveCalculator();
     }
 
-    void calculateMoves(){
+    void initializeMoveCalculator(){
         switch (this.type){
             case KING:
-                this.movesCalculator = new MovementKing();
+                this.movesCalculator = new KingMoveCalculator();
                 break;
             case KNIGHT:
-                this.movesCalculator = new MovementKnight();
+                this.movesCalculator = new KnightMoveCalculator();
                 break;
             case PAWN:
-                this.movesCalculator = new MovementPawn();
+                this.movesCalculator = new PawnMoveCalculator();
                 break;
             case BISHOP:
-                this.movesCalculator = new MovementBishop();
+                this.movesCalculator = new BishopMoveCalculator();
                 break;
             case ROOK:
-                this.movesCalculator = new MovementRook();
+                this.movesCalculator = new RookMoveCalculator();
                 break;
             case QUEEN:
-                this.movesCalculator = new MovementQueen();
+                this.movesCalculator = new QueenMoveCalculator();
                 break;
         }
     }

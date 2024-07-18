@@ -1,16 +1,17 @@
 package handler;
 
-import service.RegisterService;
+import manager.ServiceManager;
 import spark.Spark;
 
 public class ServerHandler {
-    private final RegisterService registerService;
+    private final ServiceManager serviceManager;
 
-    public ServerHandler(RegisterService registerService) {
-        this.registerService = registerService;
+    public ServerHandler(ServiceManager serviceManager) {
+        this.serviceManager = serviceManager;
     }
 
-    public static void createRoutes() {
-        Spark.post("/user", new RegisterHandler());
+    public  void createRoutes() {
+        var registerService = serviceManager.getRegisterService();
+        Spark.post("/user", new RegisterHandler(registerService));
     }
 }
