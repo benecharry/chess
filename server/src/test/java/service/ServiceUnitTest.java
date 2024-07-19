@@ -12,10 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.*;
-import result.ClearApplicationResult;
-import result.CreateGameResult;
-import result.RegisterResult;
-import result.LogoutResult;
+import result.*;
 
 import java.util.Collection;
 
@@ -31,6 +28,8 @@ public class ServiceUnitTest {
     private CreateGameService createGameService;
     private ListGamesService listGamesService;
 
+    private JoinGameService joinGameService;
+
     private ClearApplicationService clearApplicationService;
 
     @BeforeEach
@@ -43,6 +42,7 @@ public class ServiceUnitTest {
         logoutService = new LogoutService(authDataDataAccess);
         listGamesService = new ListGamesService(authDataDataAccess, gameDataMemoryDataAccess);
         createGameService = new CreateGameService(authDataDataAccess, gameDataMemoryDataAccess);
+        joinGameService = new JoinGameService(authDataDataAccess, gameDataMemoryDataAccess);
         clearApplicationService = new ClearApplicationService(userDataDataAccess, authDataDataAccess,
                 gameDataMemoryDataAccess);
     }
@@ -184,6 +184,40 @@ public class ServiceUnitTest {
         CreateGameRequest createRequest = new CreateGameRequest(null, authToken);
         assertThrows(IllegalArgumentException.class, () -> {
             createGameService.createGame(createRequest);
+        });
+    }
+
+    //Join Game Tests
+    @Test
+    @DisplayName("Simple Join")
+    public void simpleJoin() throws Exception {
+        UserData user = new UserData("username", "password", "email");
+        userDataDataAccess.createUser(user);
+        String authToken = authDataDataAccess.createAuth(user.username());
+
+        CreateGameRequest createRequest = new CreateGameRequest("gameName", authToken);
+        CreateGameResult createResult = createGameService.createGame(createRequest);
+
+        JoinGameRequest joinRequest = new JoinGameRequest("WHITE", createResult.gameID(), authToken);
+        JoinGameResult joinResult = joinGameService.joingame(joinRequest);
+
+        assertEquals("username", gameDataMemoryDataAccess.getGame(createResult.gameID()).whiteUsername());
+        assertNull(gameDataMemoryDataAccess.getGame(createResult.gameID()).blackUsername());
+    }
+    @Test
+    @DisplayName("Join with Invalid Color")
+    public void joinWithInvalidColor() throws Exception {
+        UserData user = new UserData("username", "password", "email");
+        userDataDataAccess.createUser(user);
+        String authToken = authDataDataAccess.createAuth(user.username());
+
+        CreateGameRequest createRequest = new CreateGameRequest("gameName", authToken);
+        CreateGameResult createResult = createGameService.createGame(createRequest);
+
+        JoinGameRequest joinRequest = new JoinGameRequest(null, createResult.gameID(), authToken);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            joinGameService.joingame(joinRequest);
         });
     }
 
