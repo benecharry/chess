@@ -3,13 +3,10 @@ package service;
 import dataaccess.AuthDataDataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.UserDataDataAccess;
-import exception.AlreadyTakenException;
 import exception.UnauthorizedException;
 import model.UserData;
 import request.LoginRequest;
 import result.LoginResult;
-
-import javax.xml.crypto.Data;
 
 public class LoginService {
     //Subset of Register
@@ -22,7 +19,7 @@ public class LoginService {
         this.authDataDataAccess = authDataDataAccess;
     }
 
-    public LoginResult login(LoginRequest request) throws DataAccessException, AlreadyTakenException, UnauthorizedException {
+    public LoginResult login(LoginRequest request) throws DataAccessException, UnauthorizedException {
         if(request.username() == null || request.password() == null){
             throw new IllegalArgumentException("Missing required parameter");
         }

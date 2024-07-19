@@ -17,5 +17,7 @@ public class ServerHandler {
         Spark.delete("/db", new ClearApplicationHandler(clearApplicationService));
         var loginService = serviceManager.getLoginService();
         Spark.post("/session", new LoginHandler(loginService));
+        var logoutService = serviceManager.getLogoutService();
+        Spark.delete("/session", new LogoutHandler(logoutService));
     }
 }

@@ -3,9 +3,9 @@ package manager;
 import dataaccess.AuthDataMemoryDataAccess;
 import dataaccess.GameDataMemoryDataAccess;
 import dataaccess.UserDataMemoryDataAccess;
-import request.LoginRequest;
 import service.ClearApplicationService;
 import service.LoginService;
+import service.LogoutService;
 import service.RegisterService;
 
 public class ServiceManager {
@@ -14,6 +14,7 @@ public class ServiceManager {
     private final GameDataMemoryDataAccess gameDataDataAccess;
     private final RegisterService registerService;
     private final LoginService loginService;
+    private final LogoutService logoutService;
     private final ClearApplicationService clearApplicationService;
 
     public ServiceManager() {
@@ -22,14 +23,12 @@ public class ServiceManager {
         this.gameDataDataAccess = new GameDataMemoryDataAccess();
         this.registerService = new RegisterService(userDataDataAccess, authDataDataAccess);
         this.loginService = new LoginService(userDataDataAccess, authDataDataAccess);
+        this.logoutService = new LogoutService(authDataDataAccess);
         this.clearApplicationService = new ClearApplicationService(userDataDataAccess, authDataDataAccess, gameDataDataAccess);
     }
 
-    public RegisterService getRegisterService() {
-        return registerService;
-    }
+    public RegisterService getRegisterService() {return registerService;}
     public LoginService getLoginService(){return loginService;};
-    public ClearApplicationService getClearApplicationService(){
-        return clearApplicationService;
-    }
+    public LogoutService getLogoutService() {return logoutService;};
+    public ClearApplicationService getClearApplicationService(){return clearApplicationService;}
 }

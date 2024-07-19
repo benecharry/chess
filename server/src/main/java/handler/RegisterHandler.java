@@ -1,6 +1,5 @@
 package handler;
 
-import dataaccess.DataAccessException;
 import exception.AlreadyTakenException;
 import request.RegisterRequest;
 import result.RegisterResult;

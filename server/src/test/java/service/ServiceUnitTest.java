@@ -1,19 +1,22 @@
 package service;
 
 import dataaccess.AuthDataMemoryDataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.GameDataMemoryDataAccess;
 import dataaccess.UserDataMemoryDataAccess;
 import exception.AlreadyTakenException;
+import exception.UnauthorizedException;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.ClearApplicationRequest;
+import request.LogoutRequest;
 import request.RegisterRequest;
 import result.ClearApplicationResult;
 import result.RegisterResult;
 import request.LoginRequest;
-import result.LoginResult;
+import result.LogoutResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,6 +26,7 @@ public class ServiceUnitTest {
     private GameDataMemoryDataAccess gameDataMemoryDataAccess;
     private RegisterService registerService;
     private LoginService loginService;
+    private LogoutService logoutService;
     private ClearApplicationService clearApplicationService;
 
     @BeforeEach
@@ -32,14 +36,17 @@ public class ServiceUnitTest {
         gameDataMemoryDataAccess = new GameDataMemoryDataAccess();
         registerService = new RegisterService(userDataDataAccess, authDataDataAccess);
         loginService = new LoginService(userDataDataAccess, authDataDataAccess);
-        clearApplicationService = new ClearApplicationService(userDataDataAccess, authDataDataAccess, gameDataMemoryDataAccess);
+        logoutService = new LogoutService(authDataDataAccess);
+        clearApplicationService = new ClearApplicationService(userDataDataAccess, authDataDataAccess,
+                gameDataMemoryDataAccess);
     }
 
     // Register Service Tests
     @Test
     @DisplayName("Successful Registration")
     public void testSuccessfulRegistration() throws Exception {
-        RegisterRequest request = new RegisterRequest("benecharry", "Naruto123$", "benecharry@gmail.com");
+        RegisterRequest request = new RegisterRequest("benecharry", "Naruto123$",
+                "benecharry@gmail.com");
         RegisterResult result = registerService.register(request);
 
         UserData registeredUser = userDataDataAccess.getUser("benecharry");
@@ -76,6 +83,49 @@ public class ServiceUnitTest {
             loginService.login(loginRequest);
         });
         assertEquals("Missing required parameter", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Login Wrong Password")
+    public void testLoginWrongPassword() throws DataAccessException {
+        UserData existingUser = new UserData("username", "correctPassword", "email");
+        userDataDataAccess.createUser(existingUser);
+
+        LoginRequest loginRequest = new LoginRequest("username", "wrongPassword");
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> {
+            loginService.login(loginRequest);
+        });
+        assertEquals("Invalid username or password", exception.getMessage());
+    }
+
+    //Logout Service Tests
+    @Test
+    @DisplayName("Successful Logout")
+    public void testSuccessfulLogout() throws Exception {
+        UserData user = new UserData("username", "password", "email");
+        userDataDataAccess.createUser(user);
+        String authToken = authDataDataAccess.createAuth(user.username());
+        LogoutRequest request = new LogoutRequest(authToken);
+        LogoutResult result = logoutService.logout(request);
+        assertNotNull(result);
+        assertNull(authDataDataAccess.getAuth(authToken));
+    }
+
+    @Test
+    @DisplayName("Invalid Logout")
+    public void testInvalidLogout() throws DataAccessException, UnauthorizedException {
+        UserData user = new UserData("username", "password", "email");
+        userDataDataAccess.createUser(user);
+        String authToken = authDataDataAccess.createAuth(user.username());
+        LogoutRequest firstLogoutRequest = new LogoutRequest(authToken);
+        LogoutResult firstLogoutResult = logoutService.logout(firstLogoutRequest);
+        assertNotNull(firstLogoutResult);
+        LogoutRequest secondTry = new LogoutRequest(authToken);
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> {
+            logoutService.logout(secondTry);
+        });
+
+        assertEquals("Invalid auth token", exception.getMessage());
     }
 
     //Clear Service Tests
