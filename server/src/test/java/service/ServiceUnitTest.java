@@ -12,6 +12,8 @@ import request.ClearApplicationRequest;
 import request.RegisterRequest;
 import result.ClearApplicationResult;
 import result.RegisterResult;
+import request.LoginRequest;
+import result.LoginResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,6 +22,7 @@ public class ServiceUnitTest {
     private AuthDataMemoryDataAccess authDataDataAccess;
     private GameDataMemoryDataAccess gameDataMemoryDataAccess;
     private RegisterService registerService;
+    private LoginService loginService;
     private ClearApplicationService clearApplicationService;
 
     @BeforeEach
@@ -28,6 +31,7 @@ public class ServiceUnitTest {
         authDataDataAccess = new AuthDataMemoryDataAccess();
         gameDataMemoryDataAccess = new GameDataMemoryDataAccess();
         registerService = new RegisterService(userDataDataAccess, authDataDataAccess);
+        loginService = new LoginService(userDataDataAccess, authDataDataAccess);
         clearApplicationService = new ClearApplicationService(userDataDataAccess, authDataDataAccess, gameDataMemoryDataAccess);
     }
 
@@ -61,6 +65,17 @@ public class ServiceUnitTest {
             registerService.register(request);
         });
         assertEquals("Username is already taken.", exception.getMessage());
+    }
+
+    //Login Service Tests
+    @Test
+    @DisplayName("Login Missing Password")
+    public void testLoginMissingPassword() {
+        LoginRequest loginRequest = new LoginRequest("username", null);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            loginService.login(loginRequest);
+        });
+        assertEquals("Missing required parameter", exception.getMessage());
     }
 
     //Clear Service Tests

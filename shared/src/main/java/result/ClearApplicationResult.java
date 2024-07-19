@@ -1,3 +1,3 @@
 package result;
 
-public class ClearApplicationResult {}
+public record ClearApplicationResult() {}

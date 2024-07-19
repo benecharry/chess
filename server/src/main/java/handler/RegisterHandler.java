@@ -38,7 +38,7 @@ public class RegisterHandler implements Route {
             res.status(403);
             errorResult.put("message", "Error: already taken");
             return SerializationHandler.toJson(errorResult);
-        } catch (DataAccessException e){
+        } catch (Exception e){
             //[500] { "message": "Error: (description of error)" }
             HashMap<String, String> errorResult = new HashMap<>();
             res.status(500);

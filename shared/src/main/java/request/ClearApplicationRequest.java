@@ -1,3 +1,3 @@
 package request;
 
-public class ClearApplicationRequest {}
+public record ClearApplicationRequest() {}
