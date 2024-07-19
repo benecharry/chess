@@ -35,7 +35,6 @@ public class Server {
         System.out.println("Listening on port.");
         return Spark.port();
     }
-
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
