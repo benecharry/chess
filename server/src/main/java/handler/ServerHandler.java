@@ -5,7 +5,6 @@ import manager.ServiceManager;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
-import spark.servlet.SparkApplication;
 
 public class ServerHandler {
     private final ServiceManager serviceManager;
