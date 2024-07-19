@@ -20,7 +20,7 @@ public class UserDataMemoryDataAccess implements UserDataDataAccess {
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException {
+    public UserData getUser(String username){
         return users.get(username);
     }
 

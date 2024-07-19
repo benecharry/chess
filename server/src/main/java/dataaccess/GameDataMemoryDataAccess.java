@@ -22,13 +22,18 @@ public class GameDataMemoryDataAccess implements GameDataDataAccess{
     }
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID){
         return games.get(gameID);
     }
 
     @Override
-    public Collection<GameData> listGames() throws DataAccessException {
+    public Collection<GameData> listGames(){
         return games.values();
+    }
+
+    @Override
+    public void updateGame(GameData gameData) {
+        games.put(gameData.gameID(), gameData);
     }
 
     @Override

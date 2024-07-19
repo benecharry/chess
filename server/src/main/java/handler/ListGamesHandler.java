@@ -1,14 +1,11 @@
 package handler;
 
-import exception.UnauthorizedException;
 import request.ListGamesRequest;
 import result.ListGamesResult;
 import service.ListGamesService;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-
-import java.util.HashMap;
 
 public class ListGamesHandler implements Route {
     private final ListGamesService listGamesService;

@@ -25,13 +25,15 @@ public class ServerHandler {
         Spark.get("/game", new ListGamesHandler(listGamesService));
         var createGameService = serviceManager.getCreateGameService();
         Spark.post("/game", new CreateGameHandler(createGameService));
+        var joinGameService = serviceManager.getJoinGameService();
+        Spark.put("/game", new JoinGameHandler(joinGameService));
         var clearApplicationService = serviceManager.getClearApplicationService();
         Spark.delete("/db", new ClearApplicationHandler(clearApplicationService));
         Spark.exception(ResponseException.class, this::exceptionHandler);
     }
 
     private void exceptionHandler(ResponseException ex, Request req, Response res) {
-        res.status(ex.StatusCode());
+        res.status(ex.statusCode());
     }
 
 }
