@@ -1,22 +1,23 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.AuthDataMemoryDataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.GameDataMemoryDataAccess;
 import dataaccess.UserDataMemoryDataAccess;
 import exception.AlreadyTakenException;
 import exception.UnauthorizedException;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import request.ClearApplicationRequest;
-import request.LogoutRequest;
-import request.RegisterRequest;
+import request.*;
 import result.ClearApplicationResult;
 import result.RegisterResult;
-import request.LoginRequest;
 import result.LogoutResult;
+
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,6 +28,8 @@ public class ServiceUnitTest {
     private RegisterService registerService;
     private LoginService loginService;
     private LogoutService logoutService;
+    private ListGamesService listGamesService;
+
     private ClearApplicationService clearApplicationService;
 
     @BeforeEach
@@ -37,6 +40,7 @@ public class ServiceUnitTest {
         registerService = new RegisterService(userDataDataAccess, authDataDataAccess);
         loginService = new LoginService(userDataDataAccess, authDataDataAccess);
         logoutService = new LogoutService(authDataDataAccess);
+        listGamesService = new ListGamesService(authDataDataAccess, gameDataMemoryDataAccess); // Added this line
         clearApplicationService = new ClearApplicationService(userDataDataAccess, authDataDataAccess,
                 gameDataMemoryDataAccess);
     }
@@ -126,6 +130,31 @@ public class ServiceUnitTest {
         });
 
         assertEquals("Invalid auth token", exception.getMessage());
+    }
+
+    //List Games Test
+    @Test
+    @DisplayName("Successful List Games")
+    public void testSuccessfulListGames() throws Exception {
+        userDataDataAccess.createUser(new UserData("username", "password", "email"));
+        String authToken = authDataDataAccess.createAuth("username");
+
+        gameDataMemoryDataAccess.createGame(new GameData(1, "white1", "black1", "game1", new ChessGame()));
+        gameDataMemoryDataAccess.createGame(new GameData(2, "white2", "black2", "game2", new ChessGame()));
+
+        Collection<GameData> games = gameDataMemoryDataAccess.listGames();
+
+        assertNotNull(games);
+        assertEquals(2, games.size());
+    }
+
+    @Test
+    @DisplayName("List No Games")
+    public void testNoGamesList() throws Exception {
+        userDataDataAccess.createUser(new UserData("username", "password", "email"));
+        Collection<GameData> games = gameDataMemoryDataAccess.listGames();
+        assertNotNull(games);
+        assertTrue(games.isEmpty());
     }
 
     //Clear Service Tests

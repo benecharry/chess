@@ -13,11 +13,13 @@ public class ServerHandler {
     public  void createRoutes() {
         var registerService = serviceManager.getRegisterService();
         Spark.post("/user", new RegisterHandler(registerService));
-        var clearApplicationService = serviceManager.getClearApplicationService();
-        Spark.delete("/db", new ClearApplicationHandler(clearApplicationService));
         var loginService = serviceManager.getLoginService();
         Spark.post("/session", new LoginHandler(loginService));
         var logoutService = serviceManager.getLogoutService();
         Spark.delete("/session", new LogoutHandler(logoutService));
+        var listGamesService = serviceManager.getListGamesService();
+        Spark.get("/game", new ListGamesHandler(listGamesService));
+        var clearApplicationService = serviceManager.getClearApplicationService();
+        Spark.delete("/db", new ClearApplicationHandler(clearApplicationService));
     }
 }
