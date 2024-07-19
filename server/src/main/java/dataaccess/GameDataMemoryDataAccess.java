@@ -1,17 +1,24 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 import java.util.Collection;
 import java.util.HashMap;
 
 public class GameDataMemoryDataAccess implements GameDataDataAccess{
+    private int nextId = 1;
     private final HashMap<Integer, GameData> games = new HashMap<>();
     @Override
-    public void createGame(GameData gameData) throws DataAccessException {
-        if (games.containsKey(gameData.gameID())) {
-            throw new DataAccessException("Game ID already exists");
+    public int createGame(String gameName, String whiteUsername, String blackUsername) throws DataAccessException {
+        for (GameData game : games.values()) {
+            if (game.gameName().equals(gameName)) {
+                throw new DataAccessException("Name in use");
+            }
         }
-        games.put(gameData.gameID(), gameData);
+        int gameID = nextId++;
+        GameData gameData = new GameData(gameID, whiteUsername, blackUsername, gameName, new ChessGame());
+        games.put(gameID, gameData);
+        return gameID;
     }
 
     @Override

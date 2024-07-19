@@ -13,6 +13,7 @@ public class ServiceManager {
     private final LoginService loginService;
     private final LogoutService logoutService;
     private final ListGamesService listGamesService;
+    private final CreateGameService createGameService;
     private final ClearApplicationService clearApplicationService;
 
     public ServiceManager() {
@@ -23,6 +24,7 @@ public class ServiceManager {
         this.loginService = new LoginService(userDataDataAccess, authDataDataAccess);
         this.logoutService = new LogoutService(authDataDataAccess);
         this.listGamesService = new ListGamesService(authDataDataAccess, gameDataDataAccess);
+        this.createGameService = new CreateGameService(authDataDataAccess, gameDataDataAccess);
         this.clearApplicationService = new ClearApplicationService(userDataDataAccess, authDataDataAccess, gameDataDataAccess);
     }
 
@@ -30,5 +32,6 @@ public class ServiceManager {
     public LoginService getLoginService(){return loginService;};
     public LogoutService getLogoutService() {return logoutService;};
     public ListGamesService getListGamesService(){return listGamesService;};
+    public CreateGameService getCreateGameService(){return createGameService;};
     public ClearApplicationService getClearApplicationService(){return clearApplicationService;}
 }

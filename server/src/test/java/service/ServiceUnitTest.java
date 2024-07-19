@@ -1,6 +1,5 @@
 package service;
 
-import chess.ChessGame;
 import dataaccess.AuthDataMemoryDataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.GameDataMemoryDataAccess;
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.*;
 import result.ClearApplicationResult;
+import result.CreateGameResult;
 import result.RegisterResult;
 import result.LogoutResult;
 
@@ -28,6 +28,7 @@ public class ServiceUnitTest {
     private RegisterService registerService;
     private LoginService loginService;
     private LogoutService logoutService;
+    private CreateGameService createGameService;
     private ListGamesService listGamesService;
 
     private ClearApplicationService clearApplicationService;
@@ -40,7 +41,8 @@ public class ServiceUnitTest {
         registerService = new RegisterService(userDataDataAccess, authDataDataAccess);
         loginService = new LoginService(userDataDataAccess, authDataDataAccess);
         logoutService = new LogoutService(authDataDataAccess);
-        listGamesService = new ListGamesService(authDataDataAccess, gameDataMemoryDataAccess); // Added this line
+        listGamesService = new ListGamesService(authDataDataAccess, gameDataMemoryDataAccess);
+        createGameService = new CreateGameService(authDataDataAccess, gameDataMemoryDataAccess);
         clearApplicationService = new ClearApplicationService(userDataDataAccess, authDataDataAccess,
                 gameDataMemoryDataAccess);
     }
@@ -139,8 +141,8 @@ public class ServiceUnitTest {
         userDataDataAccess.createUser(new UserData("username", "password", "email"));
         String authToken = authDataDataAccess.createAuth("username");
 
-        gameDataMemoryDataAccess.createGame(new GameData(1, "white1", "black1", "game1", new ChessGame()));
-        gameDataMemoryDataAccess.createGame(new GameData(2, "white2", "black2", "game2", new ChessGame()));
+        gameDataMemoryDataAccess.createGame("game1", "white1", "black1");
+        gameDataMemoryDataAccess.createGame("game2", "white2", "black2");
 
         Collection<GameData> games = gameDataMemoryDataAccess.listGames();
 
@@ -157,21 +159,48 @@ public class ServiceUnitTest {
         assertTrue(games.isEmpty());
     }
 
+    //Create Game Tests
+    @Test
+    @DisplayName("Successful Game Creation")
+    public void testSuccessfulGameCreation() throws Exception {
+        UserData user = new UserData("username", "password", "email");
+        userDataDataAccess.createUser(user);
+        String authToken = authDataDataAccess.createAuth(user.username());
+
+        CreateGameRequest createRequest = new CreateGameRequest("gameName", authToken);
+        CreateGameResult createResult = createGameService.createGame(createRequest);
+
+        assertNotNull(createResult);
+        assertTrue(createResult.gameID() > 0);
+    }
+
+    @Test
+    @DisplayName("New Game with Not Name")
+    public void testNewGameWithNoName() throws Exception {
+        UserData user = new UserData("username", "password", "email");
+        userDataDataAccess.createUser(user);
+        String authToken = authDataDataAccess.createAuth(user.username());
+
+        CreateGameRequest createRequest = new CreateGameRequest(null, authToken);
+        assertThrows(IllegalArgumentException.class, () -> {
+            createGameService.createGame(createRequest);
+        });
+    }
+
     //Clear Service Tests
     @Test
     @DisplayName("Successful Clear")
     public void testSuccessfulClear() throws Exception {
         userDataDataAccess.createUser(new UserData("username", "password", "email"));
         authDataDataAccess.createAuth("username");
-        //TO DO
-        // Add game when implemented cause is not working as for right now.
+        int gameID = gameDataMemoryDataAccess.createGame("gameName", "Ben", "Oriana");
+
         ClearApplicationRequest request = new ClearApplicationRequest();
         ClearApplicationResult result = clearApplicationService.clearApplication(request);
 
         assertNotNull(result);
         assertNull(userDataDataAccess.getUser("username"));
         assertNull(authDataDataAccess.getAuth("username"));
+        assertNull(gameDataMemoryDataAccess.getGame(gameID));
     }
-
-
 }
