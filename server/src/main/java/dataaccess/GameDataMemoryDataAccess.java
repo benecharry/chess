@@ -32,11 +32,6 @@ public class GameDataMemoryDataAccess implements GameDataDataAccess{
     }
 
     @Override
-    public void updateGame(GameData gameData) throws DataAccessException {
-        games.put(gameData.gameID(), gameData);
-    }
-
-    @Override
     public void clear(){
         games.clear();
     }

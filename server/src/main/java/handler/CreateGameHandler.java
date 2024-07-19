@@ -17,30 +17,14 @@ public class CreateGameHandler implements Route {
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
-        try{
+        try {
             String authToken = req.headers("authorization");
             CreateGameRequest request = new CreateGameRequest(req.body(), authToken);
             CreateGameResult result = createGameService.createGame(request);
             res.status(200);
             return SerializationHandler.toJson(result);
-        } catch (IllegalArgumentException e) {
-            //[400] { "message": "Error: bad request" }
-            HashMap<String, String> errorResult = new HashMap<>();
-            res.status(400);
-            errorResult.put("message", "Error: bad request");
-            return SerializationHandler.toJson(errorResult);
-        } catch(UnauthorizedException e) {
-            //[401] { "message": "Error: unauthorized" }
-            HashMap<String, String> errorResult = new HashMap<>();
-            res.status(401);
-            errorResult.put("message", "Error: unauthorized");
-            return SerializationHandler.toJson(errorResult);
-        } catch(Exception e){
-            //[500] { "message": "Error: (description of error)" }
-            HashMap<String, String> errorResult = new HashMap<>();
-            res.status(500);
-            errorResult.put("message", "Error: " + e.getMessage());
-            return SerializationHandler.toJson(errorResult);
+        } catch (Exception e) {
+            return ErrorHandler.handleException(e, res);
         }
     }
 }
