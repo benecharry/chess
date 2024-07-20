@@ -92,16 +92,17 @@ public class ServiceUnitTest {
     }
 
     @Test
-    @DisplayName("Login Wrong Password")
-    public void testLoginWrongPassword() throws DataAccessException {
-        UserData existingUser = new UserData("username", "correctPassword", "email");
-        userDataDataAccess.createUser(existingUser);
+    @DisplayName("Successful Login")
+    public void testSuccessfulLogin() throws Exception {
+        UserData user = new UserData("username", "password", "email");
+        userDataDataAccess.createUser(user);
 
-        LoginRequest loginRequest = new LoginRequest("username", "wrongPassword");
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> {
-            loginService.login(loginRequest);
-        });
-        assertEquals("Invalid username or password", exception.getMessage());
+        LoginRequest loginRequest = new LoginRequest("username", "password");
+        LoginResult result = loginService.login(loginRequest);
+
+        assertNotNull(result);
+        assertEquals("username", result.username());
+        assertNotNull(result.authToken());
     }
 
     //Logout Service Tests

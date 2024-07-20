@@ -4,6 +4,7 @@ import dataaccess.AuthDataDataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.GameDataDataAccess;
 import exception.UnauthorizedException;
+import handler.ValidationHandler;
 import request.CreateGameRequest;
 import result.CreateGameResult;
 import model.AuthData;
@@ -19,15 +20,12 @@ public class CreateGameService {
 
     public CreateGameResult createGame(CreateGameRequest request) throws DataAccessException, UnauthorizedException {
         String nameGame = request.gameName();
-        if(nameGame == null){
-            throw new IllegalArgumentException("Name can't be empty");
-        }
+        ValidationHandler.checkNotNull(nameGame, "Name can't be empty");
 
         String authToken = request.authToken();
         AuthData authData = authDataDataAccess.getAuth(authToken);
-        if (authData == null) {
-            throw new UnauthorizedException("Auth token does not exists");
-        }
+        ValidationHandler.checkAuthData(authData);
+
 
         try {
             int gameID = gameDataDataAccess.createGame(nameGame, null, null);
@@ -37,3 +35,9 @@ public class CreateGameService {
         }
     }
 }
+//TO-DO add an external method to handle all of this checks.
+//NameGame with IllegalArgumentException
+//authData with UnauthorizedException
+//gameData with IllegalArgumentException
+//playerColor with IllegalArgumentException
+//gameData with AlreadyTakenException

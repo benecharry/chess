@@ -3,6 +3,7 @@ package service;
 import dataaccess.AuthDataDataAccess;
 import dataaccess.DataAccessException;
 import exception.UnauthorizedException;
+import handler.ValidationHandler;
 import model.AuthData;
 import request.LogoutRequest;
 import result.LogoutResult;
@@ -20,9 +21,8 @@ public class LogoutService {
     public LogoutResult logout(LogoutRequest request) throws DataAccessException, UnauthorizedException{
         String authToken = request.authToken();
         AuthData authData = authDataDataAccess.getAuth(authToken);
-        if (authData == null) {
-            throw new UnauthorizedException("Invalid auth token");
-        }
+        ValidationHandler.checkAuthData(authData);
+
         authDataDataAccess.deleteAuth(authToken);
         return new LogoutResult();
     }

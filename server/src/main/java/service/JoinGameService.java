@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.GameDataDataAccess;
 import exception.AlreadyTakenException;
 import exception.UnauthorizedException;
+import handler.ValidationHandler;
 import model.GameData;
 import model.AuthData;
 import request.JoinGameRequest;
@@ -23,36 +24,26 @@ public class JoinGameService {
         String authToken = request.authToken();
         System.out.println("Processing authToken: " + authToken);
         AuthData authData = authDataDataAccess.getAuth(authToken);
-        if (authData == null) {
-            throw new UnauthorizedException("Auth token does not exist");
-        }
+        ValidationHandler.checkAuthData(authData);
 
         int gameID = request.gameID();
         System.out.println("Processing gameID: " + gameID);
         GameData gameData = gameDataDataAccess.getGame(gameID);
-        if (gameData == null) {
-            throw new IllegalArgumentException("Game does not exist");
-        }
+        ValidationHandler.checkGameData(gameData);
 
         String username = authData.username();
         String playerColor = request.playerColor();
-        System.out.println("Processing playerColor: " + playerColor);
-
-        if (playerColor == null) {
-            throw new IllegalArgumentException("Invalid player color");
-        }
+        ValidationHandler.checkNotNull(playerColor, "Invalid player color");
 
         switch (playerColor.toUpperCase()) {
             case "WHITE":
-                if (gameData.whiteUsername() != null && !gameData.whiteUsername().isEmpty()) {
-                    throw new AlreadyTakenException("White is already taken");
-                }
+                ValidationHandler.checkAlreadyTaken(gameData.whiteUsername() != null &&
+                        !gameData.whiteUsername().isEmpty(), "White is already taken");
                 gameData = new GameData(gameID, username, gameData.blackUsername(), gameData.gameName(), gameData.game());
                 break;
             case "BLACK":
-                if (gameData.blackUsername() != null && !gameData.blackUsername().isEmpty()) {
-                    throw new AlreadyTakenException("Black is already taken");
-                }
+                ValidationHandler.checkAlreadyTaken(gameData.blackUsername() != null &&
+                        !gameData.blackUsername().isEmpty(), "Black is already taken");
                 gameData = new GameData(gameID, gameData.whiteUsername(), username, gameData.gameName(), gameData.game());
                 break;
             default:

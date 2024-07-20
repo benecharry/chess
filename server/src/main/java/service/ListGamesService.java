@@ -4,6 +4,7 @@ import dataaccess.AuthDataDataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.GameDataDataAccess;
 import exception.UnauthorizedException;
+import handler.ValidationHandler;
 import model.AuthData;
 import model.GameData;
 import request.ListGamesRequest;
@@ -26,9 +27,7 @@ public class ListGamesService {
     public ListGamesResult listgames(ListGamesRequest request) throws DataAccessException, UnauthorizedException {
         String authToken = request.authToken();
         AuthData authData = authDataDataAccess.getAuth(authToken);
-        if (authData == null) {
-            throw new UnauthorizedException("Invalid auth token");
-        }
+        ValidationHandler.checkAuthData(authData);
 
         Collection<GameData> games = gameDataDataAccess.listGames();
         List<ListGamesResult.GameDetails> finalGameList = new ArrayList<>();
