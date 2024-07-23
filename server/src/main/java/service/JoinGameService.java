@@ -22,12 +22,10 @@ public class JoinGameService {
 
     public JoinGameResult joingame(JoinGameRequest request) throws DataAccessException, UnauthorizedException, AlreadyTakenException {
         String authToken = request.authToken();
-        System.out.println("Processing authToken: " + authToken);
         AuthData authData = authDataDataAccess.getAuth(authToken);
         ValidationHandler.checkAuthData(authData);
 
         int gameID = request.gameID();
-        System.out.println("Processing gameID: " + gameID);
         GameData gameData = gameDataDataAccess.getGame(gameID);
         ValidationHandler.checkGameData(gameData);
 

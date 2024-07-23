@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.UserDataSQLDataAccess;
 import handler.ServerHandler;
 import manager.ServiceManager;
 import spark.*;
@@ -12,16 +13,13 @@ public class Server {
     private final ServerHandler serverHandler;
 
     public Server() {
-        ServiceManager serviceManager = new ServiceManager();
+        this(new ServiceManager());
+    }
+
+    public Server(ServiceManager serviceManager) {
         this.serverHandler = new ServerHandler(serviceManager);
     }
-
-    public Server(ServerHandler serverHandler) {
-        this.serverHandler = serverHandler;
-    }
-
     public int run(int desiredPort) {
-        System.out.println("Initializing port.");
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
@@ -31,8 +29,11 @@ public class Server {
         //This line initializes the server and can be removed once you have a functioning endpoint 
         //Spark.init();
 
+        //TO-DO
+        // Check if the databse already exist.
+        //Make sure all tables are in there. Create if not exist table and or database.
+
         Spark.awaitInitialization();
-        System.out.println("Listening on port.");
         return Spark.port();
     }
     public void stop() {

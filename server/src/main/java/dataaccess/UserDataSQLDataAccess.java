@@ -2,40 +2,52 @@ package dataaccess;
 
 import exception.ResponseException;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.*;
 
-public class UserDataSQLDataAccess implements UserDataDataAccess{
-    @Override
-    public void createUser(UserData userData) throws DataAccessException {
+import static java.sql.Types.NULL;
 
+public class UserDataSQLDataAccess implements UserDataDataAccess {
+
+    public UserDataSQLDataAccess() throws DataAccessException {
+        configureDatabase();
     }
 
     @Override
-    public UserData getUser(String username) {
+    public void createUser(UserData userData) throws DataAccessException {
+        String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+        var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+        executeUpdate(statement, userData.username(), hashedPassword, userData.email());
+    }
+
+
+    @Override
+    public UserData getUser(String username) throws DataAccessException {
         return null;
     }
 
     @Override
-    public void clear() {
+    public void clear() throws DataAccessException {
 
     }
 
     //TO DO
+    //private void executeUpdate
+
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  pet (
-              `id` int NOT NULL AUTO_INCREMENT,
-              `name` varchar(256) NOT NULL,
-              `type` ENUM('CAT', 'DOG', 'FISH', 'FROG', 'ROCK') DEFAULT 'CAT',
+            CREATE TABLE IF NOT EXISTS users (
+              `username` varchar(256) NOT NULL,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256) NOT NULL,
               `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`id`),
-              INDEX(type),
-              INDEX(name)
+              PRIMARY KEY (`username`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
 
-    private void configureDatabase() throws ResponseException, DataAccessException {
+    private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             for (var statement : createStatements) {
@@ -43,8 +55,10 @@ public class UserDataSQLDataAccess implements UserDataDataAccess{
                     preparedStatement.executeUpdate();
                 }
             }
-        } catch (SQLException ex) {
-            throw new ResponseException(500, String.format("Unable to configure database: %s", ex.getMessage()));
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
         }
     }
+
+
 }

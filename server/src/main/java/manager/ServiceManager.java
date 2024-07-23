@@ -30,6 +30,8 @@ public class ServiceManager {
         this.clearApplicationService = new ClearApplicationService(userDataDataAccess, authDataDataAccess, gameDataDataAccess);
     }
 
+    public ServiceManager(UserDataDataAccess userDataDataAccess, AuthDataDataAccess authDataDataAccess, GameDataDataAccess gameDataDataAccess)
+
     public RegisterService getRegisterService() {return registerService;}
     public LoginService getLoginService(){return loginService;};
     public LogoutService getLogoutService() {return logoutService;};
