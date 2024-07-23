@@ -14,7 +14,7 @@ public class ValidationHandler {
 
     public static void checkAuthData(AuthData authData) throws UnauthorizedException {
         if (authData == null) {
-            throw new UnauthorizedException("Auth token does not exist");
+            throw new UnauthorizedException("Invalid auth token");
         }
     }
 
