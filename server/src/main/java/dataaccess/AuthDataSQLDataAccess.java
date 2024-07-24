@@ -17,6 +17,18 @@ public class AuthDataSQLDataAccess implements AuthDataDataAccess{
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
+        var statement = "SELECT authToken, username FROM authTokens WHERE authToken=?";
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
+            ps.setString(1, authToken);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new AuthData(rs.getString("authToken"), rs.getString("username"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
         return null;
     }
 
