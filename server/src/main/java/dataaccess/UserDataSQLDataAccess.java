@@ -5,14 +5,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 
-import static java.sql.Types.NULL;
-
 public class UserDataSQLDataAccess implements UserDataDataAccess {
-
-    public UserDataSQLDataAccess() throws DataAccessException {
-        configureDatabase();
-    }
-
     @Override
     public void createUser(UserData userData) throws DataAccessException {
         if (getUser(userData.username()) != null) {
@@ -20,7 +13,7 @@ public class UserDataSQLDataAccess implements UserDataDataAccess {
         }
         String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        executeUpdate(statement, userData.username(), hashedPassword, userData.email());
+        DatabaseInitializer.executeUpdate(statement, userData.username(), hashedPassword, userData.email());
     }
 
     @Override
@@ -45,46 +38,7 @@ public class UserDataSQLDataAccess implements UserDataDataAccess {
     @Override
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE users";
-        executeUpdate(statement);
-    }
-
-    //TO DO
-    private void executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection();
-            var ps = conn.prepareStatement(statement)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
-    }
-
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS users (
-              `username` varchar(256) NOT NULL,
-              `password` varchar(256) NOT NULL,
-              `email` varchar(256) NOT NULL,
-              PRIMARY KEY (`username`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        DatabaseInitializer.executeUpdate(statement);
     }
 }
 

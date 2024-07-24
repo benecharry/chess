@@ -1,6 +1,6 @@
 package server;
 
-import dataaccess.UserDataSQLDataAccess;
+import dataaccess.*;
 import handler.ServerHandler;
 import manager.ServiceManager;
 import spark.*;
@@ -13,12 +13,26 @@ public class Server {
     private final ServerHandler serverHandler;
 
     public Server() {
-        this(new ServiceManager());
+        this(startServiceManager());
     }
 
     public Server(ServiceManager serviceManager) {
         this.serverHandler = new ServerHandler(serviceManager);
     }
+
+    private static ServiceManager startServiceManager() {
+        try {
+            DatabaseInitializer dbInitializer = new DatabaseInitializer();
+            dbInitializer.configureDatabase();
+            System.out.println("Database created.");
+
+            return new ServiceManager(new UserDataSQLDataAccess(), new AuthDataSQLDataAccess(), new GameDataSQLDataAccess());
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error initializing the database", e);
+        }
+    }
+
+
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 

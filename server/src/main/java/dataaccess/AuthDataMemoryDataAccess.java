@@ -24,7 +24,7 @@ public class AuthDataMemoryDataAccess implements AuthDataDataAccess{
     }
 
     @Override
-    public void clear(){
+    public void clear() throws DataAccessException{
         authTokens.clear();
     }
 }
