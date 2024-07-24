@@ -40,5 +40,14 @@ public class UserDataSQLDataAccess implements UserDataDataAccess {
         var statement = "TRUNCATE users";
         DatabaseInitializer.executeUpdate(statement);
     }
+
+    @Override
+    public boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException {
+        UserData user = getUser(username);
+        if (user == null) {
+        return false;
+        }
+        return BCrypt.checkpw(providedClearTextPassword, user.password());
+    }
 }
 

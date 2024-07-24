@@ -1,8 +1,6 @@
 package dataaccess;
 
 import model.AuthData;
-import model.UserData;
-
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -10,6 +8,8 @@ public class AuthDataSQLDataAccess implements AuthDataDataAccess{
     @Override
     public String createAuth(String username) throws DataAccessException {
         String authToken = UUID.randomUUID().toString();
+        var deleteStatement = "DELETE FROM authTokens WHERE username=?";
+        DatabaseInitializer.executeUpdate(deleteStatement, username);
         var statement = "INSERT INTO authTokens (authToken, username) VALUES (?, ?)";
         DatabaseInitializer.executeUpdate(statement, authToken, username);
         return authToken;

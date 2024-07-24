@@ -7,7 +7,10 @@ import java.util.UUID;
 public class AuthDataMemoryDataAccess implements AuthDataDataAccess{
     private final HashMap<String, AuthData> authTokens = new HashMap<>();
     @Override
-    public String createAuth(String username) {
+    public String createAuth(String username) throws DataAccessException {
+        if(username == null){
+            throw new DataAccessException("User cannot be null");
+        }
         String authToken = UUID.randomUUID().toString();
         authTokens.put(authToken, new AuthData(authToken, username));
         return authToken;

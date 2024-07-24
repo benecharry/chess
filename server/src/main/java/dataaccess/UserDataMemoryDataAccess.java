@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.HashMap;
 public class UserDataMemoryDataAccess implements UserDataDataAccess {
@@ -31,5 +32,11 @@ public class UserDataMemoryDataAccess implements UserDataDataAccess {
     @Override
     public void clear(){
         users.clear();
+    }
+
+    @Override
+    public boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException {
+        UserData user = getUser(username);
+        return user != null && user.password().equals(providedClearTextPassword);
     }
 }

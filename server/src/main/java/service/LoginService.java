@@ -26,7 +26,7 @@ public class LoginService {
 
         UserData user = userDataDataAccess.getUser(request.username());
 
-        if (user == null || !user.password().equals(request.password())) {
+        if (!userDataDataAccess.verifyUser(request.username(), request.password())) {
             throw new UnauthorizedException("Invalid username or password");
         }
 

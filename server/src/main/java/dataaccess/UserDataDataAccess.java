@@ -6,8 +6,7 @@ import java.sql.SQLException;
 
 public interface UserDataDataAccess {
     void createUser(UserData userData) throws DataAccessException;
-
     UserData getUser(String username) throws DataAccessException;
-
     void clear() throws DataAccessException;
+    boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException;
 }
