@@ -5,10 +5,9 @@ import java.util.Collection;
 
 public interface GameDataDataAccess {
     int createGame(String gameName, String whiteUsername, String blackUsername) throws DataAccessException;
-    GameData getGame(int gameID);
+    GameData getGame(int gameID) throws DataAccessException;
     Collection<GameData> listGames();
-
     void updateGame(GameData gameData);
-    void clear();
+    void clear() throws DataAccessException;
 
 }

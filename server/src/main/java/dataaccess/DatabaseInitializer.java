@@ -20,9 +20,17 @@ public class DatabaseInitializer {
               `username` varchar(256) NOT NULL,
               PRIMARY KEY (`authToken`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
             """
-
-
+            CREATE TABLE IF NOT EXISTS games (
+              `gameID` int NOT NULL,
+              `whiteUsername` varchar(256) NOT NULL,
+              `blackUsername` varchar(256) NOT NULL,
+              `gameName` varchar(256) NOT NULL,
+              `game` TEXT NOT NULL,
+              PRIMARY KEY (`authToken`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
     };
 
     public void configureDatabase() throws DataAccessException {
