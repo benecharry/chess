@@ -1,6 +1,5 @@
 package dataaccess;
 
-import exception.ResponseException;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,6 +15,7 @@ public class SQLDataAccessTests {
         dataAccess.clear();
     }
 
+    //UserData SQL Tests
     @ParameterizedTest
     @ValueSource(classes = {UserDataSQLDataAccess.class, UserDataMemoryDataAccess.class})
     void createUser(Class<? extends UserDataDataAccess> dbClass) throws DataAccessException {
@@ -29,6 +29,23 @@ public class SQLDataAccessTests {
         assertEquals("Benjamin", retrievedUser.username());
         assertEquals("benecharry@icloud.com", retrievedUser.email());
     }
+
+    @ParameterizedTest
+    @ValueSource(classes = {UserDataSQLDataAccess.class, UserDataMemoryDataAccess.class})
+    void existingUser(Class<? extends UserDataDataAccess> dbClass) throws DataAccessException{
+        dataAccess = getDataAccess(dbClass);
+
+        var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
+        assertDoesNotThrow(() -> dataAccess.createUser(user));
+        var repeatedUser = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
+        assertThrows(DataAccessException.class, () -> dataAccess.createUser(repeatedUser));
+
+        UserData retrievedUser = dataAccess.getUser("Benjamin");
+        assertNotNull(retrievedUser);
+        assertEquals("Benjamin", retrievedUser.username());
+        assertEquals("benecharry@icloud.com", retrievedUser.email());
+    }
+
 
     private UserDataDataAccess getDataAccess(Class<? extends UserDataDataAccess> databaseClass) throws DataAccessException {
         UserDataDataAccess db;

@@ -15,11 +15,13 @@ public class UserDataSQLDataAccess implements UserDataDataAccess {
 
     @Override
     public void createUser(UserData userData) throws DataAccessException {
+        if (getUser(userData.username()) != null) {
+            throw new DataAccessException("Username " + userData.username() + " already in use.");
+        }
         String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
         executeUpdate(statement, userData.username(), hashedPassword, userData.email());
     }
-
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
