@@ -1,6 +1,5 @@
 package dataaccess;
 
-import exception.ResponseException;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -24,16 +23,43 @@ public class UserDataSQLDataAccess implements UserDataDataAccess {
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
+        //Using the same formatting as petshop was breaking my previous code.
+        var statement = "SELECT username, password, email FROM users WHERE username=?";
+        try (var conn = DatabaseManager.getConnection();
+            var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new UserData(rs.getString("username"), rs.getString("password"),
+                                rs.getString("email"));
+                    }
+                 }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
         return null;
     }
 
     @Override
     public void clear() throws DataAccessException {
-
+        var statement = "TRUNCATE users";
+        executeUpdate(statement);
     }
 
     //TO DO
-    //private void executeUpdate
+    private void executeUpdate(String statement, Object... params) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection();
+            var ps = conn.prepareStatement(statement)) {
+                for (var i = 0; i < params.length; i++) {
+                    var param = params[i];
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param == null) ps.setNull(i + 1, NULL);
+                }
+                ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
 
     private final String[] createStatements = {
             """
@@ -41,7 +67,6 @@ public class UserDataSQLDataAccess implements UserDataDataAccess {
               `username` varchar(256) NOT NULL,
               `password` varchar(256) NOT NULL,
               `email` varchar(256) NOT NULL,
-              `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`username`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
@@ -59,6 +84,5 @@ public class UserDataSQLDataAccess implements UserDataDataAccess {
             throw new DataAccessException(e.getMessage());
         }
     }
-
-
 }
+

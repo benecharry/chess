@@ -1,14 +1,12 @@
 package manager;
 
-import dataaccess.AuthDataMemoryDataAccess;
-import dataaccess.GameDataMemoryDataAccess;
-import dataaccess.UserDataMemoryDataAccess;
+import dataaccess.*;
 import service.*;
 
 public class ServiceManager {
-    private final UserDataMemoryDataAccess userDataDataAccess;
-    private final AuthDataMemoryDataAccess authDataDataAccess;
-    private final GameDataMemoryDataAccess gameDataDataAccess;
+    private final UserDataDataAccess userDataDataAccess;
+    private final AuthDataDataAccess authDataDataAccess;
+    private final GameDataDataAccess gameDataDataAccess;
     private final RegisterService registerService;
     private final LoginService loginService;
     private final LogoutService logoutService;
@@ -17,10 +15,10 @@ public class ServiceManager {
     private final JoinGameService joinGameService;
     private final ClearApplicationService clearApplicationService;
 
-    public ServiceManager() {
-        this.userDataDataAccess = new UserDataMemoryDataAccess();
-        this.authDataDataAccess = new AuthDataMemoryDataAccess();
-        this.gameDataDataAccess = new GameDataMemoryDataAccess();
+    public ServiceManager(UserDataDataAccess userDataDataAccess, AuthDataDataAccess authDataDataAccess, GameDataDataAccess gameDataDataAccess) {
+        this.userDataDataAccess = userDataDataAccess;
+        this.authDataDataAccess = authDataDataAccess;
+        this.gameDataDataAccess = gameDataDataAccess;
         this.registerService = new RegisterService(userDataDataAccess, authDataDataAccess);
         this.loginService = new LoginService(userDataDataAccess, authDataDataAccess);
         this.logoutService = new LogoutService(authDataDataAccess);
@@ -30,7 +28,9 @@ public class ServiceManager {
         this.clearApplicationService = new ClearApplicationService(userDataDataAccess, authDataDataAccess, gameDataDataAccess);
     }
 
-    public ServiceManager(UserDataDataAccess userDataDataAccess, AuthDataDataAccess authDataDataAccess, GameDataDataAccess gameDataDataAccess)
+    public ServiceManager() {
+        this(new UserDataMemoryDataAccess(), new AuthDataMemoryDataAccess(), new GameDataMemoryDataAccess());
+    }
 
     public RegisterService getRegisterService() {return registerService;}
     public LoginService getLoginService(){return loginService;};
