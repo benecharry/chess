@@ -6,7 +6,6 @@ import spark.Response;
 import java.util.HashMap;
 
 public class ErrorHandler {
-
     public static String handleException(Exception e, Response res) {
         HashMap<String, String> errorResult = new HashMap<>();
         if (e instanceof UnauthorizedException) {

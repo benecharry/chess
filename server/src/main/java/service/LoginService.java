@@ -33,5 +33,4 @@ public class LoginService {
         String authToken = authDataDataAccess.createAuth(user.username());
         return new LoginResult(user.username(), authToken);
     }
-
 }

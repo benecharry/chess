@@ -13,11 +13,9 @@ import java.util.HashMap;
 
 public class JoinGameHandler implements Route {
     private final JoinGameService joinGameService;
-
     public JoinGameHandler(JoinGameService joinGameService) {
         this.joinGameService = joinGameService;
     }
-
     @Override
     public Object handle(Request req, Response res) throws Exception {
         try {

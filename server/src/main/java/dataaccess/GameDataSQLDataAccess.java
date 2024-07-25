@@ -55,9 +55,13 @@ public class GameDataSQLDataAccess implements GameDataDataAccess{
         return result;
     }
 
-    @Override
-    public void updateGame(GameData gameData) {
+    public void updateGame(GameData gameData) throws DataAccessException {
+        String gameString = SerializationHandler.toJson(gameData.game());
+        var statement = "UPDATE games SET whiteUsername=?, blackUsername=?, gameName=?, game=? WHERE gameID=?";
+        DatabaseInitializer.executeUpdate(statement, false, gameData.whiteUsername(),
+                gameData.blackUsername(), gameData.gameName(), gameString, gameData.gameID());
     }
+
     private GameData readGameData(ResultSet rs) throws SQLException {
         var gameID = rs.getInt("gameID");
         var whiteUsername = rs.getString("whiteUsername");

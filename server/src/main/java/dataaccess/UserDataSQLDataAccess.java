@@ -21,14 +21,14 @@ public class UserDataSQLDataAccess implements UserDataDataAccess {
         //Using the same formatting as petshop was breaking my previous code.
         var statement = "SELECT username, password, email FROM users WHERE username=?";
         try (var conn = DatabaseManager.getConnection();
-            var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, username);
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        return new UserData(rs.getString("username"), rs.getString("password"),
-                                rs.getString("email"));
-                    }
-                 }
+             var ps = conn.prepareStatement(statement)) {
+            ps.setString(1, username);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new UserData(rs.getString("username"), rs.getString("password"),
+                            rs.getString("email"));
+                }
+            }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
@@ -45,9 +45,8 @@ public class UserDataSQLDataAccess implements UserDataDataAccess {
     public boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException {
         UserData user = getUser(username);
         if (user == null) {
-        return false;
+            return false;
         }
         return BCrypt.checkpw(providedClearTextPassword, user.password());
     }
 }
-

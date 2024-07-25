@@ -12,11 +12,9 @@ import java.util.HashMap;
 
 public class LoginHandler implements Route {
     private final LoginService loginService;
-
     public LoginHandler(LoginService loginService){
         this.loginService = loginService;
     }
-
     @Override
     public Object handle(Request req, Response res) throws Exception {
         try{

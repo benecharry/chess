@@ -12,11 +12,9 @@ import java.util.HashMap;
 
 public class LogoutHandler implements Route {
     private final LogoutService logoutService;
-
     public LogoutHandler(LogoutService logoutService) {
         this.logoutService = logoutService;
     }
-
     @Override
     public Object handle(Request req, Response res) throws Exception {
         try{

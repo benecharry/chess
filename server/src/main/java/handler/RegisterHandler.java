@@ -13,11 +13,9 @@ import java.util.HashMap;
 
 public class RegisterHandler implements Route {
     private final RegisterService registerService;
-
     public RegisterHandler(RegisterService registerService) {
         this.registerService = registerService;
     }
-
     @Override
     public Object handle(Request req, Response res){
         try{

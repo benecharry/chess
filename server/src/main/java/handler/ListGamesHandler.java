@@ -9,11 +9,9 @@ import spark.Route;
 
 public class ListGamesHandler implements Route {
     private final ListGamesService listGamesService;
-
     public ListGamesHandler(ListGamesService listGamesService){
         this.listGamesService = listGamesService;
     }
-
     @Override
     public Object handle(Request req, Response res) throws Exception{
         try{

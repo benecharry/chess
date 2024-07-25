@@ -35,9 +35,3 @@ public class CreateGameService {
         }
     }
 }
-//TO-DO add an external method to handle all of this checks.
-//NameGame with IllegalArgumentException
-//authData with UnauthorizedException
-//gameData with IllegalArgumentException
-//playerColor with IllegalArgumentException
-//gameData with AlreadyTakenException
