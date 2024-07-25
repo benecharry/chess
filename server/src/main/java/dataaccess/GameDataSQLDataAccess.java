@@ -1,11 +1,10 @@
 package dataaccess;
 
 import chess.ChessGame;
-import exception.ResponseException;
 import handler.SerializationHandler;
-import model.AuthData;
 import model.GameData;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +19,7 @@ public class GameDataSQLDataAccess implements GameDataDataAccess{
                 gameName, gameString);
     }
 
+    //As explained in Relational Databases - JDBC.
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
         var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games WHERE gameID=?";
@@ -28,7 +28,7 @@ public class GameDataSQLDataAccess implements GameDataDataAccess{
             ps.setInt(1, gameID);
             try (var rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    //return new GameData(rs.getString("authToken"), rs.getString("username"));
+                    return readGameData(rs);
                 }
             }
         } catch (SQLException e) {
@@ -45,7 +45,7 @@ public class GameDataSQLDataAccess implements GameDataDataAccess{
             try (var ps = conn.prepareStatement(statement)) {
                 try (var rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        //result.add(readPet(rs));
+                        result.add(readGameData(rs));
                     }
                 }
             }
@@ -57,7 +57,14 @@ public class GameDataSQLDataAccess implements GameDataDataAccess{
 
     @Override
     public void updateGame(GameData gameData) {
-
+    }
+    private GameData readGameData(ResultSet rs) throws SQLException {
+        var gameID = rs.getInt("gameID");
+        var whiteUsername = rs.getString("whiteUsername");
+        var blackUsername = rs.getString("blackUsername");
+        var gameName = rs.getString("gameName");
+        ChessGame game = SerializationHandler.fromJson(rs.getString("game"), ChessGame.class);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
     }
 
     @Override
