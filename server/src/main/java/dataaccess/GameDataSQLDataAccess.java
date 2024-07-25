@@ -14,7 +14,7 @@ public class GameDataSQLDataAccess implements GameDataDataAccess{
     public int createGame(String gameName, String whiteUsername, String blackUsername) throws DataAccessException {
         ChessGame game = new ChessGame();
         String gameString = SerializationHandler.toJson(game);
-        var statement = "INSERT INTO users (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+        var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
         return DatabaseInitializer.executeUpdate(statement, true, whiteUsername, blackUsername,
                 gameName, gameString);
     }

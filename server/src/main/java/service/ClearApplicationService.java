@@ -25,5 +25,4 @@ public class ClearApplicationService {
         gameDataDataAccess.clear();
         return new ClearApplicationResult();
     }
-
 }
