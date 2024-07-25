@@ -2,6 +2,7 @@ package dataaccess;
 
 import chess.ChessGame;
 import handler.SerializationHandler;
+import handler.ValidationHandler;
 import model.GameData;
 
 import java.sql.ResultSet;
@@ -12,11 +13,18 @@ import java.util.Collection;
 public class GameDataSQLDataAccess implements GameDataDataAccess{
     @Override
     public int createGame(String gameName, String whiteUsername, String blackUsername) throws DataAccessException {
+        String defaultWhiteUsername = "white_default";
+        String defaultBlackUsername = "black_default";
+
+        String[] usernames = {whiteUsername, blackUsername};
+        ValidationHandler.setDefaultUsernamesIfEmpty(usernames, defaultWhiteUsername, defaultBlackUsername);
+        whiteUsername = usernames[0];
+        blackUsername = usernames[1];
+
         ChessGame game = new ChessGame();
         String gameString = SerializationHandler.toJson(game);
-        var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
-        return DatabaseInitializer.executeUpdate(statement, true, whiteUsername, blackUsername,
-                gameName, gameString);
+        var statement = "INSERT INTO games (gameName, game, whiteUsername, blackUsername) VALUES (?, ?, ?, ?)";
+        return DatabaseInitializer.executeUpdate(statement, true, gameName, gameString, whiteUsername, blackUsername);
     }
 
     //As explained in Relational Databases - JDBC.

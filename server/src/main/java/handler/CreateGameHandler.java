@@ -7,8 +7,6 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.util.HashMap;
-
 public class CreateGameHandler implements Route {
     private final CreateGameService createGameService;
 

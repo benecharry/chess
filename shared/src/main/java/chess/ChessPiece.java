@@ -26,7 +26,7 @@ public class ChessPiece {
         initializeMoveCalculator();
     }
 
-    void initializeMoveCalculator(){
+    public void initializeMoveCalculator(){
         switch (this.type){
             case KING:
                 this.movesCalculator = new KingMoveCalculator();

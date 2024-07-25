@@ -21,11 +21,9 @@ public class CreateGameService {
     public CreateGameResult createGame(CreateGameRequest request) throws DataAccessException, UnauthorizedException {
         String nameGame = request.gameName();
         ValidationHandler.checkNotNull(nameGame, "Name can't be empty");
-
         String authToken = request.authToken();
         AuthData authData = authDataDataAccess.getAuth(authToken);
         ValidationHandler.checkAuthData(authData);
-
 
         try {
             int gameID = gameDataDataAccess.createGame(nameGame, null, null);

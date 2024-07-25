@@ -25,7 +25,7 @@ public class UserDataMemoryDataAccess implements UserDataDataAccess {
     public UserData getUser(String username) throws DataAccessException {
         UserData user = users.get(username);
         if (user == null) {
-            throw new DataAccessException("User with username not found.");
+            return null;
         }
         return user;
     }
