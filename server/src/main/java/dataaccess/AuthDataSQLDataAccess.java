@@ -9,9 +9,9 @@ public class AuthDataSQLDataAccess implements AuthDataDataAccess{
     public String createAuth(String username) throws DataAccessException {
         String authToken = UUID.randomUUID().toString();
         var deleteStatement = "DELETE FROM authTokens WHERE username=?";
-        DatabaseInitializer.executeUpdate(deleteStatement, username);
+        DatabaseInitializer.executeUpdate(deleteStatement, false, username);
         var statement = "INSERT INTO authTokens (authToken, username) VALUES (?, ?)";
-        DatabaseInitializer.executeUpdate(statement, authToken, username);
+        DatabaseInitializer.executeUpdate(statement, false, authToken, username);
         return authToken;
     }
 
@@ -35,12 +35,12 @@ public class AuthDataSQLDataAccess implements AuthDataDataAccess{
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
         var statement = "DELETE FROM authTokens WHERE authToken=?";
-        DatabaseInitializer.executeUpdate(statement, authToken);
+        DatabaseInitializer.executeUpdate(statement, false, authToken);
     }
 
     @Override
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE TABLE authTokens";
-        DatabaseInitializer.executeUpdate(statement);
+        DatabaseInitializer.executeUpdate(statement, false);
     }
 }

@@ -13,7 +13,7 @@ public class UserDataSQLDataAccess implements UserDataDataAccess {
         }
         String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        DatabaseInitializer.executeUpdate(statement, userData.username(), hashedPassword, userData.email());
+        DatabaseInitializer.executeUpdate(statement, false, userData.username(), hashedPassword, userData.email());
     }
 
     @Override
@@ -38,7 +38,7 @@ public class UserDataSQLDataAccess implements UserDataDataAccess {
     @Override
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE users";
-        DatabaseInitializer.executeUpdate(statement);
+        DatabaseInitializer.executeUpdate(statement, false);
     }
 
     @Override
