@@ -22,26 +22,26 @@ public class SerializationHandler {
 
         gsonBuilder.registerTypeAdapter(ChessPiece.class,
                 (JsonDeserializer<ChessPiece>) (el, type, ctx) -> {
-            JsonObject jsonObject = el.getAsJsonObject();
+                    JsonObject jsonObject = el.getAsJsonObject();
 
-            ChessGame.TeamColor teamColor = ctx.deserialize(jsonObject.get("pieceColor"), ChessGame.TeamColor.class);
-            ChessPiece.PieceType pieceType = ChessPiece.PieceType.valueOf(jsonObject.get("type").getAsString());
+                    ChessGame.TeamColor teamColor = ctx.deserialize(jsonObject.get("pieceColor"), ChessGame.TeamColor.class);
+                    ChessPiece.PieceType pieceType = ChessPiece.PieceType.valueOf(jsonObject.get("type").getAsString());
 
-            return new ChessPiece(teamColor, pieceType);
-        });
+                    return new ChessPiece(teamColor, pieceType);
+                });
 
         gsonBuilder.registerTypeAdapter(MovesCalculator.class,
                 (JsonDeserializer<MovesCalculator>) (el, type, ctx) -> {
-            ChessPiece.PieceType pieceType = ChessPiece.PieceType.valueOf(el.getAsJsonObject().get("type").getAsString());
-            return switch (pieceType) {
-                case PAWN -> new PawnMoveCalculator();
-                case ROOK -> new RookMoveCalculator();
-                case KNIGHT -> new KnightMoveCalculator();
-                case BISHOP -> new BishopMoveCalculator();
-                case QUEEN -> new QueenMoveCalculator();
-                case KING -> new KingMoveCalculator();
-            };
-        });
+                    ChessPiece.PieceType pieceType = ChessPiece.PieceType.valueOf(el.getAsJsonObject().get("type").getAsString());
+                    return switch (pieceType) {
+                        case PAWN -> new PawnMoveCalculator();
+                        case ROOK -> new RookMoveCalculator();
+                        case KNIGHT -> new KnightMoveCalculator();
+                        case BISHOP -> new BishopMoveCalculator();
+                        case QUEEN -> new QueenMoveCalculator();
+                        case KING -> new KingMoveCalculator();
+                    };
+                });
 
         return gsonBuilder.create();
     }

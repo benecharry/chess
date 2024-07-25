@@ -19,14 +19,14 @@ public class CreateGameService {
     }
 
     public CreateGameResult createGame(CreateGameRequest request) throws DataAccessException, UnauthorizedException {
-        String nameGame = request.gameName();
-        ValidationHandler.checkNotNull(nameGame, "Name can't be empty");
+        String gameName = request.gameName();
+        ValidationHandler.checkNotNull(gameName, "Name can't be empty");
         String authToken = request.authToken();
         AuthData authData = authDataDataAccess.getAuth(authToken);
         ValidationHandler.checkAuthData(authData);
 
         try {
-            int gameID = gameDataDataAccess.createGame(nameGame, null, null);
+            int gameID = gameDataDataAccess.createGame(gameName, "", "");
             return new CreateGameResult(gameID);
         } catch (DataAccessException e) {
             throw new UnauthorizedException("Name is already in use");

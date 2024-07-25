@@ -16,7 +16,9 @@ public class CreateGameHandler implements Route {
     public Object handle(Request req, Response res) throws Exception {
         try {
             String authToken = req.headers("authorization");
-            CreateGameRequest request = new CreateGameRequest(req.body(), authToken);
+            String body = req.body();
+            CreateGameRequest request = SerializationHandler.fromJson(body, CreateGameRequest.class);
+            request = new CreateGameRequest(request.gameName(), authToken);
             CreateGameResult result = createGameService.createGame(request);
             res.status(200);
             return SerializationHandler.toJson(result);

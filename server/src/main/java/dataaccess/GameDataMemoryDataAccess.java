@@ -16,8 +16,8 @@ public class GameDataMemoryDataAccess implements GameDataDataAccess{
             }
         }
         int gameID = nextId++;
-        GameData gameData = new GameData(gameID, whiteUsername, blackUsername, gameName, new ChessGame());
-        games.put(gameID, gameData);
+        ChessGame game = new ChessGame();
+        games.put(gameID, new GameData(gameID, whiteUsername, blackUsername, gameName, game));
         return gameID;
     }
 
