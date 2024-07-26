@@ -30,7 +30,7 @@ public class SQLDataAccessTests {
 
     //Register SQL Tests
     @Test
-    @DisplayName("Create User Test")
+    @DisplayName("Create User test")
     void createUserPositiveTest() throws DataAccessException {
         var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
         assertDoesNotThrow(() -> userDataAccess.createUser(user));
@@ -42,13 +42,34 @@ public class SQLDataAccessTests {
     }
 
     @Test
-    @DisplayName("Existing User Test")
+    @DisplayName("Existing User test")
     void existingUserTest() throws DataAccessException {
         var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
         userDataAccess.createUser(user);
 
         var repeatedUser = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
         assertThrows(DataAccessException.class, () -> userDataAccess.createUser(repeatedUser));
+    }
+
+    //Verify Users test
+    @Test
+    @DisplayName("Verification Successful test")
+    void successfulVerification() throws DataAccessException {
+        var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
+        userDataAccess.createUser(user);
+
+        boolean passwordVerified = userDataAccess.verifyUser("Benjamin", "chiguire");
+        assertTrue(passwordVerified, "Password should work");
+    }
+
+    @Test
+    @DisplayName("Fail Verification test")
+    void failVerification() throws DataAccessException {
+        var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
+        userDataAccess.createUser(user);
+
+        boolean passwordVerified = userDataAccess.verifyUser("Benjamin", "pika");
+        assertFalse(passwordVerified, "Verification should fail");
     }
 
     //Login SQL tests
@@ -61,6 +82,9 @@ public class SQLDataAccessTests {
         UserData retrievedUser = userDataAccess.getUser("Benjamin");
         assertEquals("Benjamin", retrievedUser.username());
         assertEquals("benecharry@icloud.com", retrievedUser.email());
+
+        boolean passwordVerified = userDataAccess.verifyUser("Benjamin", "chiguire");
+        assertTrue(passwordVerified, "Password verification should succeed");
 
         var repeatedUser = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
         assertThrows(DataAccessException.class, () -> userDataAccess.createUser(repeatedUser));
@@ -163,7 +187,7 @@ public class SQLDataAccessTests {
         assertTrue(gamesList.isEmpty(), "The games list is empty");
     }
 
-    //JoinGame SQL tests
+    //Update SQL tests
     @Test
     @DisplayName("Update Game test")
     void updateGameTest() throws DataAccessException, InvalidMoveException {
@@ -188,18 +212,28 @@ public class SQLDataAccessTests {
     }
 
     @Test
+    @DisplayName("Update Game failure test")
+    void updateGameNegativeTest() throws DataAccessException {
+        GameData nonExistentGameData = new GameData(-1, "Benjamin", "Samuel", "Non-existent Game", new ChessGame());
+        assertThrows(DataAccessException.class, () -> gameDataAccess.updateGame(nonExistentGameData));
+    }
+
+    //JoinGame SQL tests
+    @Test
     @DisplayName("Join Game with invalid game test")
-    void joinGameInvalidGameIdTest() throws DataAccessException {
+    void joinGameInvalidGameIdTest() throws DataAccessException, InvalidMoveException {
         var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
         userDataAccess.createUser(user);
         String authToken = authDataAccess.createAuth("Benjamin");
 
-        JoinGameService joinGameService = new JoinGameService(authDataAccess, gameDataAccess);
+        int gameID = gameDataAccess.createGame("New Game", "Benjamin", "Samuel");
+        ChessGame game = gameDataAccess.getGame(gameID).game();
+        game.makeMove(new ChessMove(new ChessPosition(2, 5), new ChessPosition(4, 5), null));
+        gameDataAccess.updateGame(new GameData(gameID, "Benjamin", "Samuel", "Active Game", game));
 
+        JoinGameService joinGameService = new JoinGameService(authDataAccess, gameDataAccess);
         JoinGameRequest joinRequest = new JoinGameRequest("WHITE", -1, authToken);
-        assertThrows(IllegalArgumentException.class, () -> {
-            joinGameService.joinGame(joinRequest);
-        });
+        assertThrows(IllegalArgumentException.class, () -> joinGameService.joinGame(joinRequest));
     }
 
     //Clear SQL tests
@@ -219,4 +253,6 @@ public class SQLDataAccessTests {
         assertNull(authDataAccess.getAuth(authToken));
         assertTrue(gameDataAccess.listGames().isEmpty());
     }
+
+    //AuthData Test?
 }
