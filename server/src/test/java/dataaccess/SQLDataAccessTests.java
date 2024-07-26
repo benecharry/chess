@@ -201,7 +201,6 @@ public class SQLDataAccessTests {
             joinGameService.joinGame(joinRequest);
         });
     }
-
     //Clear SQL tests
     @Test
     @DisplayName("Clear successful test")
