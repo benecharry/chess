@@ -61,8 +61,12 @@ public class GameDataSQLDataAccess implements GameDataDataAccess {
     public void updateGame(GameData gameData) throws DataAccessException {
         String gameString = SerializationHandler.toJson(gameData.game());
         var statement = "UPDATE games SET whiteUsername=?, blackUsername=?, gameName=?, game=? WHERE gameID=?";
-        DatabaseInitializer.executeUpdate(statement, false, gameData.whiteUsername(),
+        int affectedRows = DatabaseInitializer.executeUpdate(statement, false, gameData.whiteUsername(),
                 gameData.blackUsername(), gameData.gameName(), gameString, gameData.gameID());
+
+        if (affectedRows == 0) {
+            throw new DataAccessException("No game found with ID: " + gameData.gameID());
+        }
     }
 
     private GameData readGameData(ResultSet rs) throws SQLException {

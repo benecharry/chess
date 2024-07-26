@@ -30,7 +30,7 @@ public class SQLDataAccessTests {
 
     //Register SQL Tests
     @Test
-    @DisplayName("Create User Test")
+    @DisplayName("Create User test")
     void createUserPositiveTest() throws DataAccessException {
         var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
         assertDoesNotThrow(() -> userDataAccess.createUser(user));
@@ -42,13 +42,33 @@ public class SQLDataAccessTests {
     }
 
     @Test
-    @DisplayName("Existing User Test")
+    @DisplayName("Existing User test")
     void existingUserTest() throws DataAccessException {
         var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
         userDataAccess.createUser(user);
 
         var repeatedUser = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
         assertThrows(DataAccessException.class, () -> userDataAccess.createUser(repeatedUser));
+    }
+
+    @Test
+    @DisplayName("Successful verification test")
+    void successfulVerification() throws DataAccessException {
+        var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
+        userDataAccess.createUser(user);
+
+        boolean passwordVerified = userDataAccess.verifyUser("Benjamin", "chiguire");
+        assertTrue(passwordVerified, "Password should work");
+    }
+
+    @Test
+    @DisplayName("Fail verification Test")
+    void failVerification() throws DataAccessException {
+        var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
+        userDataAccess.createUser(user);
+
+        boolean passwordVerified = userDataAccess.verifyUser("Benjamin", "duck");
+        assertFalse(passwordVerified, "Verification should fail");
     }
 
     //Login SQL tests
@@ -185,6 +205,15 @@ public class SQLDataAccessTests {
         GameData newGameID = gameDataAccess.getGame(gameID);
         assertEquals("Active Game", newGameID.gameName(), "Updated name");
         assertEquals(game, newGameID.game(), "Move was added");
+    }
+    @Test
+    @DisplayName("Update Game fail test")
+    void updateGameFailTest() throws DataAccessException {
+        gameDataAccess.clear();
+        int gameID = gameDataAccess.createGame("New Game", "Benjamin", "Samuel");
+        gameDataAccess.clear();
+        GameData nonExistentGameData = new GameData(gameID, "Benjamin", "Samuel", "Non-existent Game", new ChessGame());
+        assertThrows(DataAccessException.class, () -> gameDataAccess.updateGame(nonExistentGameData));
     }
 
     @Test

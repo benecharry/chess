@@ -59,15 +59,14 @@ public class DatabaseInitializer {
                 else if (param instanceof ChessGame p) {ps.setString(i + 1, SerializationHandler.toJson(p));}
                 else if (param == null) {ps.setNull(i + 1, NULL);}
             }
-            ps.executeUpdate();
+            int affectedRows = ps.executeUpdate();
             if (returnGeneratedKeys) {
                 var rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
             }
-            return 0;
-
+            return affectedRows;
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
