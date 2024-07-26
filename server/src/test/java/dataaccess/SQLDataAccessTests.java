@@ -74,6 +74,31 @@ public class SQLDataAccessTests {
         assertFalse(passwordVerified, "Verification with should fail");
     }
 
+    //Logout SQL tests
+    @Test
+    @DisplayName("Successful logout")
+    void successfulLogout() throws DataAccessException {
+        var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
+        userDataAccess.createUser(user);
+
+        String authToken = authDataAccess.createAuth(user.username());
+        authDataAccess.deleteAuth(authToken);
+        AuthData deletedAuthData = authDataAccess.getAuth(authToken);
+
+        assertNull(deletedAuthData, "After logout authData should be deleted");
+    }
+
+    @Test
+    @DisplayName("Invalid Logout due to false authToken")
+    void invalidLogoutFalseToken() throws DataAccessException {
+        String falseToken = "false-token";
+        assertDoesNotThrow(() -> authDataAccess.deleteAuth(falseToken),
+                "False token deleted");
+
+        AuthData authData = authDataAccess.getAuth(falseToken);
+        assertNull(authData, "AuthData should be null for false token");
+    }
+
     //CreateGame SQL tests
 
     //ListGames SQL tests
@@ -82,6 +107,22 @@ public class SQLDataAccessTests {
 
     //Clear SQL tests
 
+    @Test
+    @DisplayName("Clear Successful")
+    void clearSuccessful() throws DataAccessException{
+        var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
+        userDataAccess.createUser(user);
+        String authToken = authDataAccess.createAuth("Benjamin");
+        gameDataAccess.createGame("New Game", "Benjamin", "Samuel");
+
+        userDataAccess.clear();
+        authDataAccess.clear();
+        gameDataAccess.clear();
+
+        assertNull(userDataAccess.getUser("Benjamin"));
+        assertNull(authDataAccess.getAuth(authToken));
+        assertTrue(gameDataAccess.listGames().isEmpty());
+    }
 
     private UserDataDataAccess getUserDataAccess(Class<? extends UserDataDataAccess> databaseClass) throws DataAccessException {
         UserDataDataAccess db;
