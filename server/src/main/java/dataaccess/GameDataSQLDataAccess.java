@@ -13,6 +13,12 @@ public class GameDataSQLDataAccess implements GameDataDataAccess {
 
     @Override
     public int createGame(String gameName, String whiteUsername, String blackUsername) throws DataAccessException {
+        if(whiteUsername.isEmpty()){
+            whiteUsername = null;
+        }
+        if(blackUsername.isEmpty()){
+            blackUsername = null;
+        }
         ChessGame game = new ChessGame();
         String gameString = SerializationHandler.toJson(game);
         var statement = "INSERT INTO games (gameName, game, whiteUsername, blackUsername) VALUES (?, ?, ?, ?)";

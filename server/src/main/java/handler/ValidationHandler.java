@@ -26,13 +26,4 @@ public class ValidationHandler {
             throw new AlreadyTakenException(message);
         }
     }
-
-    public static void setDefaultUsernamesIfEmpty(String[] usernames, String defaultWhiteUsername, String defaultBlackUsername) {
-        if (usernames[0] == null || usernames[0].isEmpty()) {
-            usernames[0] = defaultWhiteUsername;
-        }
-        if (usernames[1] == null || usernames[1].isEmpty()) {
-            usernames[1] = defaultBlackUsername;
-        }
-    }
 }
