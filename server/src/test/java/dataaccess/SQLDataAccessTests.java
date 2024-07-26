@@ -220,30 +220,4 @@ public class SQLDataAccessTests {
         assertNull(authDataAccess.getAuth(authToken));
         assertTrue(gameDataAccess.listGames().isEmpty());
     }
-
-/*    private UserDataDataAccess getUserDataAccess(Class<? extends UserDataDataAccess> databaseClass) throws DataAccessException {
-        UserDataDataAccess db;
-        if (databaseClass.equals(UserDataSQLDataAccess.class)) {
-            DatabaseInitializer dbInitializer = new DatabaseInitializer();
-            dbInitializer.configureDatabase();
-            db = new UserDataSQLDataAccess();
-        } else {
-            db = new UserDataMemoryDataAccess();
-        }
-        db.clear();
-        return db;
-    }
-
-    private AuthDataDataAccess getAuthDataAccess(Class<? extends AuthDataDataAccess> databaseClass) throws DataAccessException {
-        AuthDataDataAccess db;
-        if (databaseClass.equals(AuthDataSQLDataAccess.class)) {
-            DatabaseInitializer dbInitializer = new DatabaseInitializer();
-            dbInitializer.configureDatabase();
-            db = new AuthDataSQLDataAccess();
-        } else {
-            db = new AuthDataMemoryDataAccess();
-        }
-        db.clear();
-        return db;
-    }*/
 }
