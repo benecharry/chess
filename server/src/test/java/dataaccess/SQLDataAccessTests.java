@@ -10,7 +10,6 @@ import chess.*;
 import request.JoinGameRequest;
 import service.JoinGameService;
 import java.util.Collection;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLDataAccessTests {
