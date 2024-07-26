@@ -102,14 +102,27 @@ public class SQLDataAccessTests {
     }
 
     //CreateGame SQL tests
+    @Test
+    @DisplayName("Create game successful")
+    void createGameSuccess() throws DataAccessException {
+        int gameID = gameDataAccess.createGame("New Game", "Benjamin",
+                "Samuel");
+        GameData initialGameData = gameDataAccess.getGame(gameID);
+        ChessGame game = initialGameData.game();
 
+        assertEquals("New Game", initialGameData.gameName(), "Game name should be New Game");
+        assertEquals("Benjamin", initialGameData.whiteUsername(), "White player should be 'Benjamin'");
+        assertEquals("Samuel", initialGameData.blackUsername(), "Black player should be 'Samuel'");
+        assertNotNull(game, "Chess game should not be null");
+    }
 
-
-
-
-
-
-
+    @Test
+    @DisplayName("Create game with null game name")
+    void createGameWithNullGameName() throws DataAccessException, IllegalArgumentException {
+        assertThrows(IllegalArgumentException.class, () -> {
+            gameDataAccess.createGame(null, "Benjamin", "Samuel");
+        });
+    }
 
     //ListGames SQL tests
     @Test
@@ -186,7 +199,7 @@ public class SQLDataAccessTests {
 
         JoinGameRequest joinRequest = new JoinGameRequest("WHITE", -1, authToken);
         assertThrows(IllegalArgumentException.class, () -> {
-            joinGameService.joingame(joinRequest);
+            joinGameService.joinGame(joinRequest);
         });
     }
 

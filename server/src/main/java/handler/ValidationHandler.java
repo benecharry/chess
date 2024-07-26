@@ -26,4 +26,6 @@ public class ValidationHandler {
             throw new AlreadyTakenException(message);
         }
     }
-}
+    public static String emptyToNull(String str) {
+        return (str == null || str.trim().isEmpty()) ? null : str;
+    }}

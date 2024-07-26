@@ -2,6 +2,7 @@ package dataaccess;
 
 import chess.ChessGame;
 import handler.SerializationHandler;
+import handler.ValidationHandler;
 import model.GameData;
 
 import java.sql.ResultSet;
@@ -13,16 +14,13 @@ public class GameDataSQLDataAccess implements GameDataDataAccess {
 
     @Override
     public int createGame(String gameName, String whiteUsername, String blackUsername) throws DataAccessException {
-        if(whiteUsername.isEmpty()){
-            whiteUsername = null;
-        }
-        if(blackUsername.isEmpty()){
-            blackUsername = null;
-        }
-        ChessGame game = new ChessGame();
-        String gameString = SerializationHandler.toJson(game);
-        var statement = "INSERT INTO games (gameName, game, whiteUsername, blackUsername) VALUES (?, ?, ?, ?)";
-        return DatabaseInitializer.executeUpdate(statement, true, gameName, gameString, whiteUsername, blackUsername);
+        ValidationHandler.checkNotNull(gameName, "Game name cannot be null");
+        whiteUsername = ValidationHandler.emptyToNull(whiteUsername);
+        blackUsername = ValidationHandler.emptyToNull(blackUsername);
+
+        String gameString = SerializationHandler.toJson(new ChessGame());
+        var statement = "INSERT INTO games (gameName, whiteUsername, blackUsername, game) VALUES (?, ?, ?, ?)";
+        return DatabaseInitializer.executeUpdate(statement, true, gameName, whiteUsername, blackUsername, gameString);
     }
 
     @Override

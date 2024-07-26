@@ -9,8 +9,6 @@ public class AuthDataSQLDataAccess implements AuthDataDataAccess{
     @Override
     public String createAuth(String username) throws DataAccessException {
         String authToken = UUID.randomUUID().toString();
-        var deleteStatement = "DELETE FROM authTokens WHERE username=?";
-        DatabaseInitializer.executeUpdate(deleteStatement, false, username);
         var statement = "INSERT INTO authTokens (authToken, username) VALUES (?, ?)";
         DatabaseInitializer.executeUpdate(statement, false, authToken, username);
         return authToken;

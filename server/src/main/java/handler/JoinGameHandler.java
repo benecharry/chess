@@ -22,7 +22,7 @@ public class JoinGameHandler implements Route {
             String authToken = req.headers("authorization");
             JoinGameRequest request = SerializationHandler.fromJson(req.body(), JoinGameRequest.class);
             JoinGameRequest joinGameRequest = new JoinGameRequest(request.playerColor(), request.gameID(), authToken);
-            JoinGameResult result = joinGameService.joingame(joinGameRequest);
+            JoinGameResult result = joinGameService.joinGame(joinGameRequest);
             res.status(200);
             return SerializationHandler.toJson(result);
         }catch (AlreadyTakenException e) {

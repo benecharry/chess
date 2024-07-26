@@ -24,7 +24,7 @@ public class ListGamesService {
         this.gameDataDataAccess = gameDataDataAccess;
     }
 
-    public ListGamesResult listgames(ListGamesRequest request) throws DataAccessException, UnauthorizedException {
+    public ListGamesResult listGames(ListGamesRequest request) throws DataAccessException, UnauthorizedException {
         String authToken = request.authToken();
         AuthData authData = authDataDataAccess.getAuth(authToken);
         ValidationHandler.checkAuthData(authData);

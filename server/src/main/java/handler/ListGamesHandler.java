@@ -16,7 +16,7 @@ public class ListGamesHandler implements Route {
     public Object handle(Request req, Response res) throws Exception{
         try{
             ListGamesRequest request = new ListGamesRequest(req.headers("authorization"));
-            ListGamesResult result = listGamesService.listgames(request);
+            ListGamesResult result = listGamesService.listGames(request);
             res.status(200);
             return SerializationHandler.toJson(result);
         } catch (Exception e) {

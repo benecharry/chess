@@ -20,7 +20,7 @@ public class JoinGameService {
         this.gameDataDataAccess = gameDataDataAccess;
     }
 
-    public JoinGameResult joingame(JoinGameRequest request) throws DataAccessException, UnauthorizedException, AlreadyTakenException {
+    public JoinGameResult joinGame(JoinGameRequest request) throws DataAccessException, UnauthorizedException, AlreadyTakenException {
         String authToken = request.authToken();
         AuthData authData = authDataDataAccess.getAuth(authToken);
         ValidationHandler.checkAuthData(authData);

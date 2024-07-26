@@ -200,7 +200,7 @@ public class ServiceUnitTest {
         CreateGameResult createResult = createGameService.createGame(createRequest);
 
         JoinGameRequest joinRequest = new JoinGameRequest("WHITE", createResult.gameID(), authToken);
-        JoinGameResult joinResult = joinGameService.joingame(joinRequest);
+        JoinGameResult joinResult = joinGameService.joinGame(joinRequest);
 
         assertEquals("username", gameDataMemoryDataAccess.getGame(createResult.gameID()).whiteUsername());
         assertNull(gameDataMemoryDataAccess.getGame(createResult.gameID()).blackUsername());
@@ -218,7 +218,7 @@ public class ServiceUnitTest {
         JoinGameRequest joinRequest = new JoinGameRequest(null, createResult.gameID(), authToken);
 
         assertThrows(IllegalArgumentException.class, () -> {
-            joinGameService.joingame(joinRequest);
+            joinGameService.joinGame(joinRequest);
         });
     }
 

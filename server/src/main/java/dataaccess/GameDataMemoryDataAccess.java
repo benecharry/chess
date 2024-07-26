@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import handler.ValidationHandler;
 import model.GameData;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,6 +16,9 @@ public class GameDataMemoryDataAccess implements GameDataDataAccess{
                 throw new DataAccessException("Name in use");
             }
         }
+        whiteUsername = ValidationHandler.emptyToNull(whiteUsername);
+        blackUsername = ValidationHandler.emptyToNull(blackUsername);
+
         int gameID = nextId++;
         ChessGame game = new ChessGame();
         games.put(gameID, new GameData(gameID, whiteUsername, blackUsername, gameName, game));
