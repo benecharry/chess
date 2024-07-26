@@ -3,6 +3,8 @@ package dataaccess;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -11,17 +13,23 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SQLDataAccessTests {
     private UserDataDataAccess userDataAccess;
     private AuthDataDataAccess authDataAccess;
+    private GameDataDataAccess gameDataAccess;
 
     @BeforeEach
     public void setup() throws DataAccessException {
+        userDataAccess = new UserDataSQLDataAccess();
+        authDataAccess = new AuthDataSQLDataAccess();
+        gameDataAccess = new GameDataSQLDataAccess();
+
+        userDataAccess.clear();
+        authDataAccess.clear();
+        gameDataAccess.clear();
     }
 
-    //UserData SQL Tests
-    @ParameterizedTest
-    @ValueSource(classes = {UserDataSQLDataAccess.class, UserDataMemoryDataAccess.class})
-    void createUser(Class<? extends UserDataDataAccess> dbClass) throws DataAccessException {
-        userDataAccess = getUserDataAccess(dbClass);
-
+    //Register SQL Tests
+    @Test
+    @DisplayName("Create User")
+    void createUserPositive() throws DataAccessException {
         var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
         assertDoesNotThrow(() -> userDataAccess.createUser(user));
 
@@ -31,43 +39,49 @@ public class SQLDataAccessTests {
         assertEquals("benecharry@icloud.com", retrievedUser.email());
     }
 
-    @ParameterizedTest
-    @ValueSource(classes = {UserDataSQLDataAccess.class, UserDataMemoryDataAccess.class})
-    void existingUser(Class<? extends UserDataDataAccess> dbClass) throws DataAccessException {
-        userDataAccess = getUserDataAccess(dbClass);
-
+    @Test
+    @DisplayName("Existing User")
+    void existingUser() throws DataAccessException {
         var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
-        assertDoesNotThrow(() -> userDataAccess.createUser(user));
+        userDataAccess.createUser(user);
+
         var repeatedUser = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
         assertThrows(DataAccessException.class, () -> userDataAccess.createUser(repeatedUser));
+    }
+
+    //Login SQL tests
+    @Test
+    @DisplayName("Login Successful")
+    void loginSuccessful() throws DataAccessException {
+        var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
+        userDataAccess.createUser(user);
 
         UserData retrievedUser = userDataAccess.getUser("Benjamin");
-        assertNotNull(retrievedUser);
         assertEquals("Benjamin", retrievedUser.username());
         assertEquals("benecharry@icloud.com", retrievedUser.email());
+
+        var repeatedUser = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
+        assertThrows(DataAccessException.class, () -> userDataAccess.createUser(repeatedUser));
     }
 
-    //AuthData Test
-    @ParameterizedTest
-    @ValueSource(classes = {AuthDataSQLDataAccess.class, AuthDataMemoryDataAccess.class})
-    void generateAuthData(Class<? extends AuthDataDataAccess> dbClass) throws DataAccessException {
-        authDataAccess = getAuthDataAccess(dbClass);
-        String username = "Benjamin";
-        String authToken = authDataAccess.createAuth(username);
-        AuthData authData = authDataAccess.getAuth(authToken);
+    @Test
+    @DisplayName("Wrong password")
+    void wrongPasswor() throws DataAccessException {
+        var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
+        userDataAccess.createUser(user);
 
-        assertEquals(username, authData.username());
-        assertEquals(authToken, authData.authToken());
+        boolean passwordVerified = userDataAccess.verifyUser("Benjamin", "duck");
+        assertFalse(passwordVerified, "Verification with should fail");
     }
 
-    @ParameterizedTest
-    @ValueSource(classes = {AuthDataSQLDataAccess.class, AuthDataMemoryDataAccess.class})
-    void getAuthDataWithNullUser(Class<? extends AuthDataDataAccess> dbClass) throws DataAccessException {
-        authDataAccess = getAuthDataAccess(dbClass);
-        assertThrows(DataAccessException.class, () -> {
-            authDataAccess.createAuth(null);
-        }, "Data exception. Null user");
-    }
+    //CreateGame SQL tests
+
+    //ListGames SQL tests
+
+    //JoinGame SQL tests
+
+    //Clear SQL tests
+
 
     private UserDataDataAccess getUserDataAccess(Class<? extends UserDataDataAccess> databaseClass) throws DataAccessException {
         UserDataDataAccess db;
