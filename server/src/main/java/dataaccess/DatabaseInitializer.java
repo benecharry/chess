@@ -54,7 +54,7 @@ public class DatabaseInitializer {
                      : conn.prepareStatement(statement)) {
             for (var i = 0; i < params.length; i++) {
                 var param = params[i];
-                if (param instanceof String p) ps.setString(i + 1, p);
+                if (param instanceof String p) {ps.setString(i + 1, p);}
                 else if (param instanceof Integer p) {ps.setInt(i + 1, p);}
                 else if (param instanceof ChessGame p) {ps.setString(i + 1, SerializationHandler.toJson(p));}
                 else if (param == null) {ps.setNull(i + 1, NULL);}
