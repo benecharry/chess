@@ -31,7 +31,7 @@ public class SQLDataAccessTests {
 
     //Register SQL Tests
     @Test
-    @DisplayName("Create User test")
+    @DisplayName("Create user test")
     void createUserPositiveTest() throws DataAccessException {
         var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
         assertDoesNotThrow(() -> userDataAccess.createUser(user));
@@ -40,6 +40,14 @@ public class SQLDataAccessTests {
         assertNotNull(retrievedUser);
         assertEquals("Benjamin", retrievedUser.username());
         assertEquals("benecharry@icloud.com", retrievedUser.email());
+    }
+
+    @Test
+    @DisplayName("Invalid creation test")
+    void invalidCreationTest() throws DataAccessException{
+        var user = new UserData(null, "chiguire", "benecharry@icloud.com");
+        assertThrows(DataAccessException.class, () -> userDataAccess.createUser(user),
+                "User with null username.");
     }
 
     @Test
@@ -52,9 +60,35 @@ public class SQLDataAccessTests {
         assertThrows(DataAccessException.class, () -> userDataAccess.createUser(repeatedUser));
     }
 
+    @Test
+    @DisplayName("Non existent user test")
+    void nonExistentUserTest() throws DataAccessException{
+        UserData nonExistentUser = userDataAccess.getUser("NonExistentUser");
+        assertNull(nonExistentUser, "The user should not exist.");
+    }
+
+    //Authdata tests
+    @Test
+    @DisplayName("Auth with null username")
+    void createAuthWithNullUsernameTest() throws DataAccessException {
+        assertThrows(DataAccessException.class, () -> authDataAccess.createAuth(null),
+                "Unable to create authToke with null username.");
+    }
+    @Test
+    @DisplayName("Create auth test")
+    void createAuthTest() throws DataAccessException {
+        var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
+        userDataAccess.createUser(user);
+        String authToken = authDataAccess.createAuth(user.username());
+
+        AuthData retrievedAuthData = authDataAccess.getAuth(authToken);
+        assertNotNull(retrievedAuthData, "The auth should not be null.");
+        assertEquals(user.username(), retrievedAuthData.username(), "The username matches the auth.");
+    }
+
     //Verify Users test
     @Test
-    @DisplayName("Verification Successful test")
+    @DisplayName("Verification successful test")
     void successfulVerification() throws DataAccessException {
         var user = new UserData("Benjamin", "chiguire", "benecharry@icloud.com");
         userDataAccess.createUser(user);
@@ -115,7 +149,7 @@ public class SQLDataAccessTests {
     }
 
     @Test
-    @DisplayName("Invalid Logout due to false authToken test")
+    @DisplayName("Invalid logout due to false authToken test")
     void invalidLogoutFalseTokenTest() throws DataAccessException {
         String falseToken = "false-token";
         assertDoesNotThrow(() -> authDataAccess.deleteAuth(falseToken),
@@ -219,7 +253,7 @@ public class SQLDataAccessTests {
         assertThrows(DataAccessException.class, () -> gameDataAccess.updateGame(nonExistentGameData));
     }
 
-    //JoinGame SQL tests
+    //JoinGame SQL test
     @Test
     @DisplayName("Join Game with invalid game test")
     void joinGameInvalidGameIdTest() throws DataAccessException, InvalidMoveException {
@@ -253,6 +287,4 @@ public class SQLDataAccessTests {
         assertNull(authDataAccess.getAuth(authToken));
         assertTrue(gameDataAccess.listGames().isEmpty());
     }
-
-    //AuthData Test?
 }
