@@ -25,6 +25,31 @@ public class ServerFacade {
         return this.makeRequest("POST", path, loginRequest, LoginResult.class);
     }
 
+    public LogoutResult logout(LogoutRequest logoutRequest) throws ResponseException{
+        var path = "/session";
+        return this.makeRequest("DELETE", path, null, LogoutResult.class, logoutRequest.authToken());
+    }
+
+    public CreateGameResult createGame(CreateGameRequest createGameResult) throws  ResponseException{
+        var path = "/game";
+        return this.makeRequest("POST", path, createGameResult, CreateGameResult.class, createGameResult.authToken());
+    }
+
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("GET", path, null, ListGamesResult.class, listGamesRequest.authToken());
+    }
+
+    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("PUT", path, joinGameRequest, JoinGameResult.class, joinGameRequest.authToken());
+    }
+
+    public void clear() throws ResponseException {
+        var path = "/db";
+        this.makeRequest("DELETE", path, null, null);
+    }
+
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass)
             throws ResponseException {
         return makeRequest(method, path, request, responseClass, null);
