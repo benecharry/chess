@@ -12,8 +12,8 @@ public class Repl {
 
     public void run() {
         System.out.println("\uD83D\uDC51 Welcome to 240 chess. Type Help to get started. \uD83D\uDC51");
-
         Scanner scanner = new Scanner(System.in);
+
         var result = "";
         while (!result.equals("quit")) {
             printPrompt();
@@ -26,7 +26,7 @@ public class Repl {
                     break;
                 } else if (currentUI instanceof PreloginUI && currentUI.getState() == State.LOGGEDIN) {
                     currentUI = new PostloginUI(currentUI.getServerUrl(), currentUI.getAuthToken());
-                    System.out.print(currentUI.help());
+                    //System.out.print(currentUI.help());
                 }
             } catch (Throwable e) {
                 var msg = e.toString();

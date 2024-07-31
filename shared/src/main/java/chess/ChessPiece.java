@@ -12,41 +12,15 @@ public class ChessPiece {
 
     private ChessGame.TeamColor pieceColor;
     private ChessPiece.PieceType type;
-    private MovesCalculator movesCalculator;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
-        initializeMoveCalculator();
     }
 
     public ChessPiece(ChessPiece copy){
         this.pieceColor = copy.pieceColor;
         this.type = copy.type;
-        initializeMoveCalculator();
-    }
-
-    public void initializeMoveCalculator(){
-        switch (this.type){
-            case KING:
-                this.movesCalculator = new KingMoveCalculator();
-                break;
-            case KNIGHT:
-                this.movesCalculator = new KnightMoveCalculator();
-                break;
-            case PAWN:
-                this.movesCalculator = new PawnMoveCalculator();
-                break;
-            case BISHOP:
-                this.movesCalculator = new BishopMoveCalculator();
-                break;
-            case ROOK:
-                this.movesCalculator = new RookMoveCalculator();
-                break;
-            case QUEEN:
-                this.movesCalculator = new QueenMoveCalculator();
-                break;
-        }
     }
 
     /**
@@ -82,11 +56,28 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        if(this.movesCalculator != null){
-            return this.movesCalculator.calculateValidMoves(board, myPosition);
+
+    public MovesCalculator getMovesCalculator(){
+        switch (this.type){
+            case KING:
+                return new KingMoveCalculator();
+            case KNIGHT:
+                return new KnightMoveCalculator();
+            case PAWN:
+                return new PawnMoveCalculator();
+            case BISHOP:
+                return new BishopMoveCalculator();
+            case ROOK:
+                return new RookMoveCalculator();
+            case QUEEN:
+                return new QueenMoveCalculator();
         }
-        else {return new ArrayList<>();}
+        return null;
+    }
+
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        MovesCalculator calculator = getMovesCalculator();
+        return calculator.calculateValidMoves(board, myPosition);
     }
 
     @Override

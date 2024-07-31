@@ -2,8 +2,10 @@ package client;
 
 import exception.ResponseException;
 import request.CreateGameRequest;
+import request.ListGamesRequest;
 import request.LogoutRequest;
 import result.CreateGameResult;
+import result.ListGamesResult;
 import result.LogoutResult;
 
 import java.util.Arrays;
@@ -53,8 +55,17 @@ public class PostloginUI extends SharedUI {
         throw new ResponseException(400, "Expected: create <gameName>");
     }
 
-    public String listGames() {
-        return "";
+    public String listGames() throws ResponseException{
+        assertSignedIn();
+        ListGamesRequest request = new ListGamesRequest(authToken);
+        ListGamesResult result = server.listGames(request);
+
+        StringBuilder resultString = new StringBuilder();
+        for (ListGamesResult.GameDetails game : result.games()) {
+            resultString.append(String.format("Game ID: %s, White: %s, Black: %s, Name: %s\n",
+                    game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+        }
+        return resultString.toString();
     }
 
     private void assertSignedIn() throws ResponseException {
