@@ -2,9 +2,11 @@ package client;
 
 import exception.ResponseException;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.ListGamesRequest;
 import request.LogoutRequest;
 import result.CreateGameResult;
+import result.JoinGameResult;
 import result.ListGamesResult;
 import result.LogoutResult;
 
@@ -27,6 +29,7 @@ public class PostloginUI extends SharedUI {
                 case "logout" -> logout();
                 case "create" -> createGame(params);
                 case "list" -> listGames();
+                case "join" -> joinGame(params);
                 case "quit" -> quit();
                 default -> help();
             };
@@ -62,10 +65,21 @@ public class PostloginUI extends SharedUI {
 
         StringBuilder resultString = new StringBuilder();
         for (ListGamesResult.GameDetails game : result.games()) {
-            resultString.append(String.format("Game ID: %s, White: %s, Black: %s, Name: %s\n",
+            resultString.append(String.format("Game ID: %s, White Username: %s, Black Username: %s, Game Name: %s\n",
                     game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
         }
         return resultString.toString();
+    }
+
+    public String joinGame(String... params) throws ResponseException{
+        if (params.length == 2) {
+            int gameID = Integer.parseInt(params[0]);;
+            String playerColor = params[1];
+            JoinGameRequest request = new JoinGameRequest(playerColor, gameID, authToken);
+            JoinGameResult result = server.joinGame(request);
+            return String.format("Joined game with ID: %d as %s.", gameID, playerColor);
+        }
+        throw new ResponseException(400, "Expected: join <ID> <WHITE|BLACK>");
     }
 
     private void assertSignedIn() throws ResponseException {

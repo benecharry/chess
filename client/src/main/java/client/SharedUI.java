@@ -26,6 +26,7 @@ public abstract class SharedUI {
     }
 
     public String quit() {
+        System.out.println("You are exiting the game. Thanks for playing");
         return "quit";
     }
 
