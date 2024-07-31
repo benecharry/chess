@@ -2,7 +2,9 @@ package client;
 
 import exception.ResponseException;
 import request.CreateGameRequest;
+import request.LogoutRequest;
 import result.CreateGameResult;
+import result.LogoutResult;
 
 import java.util.Arrays;
 
@@ -20,6 +22,7 @@ public class PostloginUI extends SharedUI {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
+                case "logout" -> logout();
                 case "create" -> createGame(params);
                 case "list" -> listGames();
                 case "quit" -> quit();
@@ -30,7 +33,17 @@ public class PostloginUI extends SharedUI {
         }
     }
 
+    public String logout() throws ResponseException{
+        assertSignedIn();
+        String token = getAuthToken();
+        LogoutRequest request = new LogoutRequest(token);
+        LogoutResult result = server.logout(request);
+        state = State.LOGGEDOUT;
+        return "Logout request was successful. Thanks for playing";
+    }
+
     public String createGame(String... params) throws ResponseException {
+        assertSignedIn();
         if (params.length == 1) {
             String gameName = params[0];
             CreateGameRequest request = new CreateGameRequest(gameName, authToken);
@@ -42,5 +55,11 @@ public class PostloginUI extends SharedUI {
 
     public String listGames() {
         return "";
+    }
+
+    private void assertSignedIn() throws ResponseException {
+        if (state == State.LOGGEDOUT) {
+            throw new ResponseException(400, "You must sign in");
+        }
     }
 }

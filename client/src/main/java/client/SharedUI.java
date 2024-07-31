@@ -2,8 +2,7 @@ package client;
 
 import server.ServerFacade;
 
-import static ui.EscapeSequences.RESET_TEXT_COLOR;
-import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
+import static ui.EscapeSequences.*;
 
 public abstract class SharedUI {
     protected State state = State.LOGGEDOUT;
@@ -33,7 +32,6 @@ public abstract class SharedUI {
     public String help() {
         if (state == State.LOGGEDOUT) {
             return String.format("""
-                    \n
                     %s  register <USERNAME> <PASSWORD> <EMAIL>%s - to create an account
                     %s  login <USERNAME> <PASSWORD>%s - to play chess
                     %s  quit%s - playing chess

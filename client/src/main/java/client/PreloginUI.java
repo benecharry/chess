@@ -47,12 +47,12 @@ public class PreloginUI extends SharedUI {
 
     public String login(String... params) throws ResponseException {
         if (params.length == 2) {
-            state = State.LOGGEDIN;
             String username = params[0];
             String password = params[1];
             LoginRequest request = new LoginRequest(username, password);
             LoginResult result = server.login(request);
             authToken = result.authToken();
+            state = State.LOGGEDIN;
             return String.format("Logged in as %s.", username);
         }
         throw new ResponseException(400, "Expected: login <username> <password>");

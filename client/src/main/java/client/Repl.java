@@ -12,8 +12,6 @@ public class Repl {
 
     public void run() {
         System.out.println("\uD83D\uDC51 Welcome to 240 chess. Type Help to get started. \uD83D\uDC51");
-        printPrompt();
-        System.out.print(currentUI.help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -23,7 +21,7 @@ public class Repl {
 
             try {
                 result = currentUI.eval(line);
-                System.out.print(result);
+                System.out.print(RESET_TEXT_COLOR + result + RESET_TEXT_COLOR);
                 if (result.equals("quit")) {
                     break;
                 } else if (currentUI instanceof PreloginUI && currentUI.getState() == State.LOGGEDIN) {
@@ -40,9 +38,9 @@ public class Repl {
 
     private void printPrompt() {
         if (currentUI.getState() == State.LOGGEDOUT) {
-            System.out.print("\n[LOGGED_OUT] >>> " + SET_TEXT_COLOR_GREEN);
+            System.out.print(RESET_TEXT_COLOR + "\n[LOGGED_OUT] >>> " + SET_TEXT_COLOR_GREEN);
         } else {
-            System.out.print("\n[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN);
+            System.out.print(RESET_TEXT_COLOR + "\n[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN);
         }
     }
 }
