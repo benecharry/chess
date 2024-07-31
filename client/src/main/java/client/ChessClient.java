@@ -12,6 +12,7 @@ public class ChessClient {
     private State state = State.LOGGEDOUT;
     private final ServerFacade server;
     private final PreloginUI preloginUI;
+    private String authToken = null;
 
     public ChessClient(String serverUrl, PreloginUI preloginUI) {
         this.server = new ServerFacade(serverUrl);
@@ -24,12 +25,27 @@ public class ChessClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
+                case "register" -> register(params);
                 case "quit" -> "quit";
                 default -> help();
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
+    }
+
+    public String register(String... params) throws ResponseException{
+        if (params.length == 3) {
+            String username = params[0];
+            String password = params[1];
+            String email = params[2];
+            RegisterRequest request = new RegisterRequest(username, password, email);
+            RegisterResult result = server.register(request);
+            authToken = result.authToken();
+            state = State.LOGGEDIN;
+            return String.format("Registered and logged in as %s.", username);
+        }
+        throw new ResponseException(400, "Expected: register <username> <password> <email>");
     }
 
     public String quit(){
@@ -65,5 +81,9 @@ public class ChessClient {
                 SET_TEXT_COLOR_BLUE, RESET_TEXT_COLOR,
                 SET_TEXT_COLOR_BLUE, RESET_TEXT_COLOR,
                 SET_TEXT_COLOR_BLUE, RESET_TEXT_COLOR);
+    }
+
+    public State getState() {
+        return state;
     }
 }

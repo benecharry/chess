@@ -36,6 +36,10 @@ public class PreloginUI {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
+        if (client.getState() == State.LOGGEDOUT) {
+            System.out.print("\n[LOGGED_OUT] >>> " + SET_TEXT_COLOR_GREEN);
+        } else {
+            System.out.print("\n[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN);
+        }
     }
 }
