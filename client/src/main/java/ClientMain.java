@@ -1,4 +1,4 @@
-import client.PreloginUI;
+import client.Repl;
 
 public class ClientMain {
     public static void main(String[] args) {
@@ -9,6 +9,6 @@ public class ClientMain {
             serverUrl = args[0];
         }
 
-        new PreloginUI(serverUrl).run();
+        new Repl(serverUrl).run();
     }
 }

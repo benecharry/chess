@@ -1,45 +1,60 @@
 package client;
 
+import exception.ResponseException;
+import request.LoginRequest;
+import request.RegisterRequest;
+import result.LoginResult;
+import result.RegisterResult;
 
-import java.util.Scanner;
-import static ui.EscapeSequences.*;
+import java.util.Arrays;
 
-public class PreloginUI {
-    private final ChessClient client;
+public class PreloginUI extends SharedUI {
 
     public PreloginUI(String serverUrl) {
-        client = new ChessClient(serverUrl, this);
+        super(serverUrl);
     }
 
-    public void run(){
-        System.out.println("\uD83D\uDC51 Welcome to 240 chess. Type Help to get started. \uD83D\uDC51");
-        System.out.print(client.help());
-
-        Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("quit")) {
-            printPrompt();
-            String line = scanner.nextLine();
-
-            try {
-                result = client.eval(line);
-                if (result.equals("quit")) {
-                    break;
-                }
-                System.out.print(result);
-            } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(SET_TEXT_COLOR_RED + msg + RESET_TEXT_COLOR);
-            }
+    @Override
+    public String eval(String input) {
+        try {
+            var tokens = input.toLowerCase().split(" ");
+            var cmd = (tokens.length > 0) ? tokens[0] : "help";
+            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch (cmd) {
+                case "register" -> register(params);
+                case "login" -> login(params);
+                case "quit" -> quit();
+                default -> help();
+            };
+        } catch (ResponseException ex) {
+            return ex.getMessage();
         }
-        System.out.println();
     }
 
-    private void printPrompt() {
-        if (client.getState() == State.LOGGEDOUT) {
-            System.out.print("\n[LOGGED_OUT] >>> " + SET_TEXT_COLOR_GREEN);
-        } else {
-            System.out.print("\n[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN);
+    public String register(String... params) throws ResponseException {
+        if (params.length == 3) {
+            String username = params[0];
+            String password = params[1];
+            String email = params[2];
+            RegisterRequest request = new RegisterRequest(username, password, email);
+            RegisterResult result = server.register(request);
+            authToken = result.authToken();
+            state = State.LOGGEDIN;
+            return String.format("Registered and logged in as %s.", username);
         }
+        throw new ResponseException(400, "Expected: register <username> <password> <email>");
+    }
+
+    public String login(String... params) throws ResponseException {
+        if (params.length == 2) {
+            state = State.LOGGEDIN;
+            String username = params[0];
+            String password = params[1];
+            LoginRequest request = new LoginRequest(username, password);
+            LoginResult result = server.login(request);
+            authToken = result.authToken();
+            return String.format("Logged in as %s.", username);
+        }
+        throw new ResponseException(400, "Expected: login <username> <password>");
     }
 }
