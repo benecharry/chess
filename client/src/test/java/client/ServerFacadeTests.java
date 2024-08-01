@@ -92,4 +92,43 @@ public class ServerFacadeTests {
         assertTrue(thrownException.getMessage().contains("Error: unauthorize"));
     }
 
+
+    //Logout
+    @Test
+    @Order(5)
+    @DisplayName("Successful logout")
+    void successfulLogout() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("bensito", "chiguire", "ben@gmail.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+
+        assertNotNull(registerResult.authToken());
+
+        LogoutRequest logoutRequest = new LogoutRequest(registerResult.authToken());
+        Exception thrownException = null;
+        try {
+            facade.logout(logoutRequest);
+        } catch (Exception e) {
+            thrownException = e;
+        }
+
+        assertNull(thrownException);
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("Logout with invalid token")
+    void logoutWithInvalidToken() throws Exception {
+        LogoutRequest invalidLogoutRequest = new LogoutRequest("invalidToken");
+        Exception thrownException = null;
+        try {
+            facade.logout(invalidLogoutRequest);
+        } catch (Exception e) {
+            thrownException = e;
+        }
+
+        assertNotNull(thrownException);
+        assertTrue(thrownException.getMessage().contains("Error: unauthorized"));
+    }
+
+
 }
