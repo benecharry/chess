@@ -65,4 +65,8 @@ public abstract class SharedUI {
         return state;
     }
 
+    public void resetState() {
+        this.state = State.LOGGEDOUT;
+        this.authToken = null;
+    }
 }

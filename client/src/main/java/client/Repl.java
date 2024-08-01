@@ -26,7 +26,8 @@ public class Repl {
                     break;
                 } else if (currentUI instanceof PreloginUI && currentUI.getState() == State.LOGGEDIN) {
                     currentUI = new PostloginUI(currentUI.getServerUrl(), currentUI.getAuthToken());
-                    //System.out.print(currentUI.help());
+                } else if (currentUI instanceof PostloginUI && currentUI.getState() == State.LOGGEDOUT) {
+                    currentUI = new PreloginUI(currentUI.getServerUrl());
                 }
             } catch (Throwable e) {
                 var msg = e.toString();
