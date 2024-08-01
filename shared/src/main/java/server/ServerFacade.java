@@ -3,6 +3,9 @@ package server;
 import com.google.gson.Gson;
 import java.io.*;
 import java.net.*;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import exception.ResponseException;
 import request.*;
 import result.*;
@@ -89,8 +92,22 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            throw new ResponseException(status, "failure: " + status);
+            String errorMessage = "";
+            try (InputStream errorStream = http.getErrorStream()) {
+                if (errorStream != null) {
+                    errorMessage = new BufferedReader(new InputStreamReader(errorStream))
+                            .lines()
+                            .reduce("", (acc, line) -> acc + line);
+                    errorMessage = getErrorMessage(errorMessage);
+                }
+            }
+            throw new ResponseException(status, errorMessage);
         }
+    }
+
+    private String getErrorMessage(String json) {
+        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
+        return jsonObject.get("message").getAsString();
     }
 
     private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {

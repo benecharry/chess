@@ -64,4 +64,5 @@ public abstract class SharedUI {
     public State getState() {
         return state;
     }
+
 }
