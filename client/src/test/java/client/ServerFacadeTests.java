@@ -130,5 +130,40 @@ public class ServerFacadeTests {
         assertTrue(thrownException.getMessage().contains("Error: unauthorized"));
     }
 
+    //Create
+    @Test
+    @Order(7)
+    @DisplayName("Successful game creation")
+    void successfulGameCreation() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("bensito", "chiguire", "ben@gmail.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+
+        assertNotNull(registerResult.authToken());
+
+        CreateGameRequest createGameRequest = new CreateGameRequest("Endgame", registerResult.authToken());
+        CreateGameResult createGameResult = facade.createGame(createGameRequest);
+
+        assertNotNull(createGameResult);
+        assertTrue(createGameResult.gameID() > 0);
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("Create game with invalid token")
+    void createGameWithInvalidToken() throws Exception {
+        CreateGameRequest createGameRequest = new CreateGameRequest("Invalid Game", "invalidToken");
+        Exception thrownException = null;
+
+        try {
+            facade.createGame(createGameRequest);
+        } catch (Exception e) {
+            thrownException = e;
+        }
+
+        assertNotNull(thrownException);
+        assertTrue(thrownException.getMessage().contains("Error: unauthorized"));
+    }
+
+
 
 }
