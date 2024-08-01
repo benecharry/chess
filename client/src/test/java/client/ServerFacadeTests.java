@@ -1,5 +1,6 @@
 package client;
 
+import exception.InvalidParameters;
 import exception.ResponseException;
 import org.junit.jupiter.api.*;
 import request.*;
@@ -14,6 +15,7 @@ public class ServerFacadeTests {
 
     private static Server server;
     static ServerFacade facade;
+    private PostLoginUI postLoginUI;
 
     @BeforeAll
     public static void init() {
@@ -89,7 +91,7 @@ public class ServerFacadeTests {
         }
 
         assertNotNull(thrownException);
-        assertTrue(thrownException.getMessage().contains("Error: unauthorize"));
+        assertTrue(thrownException.getMessage().contains("Error: unauthorized"));
     }
 
 
@@ -252,11 +254,46 @@ public class ServerFacadeTests {
     }
 
     //Observe
+    @Test
+    @Order(13)
+    @DisplayName("Observe game with valid ID")
+    public void testObserveGameValidID() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("bensito", "chiguire", "ben@gmail.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+        postLoginUI = new PostLoginUI(facade.getServerUrl(), registerResult.authToken());
 
+        String[] createParams = {"Game"};
+        postLoginUI.createGame(createParams);
+
+        postLoginUI.listGames();
+
+        String expectedOutput = GameplayUI.getInitialBoardState();
+        String result = postLoginUI.observeGame("1");
+
+        assertEquals(expectedOutput, result);
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("Observe game with invalid ID")
+    public void testObserveGameInvalidID() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("bensito", "chiguire", "ben@gmail.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+        postLoginUI = new PostLoginUI(facade.getServerUrl(), registerResult.authToken());
+
+        Exception exception = assertThrows(InvalidParameters.class, () -> {
+            postLoginUI.observeGame("99");
+        });
+
+        String expectedMessage = "Game ID not found.";
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
 
 
     //Clear
     @Test
+    @Order(15)
     @DisplayName("Clear database")
     void clear() throws Exception {
         assertDoesNotThrow(() -> {

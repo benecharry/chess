@@ -18,6 +18,10 @@ public class ServerFacade {
         serverUrl = url;
     }
 
+    public String getServerUrl() {
+        return serverUrl;
+    }
+
     public RegisterResult register(RegisterRequest registerRequest) throws ResponseException {
         var path = "/user";
         return this.makeRequest("POST", path, registerRequest, RegisterResult.class);
@@ -46,11 +50,6 @@ public class ServerFacade {
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws ResponseException {
         var path = "/game";
         return this.makeRequest("PUT", path, joinGameRequest, JoinGameResult.class, joinGameRequest.authToken());
-    }
-
-    public String observeGame(int gameID) throws ResponseException {
-        var path = "/game/" + gameID + "/observe";
-        return this.makeRequest("GET", path, null, String.class);
     }
 
     public void clear() throws ResponseException {
