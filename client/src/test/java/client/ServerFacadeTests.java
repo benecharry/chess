@@ -164,6 +164,96 @@ public class ServerFacadeTests {
         assertTrue(thrownException.getMessage().contains("Error: unauthorized"));
     }
 
+    //List
+    @Test
+    @Order(9)
+    @DisplayName("Successful list games")
+    void successfulListGames() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("bensito", "chiguire", "ben@gmail.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+
+        assertNotNull(registerResult.authToken());
+
+        CreateGameRequest firstGameRequest = new CreateGameRequest("Game1", registerResult.authToken());
+        CreateGameResult firstGameResult = facade.createGame(firstGameRequest);
+
+        CreateGameRequest secondGameRequest = new CreateGameRequest("Game2", registerResult.authToken());
+        CreateGameResult secondGameResult = facade.createGame(secondGameRequest);
+
+        ListGamesRequest listGamesRequest = new ListGamesRequest(registerResult.authToken());
+        ListGamesResult listGamesResult = facade.listGames(listGamesRequest);
+
+        assertNotNull(listGamesResult);
+        assertTrue(listGamesResult.games().size() >= 2);
+    }
+    @Test
+    @Order(10)
+    @DisplayName("List games with unauthorized user")
+    void createGameWithInvalidRequest() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("bensito", "chiguire", "ben@gmail.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+
+        assertNotNull(registerResult.authToken());
+        CreateGameRequest invalidCreateGameRequest = new CreateGameRequest("", registerResult.authToken());
+        Exception thrownException = null;
+
+        try {
+            facade.createGame(invalidCreateGameRequest);
+        } catch (Exception e) {
+            thrownException = e;
+        }
+
+        assertNotNull(thrownException);
+        assertTrue(thrownException.getMessage().contains("Error: bad request"));
+    }
+
+    //Join
+    @Test
+    @Order(11)
+    @DisplayName("Join game successfully")
+    void joinGameSuccessfully() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("bensito", "chiguire", "ben@gmail.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+
+        CreateGameRequest createGameRequest = new CreateGameRequest("myGame", registerResult.authToken());
+        CreateGameResult createGameResult = facade.createGame(createGameRequest);
+
+        JoinGameRequest joinGameRequest = new JoinGameRequest("white", createGameResult.gameID(),
+                registerResult.authToken());
+        Exception thrownException = null;
+
+        try {
+            facade.joinGame(joinGameRequest);
+        } catch (Exception e) {
+            thrownException = e;
+        }
+
+        assertNull(thrownException);
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Join game with invalid game ID")
+    void joinGameWithInvalidGameID() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("bensito", "chiguire", "ben@gmail.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+
+        JoinGameRequest joinGameRequest = new JoinGameRequest("white", -1, registerResult.authToken());
+        Exception thrownException = null;
+
+        try {
+            facade.joinGame(joinGameRequest);
+        } catch (Exception e) {
+            thrownException = e;
+        }
+
+        assertNotNull(thrownException);
+        assertTrue(thrownException.getMessage().contains("Error: bad request"));
+    }
+
+
+
+    //Observe
 
 
 }
