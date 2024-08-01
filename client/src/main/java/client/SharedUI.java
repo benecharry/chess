@@ -1,7 +1,6 @@
 package client;
 
 import server.ServerFacade;
-
 import static ui.EscapeSequences.*;
 
 public abstract class SharedUI {
