@@ -16,14 +16,31 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class PostLoginUI extends SharedUI {
-    private HashMap<Integer, Integer> clientToServerGameIDs;
+    private HashMap<Integer, Integer> localGameIDs;
+    private int nextLocalID;
 
     public PostLoginUI(String serverUrl, String authToken) {
         super(serverUrl);
         this.authToken = authToken;
         this.state = State.LOGGEDIN;
-        this.clientToServerGameIDs = new HashMap<>();
+        this.localGameIDs = new HashMap<>();
+        this.nextLocalID = 1;
+        initializeLocalGameIDs();
     }
+
+    private void initializeLocalGameIDs() {
+        try {
+            ListGamesRequest request = new ListGamesRequest(authToken);
+            ListGamesResult result = server.listGames(request);
+            for (ListGamesResult.GameDetails game : result.games()) {
+                localGameIDs.put(nextLocalID, game.gameID());
+                nextLocalID++;
+            }
+        } catch (ResponseException e) {
+            System.out.println("Error initializing client to server IDs: " + e.getMessage());
+        }
+    }
+
     @Override
     public String eval(String input) {
         try {
@@ -75,7 +92,9 @@ public class PostLoginUI extends SharedUI {
             String gameName = params[0];
             CreateGameRequest request = new CreateGameRequest(gameName, authToken);
             CreateGameResult result = server.createGame(request);
-            return String.format("Game '%s' created with ID: %d", gameName, result.gameID());
+            int localID = nextLocalID++;
+            localGameIDs.put(localID, result.gameID());
+            return String.format("Game '%s' created with ID: %d", gameName, localID);
         }
         throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'create'"
                 + RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + " followed by the " + SET_TEXT_BOLD + "<name>"
@@ -88,31 +107,28 @@ public class PostLoginUI extends SharedUI {
         ListGamesResult result = server.listGames(request);
 
         StringBuilder resultString = new StringBuilder();
-        clientToServerGameIDs.clear();
-        int index = 1;
+        localGameIDs.clear();
+        nextLocalID = 1;
+
+        if (result.games().isEmpty()) {
+            return "No games have been created yet.";
+        }
+
         System.out.println("ID");
         for (ListGamesResult.GameDetails game : result.games()) {
-            clientToServerGameIDs.put(index, game.gameID());
-
+            localGameIDs.put(nextLocalID, game.gameID());
             resultString.append(String.format("%d. Name: %s\n     White Player: %s\n     Black Player: %s\n",
-                    index++, game.gameName(), game.whiteUsername(), game.blackUsername()));
+                    nextLocalID++, game.gameName(), game.whiteUsername(), game.blackUsername()));
         }
         return resultString.toString();
     }
 
-    //Make it to have local ID. DONE
-    //Join game also needs to know about these IDs. DONE
-    //Missing parameters. DONE
-    //Wrong parameters. DONE
-    //Unit tests to auto-grader. First
-    //Queue with TAs.
-
     public String joinGame(String... params) throws ResponseException, InvalidParameters {
         assertSignedIn();
         if (params.length == 2) {
-            int clientGameID = Integer.parseInt(params[0]);;
+            int clientGameID = Integer.parseInt(params[0]);
             String playerColor = params[1];
-            Integer databaseGameID = clientToServerGameIDs.get(clientGameID);
+            Integer databaseGameID = localGameIDs.get(clientGameID);
             if (databaseGameID == null) {
                 throw new InvalidParameters("Game ID not found.");
             }
@@ -139,7 +155,9 @@ public class PostLoginUI extends SharedUI {
 
             JoinGameRequest request = new JoinGameRequest(playerColor, databaseGameID, authToken);
             JoinGameResult result = server.joinGame(request);
-            return String.format("You have joined the game with ID: %d as %s.", clientGameID, playerColor);
+            int localID = nextLocalID++;
+            localGameIDs.put(localID, databaseGameID);
+            return String.format("You have joined the game with ID: %d as %s.", localID, playerColor);
         }
         throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'join'" +
                 RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + ", followed by the " + SET_TEXT_BOLD + "<ID>" +
@@ -150,14 +168,14 @@ public class PostLoginUI extends SharedUI {
     public String observeGame(String... params) throws ResponseException, InvalidParameters {
         assertSignedIn();
         if (params.length == 1) {
-            int clientGameID = Integer.parseInt(params[0]);;
-            Integer databaseGameID = clientToServerGameIDs.get(clientGameID);
+            int clientGameID = Integer.parseInt(params[0]);
+            Integer databaseGameID = localGameIDs.get(clientGameID);
             if (databaseGameID == null) {
                 throw new InvalidParameters("Game ID not found.");
             }
-            return server.observeGame(databaseGameID);
+            return GameplayUI.getInitialBoardState();
         }
-        throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'join'" +
+        throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'observe'" +
                 RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + " followed by the " + SET_TEXT_BOLD + "<ID>" +
                 RESET_TEXT_BOLD_FAINT + " of the game you want to observe");
     }

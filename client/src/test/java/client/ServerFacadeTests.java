@@ -251,9 +251,18 @@ public class ServerFacadeTests {
         assertTrue(thrownException.getMessage().contains("Error: bad request"));
     }
 
-
-
     //Observe
+
+
+
+    //Clear
+    @Test
+    @DisplayName("Clear database")
+    void clear() throws Exception {
+        assertDoesNotThrow(() -> {
+            facade.clear();
+        });
+    }
 
 
 }
