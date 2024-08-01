@@ -69,22 +69,25 @@ public class GameplayUI {
 
     private static String getPieceAt(int row, int col, boolean isNormal) {
         if (isNormal) {
-            if (row == 0) {return new String[]{WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_KING,
-                    WHITE_QUEEN, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}[col];}
+            if (row == 0) {return new String[]{WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN,
+                    WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}[col];}
             if (row == 1) {return WHITE_PAWN;}
             if (row == 6) {return BLACK_PAWN;}
-            if (row == 7) {return new String[]{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_KING,
-                    BLACK_QUEEN, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}[col];}
-        } else {
-            if (row == 0) {return new String[]{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN,
+            if (row == 7) {return new String[]{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN,
                     BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}[col];}
+        } else {
+            if (row == 0) {return new String[]{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_KING,
+                    BLACK_QUEEN, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}[col];}
             if (row == 1) {return BLACK_PAWN;}
             if (row == 6) {return WHITE_PAWN;}
-            if (row == 7) {return new String[]{WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN,
-                    WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}[col];}
+            if (row == 7) {return new String[]{WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_KING,
+                    WHITE_QUEEN, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}[col];}
         }
         return EMPTY;
     }
+
+    //ChessBoard print object. Refactor so takes the chessboard.
+
 
     public static String getInitialBoardState() {
         var out = new ByteArrayOutputStream();

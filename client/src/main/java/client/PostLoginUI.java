@@ -155,9 +155,7 @@ public class PostLoginUI extends SharedUI {
 
             JoinGameRequest request = new JoinGameRequest(playerColor, databaseGameID, authToken);
             JoinGameResult result = server.joinGame(request);
-            int localID = nextLocalID++;
-            localGameIDs.put(localID, databaseGameID);
-            return String.format("You have joined the game with ID: %d as %s.", localID, playerColor);
+            return String.format("You have joined the game with ID: %d as %s.", clientGameID, playerColor);
         }
         throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'join'" +
                 RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + ", followed by the " + SET_TEXT_BOLD + "<ID>" +
