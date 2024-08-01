@@ -7,7 +7,7 @@ public class Repl {
     private SharedUI currentUI;
 
     public Repl(String serverUrl) {
-        currentUI = new PreloginUI(serverUrl);
+        currentUI = new PreLoginUI(serverUrl);
     }
 
     public void run() {
@@ -24,10 +24,10 @@ public class Repl {
                 System.out.print(RESET_TEXT_COLOR + result + RESET_TEXT_COLOR);
                 if (result.equals("quit")) {
                     break;
-                } else if (currentUI instanceof PreloginUI && currentUI.getState() == State.LOGGEDIN) {
-                    currentUI = new PostloginUI(currentUI.getServerUrl(), currentUI.getAuthToken());
-                } else if (currentUI instanceof PostloginUI && currentUI.getState() == State.LOGGEDOUT) {
-                    currentUI = new PreloginUI(currentUI.getServerUrl());
+                } else if (currentUI instanceof PreLoginUI && currentUI.getState() == State.LOGGEDIN) {
+                    currentUI = new PostLoginUI(currentUI.getServerUrl(), currentUI.getAuthToken());
+                } else if (currentUI instanceof PostLoginUI && currentUI.getState() == State.LOGGEDOUT) {
+                    currentUI = new PreLoginUI(currentUI.getServerUrl());
                 }
             } catch (Throwable e) {
                 var msg = e.toString();

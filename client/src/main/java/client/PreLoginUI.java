@@ -10,9 +10,9 @@ import static ui.EscapeSequences.*;
 
 import java.util.Arrays;
 
-public class PreloginUI extends SharedUI {
+public class PreLoginUI extends SharedUI {
 
-    public PreloginUI(String serverUrl) {
+    public PreLoginUI(String serverUrl) {
         super(serverUrl);
     }
 
@@ -48,6 +48,7 @@ public class PreloginUI extends SharedUI {
             String username = params[0];
             String password = params[1];
             String email = params[2];
+
             RegisterRequest request = new RegisterRequest(username, password, email);
             RegisterResult result = server.register(request);
             authToken = result.authToken();

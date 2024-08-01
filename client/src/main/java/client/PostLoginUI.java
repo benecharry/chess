@@ -15,10 +15,10 @@ import static ui.EscapeSequences.*;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class PostloginUI extends SharedUI {
+public class PostLoginUI extends SharedUI {
     private HashMap<Integer, Integer> clientToServerGameIDs;
 
-    public PostloginUI(String serverUrl, String authToken) {
+    public PostLoginUI(String serverUrl, String authToken) {
         super(serverUrl);
         this.authToken = authToken;
         this.state = State.LOGGEDIN;
