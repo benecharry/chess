@@ -90,9 +90,11 @@ public class PostloginUI extends SharedUI {
         StringBuilder resultString = new StringBuilder();
         clientToServerGameIDs.clear();
         int index = 1;
+        System.out.println("ID");
         for (ListGamesResult.GameDetails game : result.games()) {
             clientToServerGameIDs.put(index, game.gameID());
-            resultString.append(String.format("%d. Game Name: %s, White Player: %s, Black Player: %s\n",
+
+            resultString.append(String.format("%d. Name: %s\n     White Player: %s\n     Black Player: %s\n",
                     index++, game.gameName(), game.whiteUsername(), game.blackUsername()));
         }
         return resultString.toString();
@@ -100,8 +102,8 @@ public class PostloginUI extends SharedUI {
 
     //Make it to have local ID. DONE
     //Join game also needs to know about these IDs. DONE
-    //Missing parameters.
-    //Wrong parameters.
+    //Missing parameters. DONE
+    //Wrong parameters. DONE
     //Unit tests to auto-grader. First
     //Queue with TAs.
 
@@ -114,6 +116,27 @@ public class PostloginUI extends SharedUI {
             if (databaseGameID == null) {
                 throw new InvalidParameters("Game ID not found.");
             }
+
+            ListGamesRequest listRequest = new ListGamesRequest(authToken);
+            ListGamesResult listResult = server.listGames(listRequest);
+            ListGamesResult.GameDetails gameDetails = null;
+
+            for (ListGamesResult.GameDetails game : listResult.games()) {
+                if (game.gameID() == databaseGameID) {
+                    gameDetails = game;
+                    break;
+                }
+            }
+
+            if (gameDetails == null) {
+                throw new InvalidParameters("Game not found.");
+            }
+
+            if ((playerColor.equalsIgnoreCase("white") && gameDetails.whiteUsername() != null) ||
+                    (playerColor.equalsIgnoreCase("black") && gameDetails.blackUsername() != null)) {
+                throw new InvalidParameters("The " + playerColor + " team is already taken. Please select another game or team.");
+            }
+
             JoinGameRequest request = new JoinGameRequest(playerColor, databaseGameID, authToken);
             JoinGameResult result = server.joinGame(request);
             return String.format("You have joined the game with ID: %d as %s.", clientGameID, playerColor);
