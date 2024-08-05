@@ -1,6 +1,9 @@
 package client;
 
-import java.io.ByteArrayOutputStream;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
+
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
@@ -15,85 +18,102 @@ public class GameplayUI {
 
         out.print(ERASE_SCREEN);
 
-        drawChessboard(out);
-        drawChessboardAltOrientation(out);
+        ChessGame chessGame = new ChessGame();
+        drawInitialBoardState(out, chessGame);
 
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
+        resetColors(out);
     }
 
-    public static void drawChessboard(PrintStream out) {
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
+    //Only for the initial board.
 
-        out.print(SET_BG_COLOR_DARK_GREY + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR + "\n");
-
-        for (int row = 0; row < BOARD_SIZE_IN_SQUARES; row++) {
-            out.print(SET_BG_COLOR_DARK_GREY + " " + (BOARD_SIZE_IN_SQUARES - row) + " " + RESET_BG_COLOR);
-            for (int col = 0; col < BOARD_SIZE_IN_SQUARES; col++) {
-                if ((row + col) % 2 == 0) {
-                    out.print(SET_BG_COLOR_LIGHT_GREY);
-                } else {
-                    out.print(SET_BG_COLOR_BLACK);
-                }
-                out.print(getPieceAt(row, col, true));
-            }
-            out.print(SET_BG_COLOR_DARK_GREY + " " + (BOARD_SIZE_IN_SQUARES - row) + " " + RESET_BG_COLOR + "\n");
-        }
-
-        out.print(SET_BG_COLOR_DARK_GREY + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR + "\n");
-    }
-
-    public static void drawChessboardAltOrientation(PrintStream out) {
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
-
-        out.print(SET_BG_COLOR_DARK_GREY + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR + "\n");
-
-        for (int row = 0; row < BOARD_SIZE_IN_SQUARES; row++) {
-            out.print(SET_BG_COLOR_DARK_GREY + " " + (row + 1) + " " + RESET_BG_COLOR);
-            for (int col = 0; col < BOARD_SIZE_IN_SQUARES; col++) {
-                if ((row + col) % 2 == 0) {
-                    out.print(SET_BG_COLOR_LIGHT_GREY);
-                } else {
-                    out.print(SET_BG_COLOR_BLACK);
-                }
-                out.print(getPieceAt(row, col, false));
-            }
-            out.print(SET_BG_COLOR_DARK_GREY + " " + (row + 1) + " " + RESET_BG_COLOR + "\n");
-        }
-
-        out.print(SET_BG_COLOR_DARK_GREY + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR + "\n");
+    public static void drawInitialBoardState(PrintStream out, ChessGame chessGame) {
+        out.print(ERASE_SCREEN);
+        drawChessboard(out, chessGame, false);
         out.print(SET_BG_COLOR_BLACK + "                              " + RESET_BG_COLOR + "\n");
+        drawChessboard(out, chessGame, true);
+        resetColors(out);
     }
 
-    private static String getPieceAt(int row, int col, boolean isNormal) {
-        if (isNormal) {
-            if (row == 0) {return new String[]{WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN,
-                    WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}[col];}
-            if (row == 1) {return WHITE_PAWN;}
-            if (row == 6) {return BLACK_PAWN;}
-            if (row == 7) {return new String[]{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN,
-                    BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}[col];}
-        } else {
-            if (row == 0) {return new String[]{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_KING,
-                    BLACK_QUEEN, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}[col];}
-            if (row == 1) {return BLACK_PAWN;}
-            if (row == 6) {return WHITE_PAWN;}
-            if (row == 7) {return new String[]{WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_KING,
-                    WHITE_QUEEN, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}[col];}
+    public static void drawChessboard(PrintStream out, ChessGame chessGame, boolean isNormalPerspective) {
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
+
+        drawHeaders(out, isNormalPerspective);
+
+        for (int row = 0; row < BOARD_SIZE_IN_SQUARES; row++) {
+            drawRowLabel(out, row, isNormalPerspective);
+            for (int col = 0; col < BOARD_SIZE_IN_SQUARES; col++) {
+                drawSquare(out, row, col);
+                out.print(getPieceAt(chessGame, row, col, isNormalPerspective));
+                //out.print(" ");
+            }
+            drawRowLabel(out, row, isNormalPerspective);
+            out.println();
         }
-        return EMPTY;
+
+        drawHeaders(out, isNormalPerspective);
     }
 
-    //ChessBoard print object. Refactor so takes the chessboard.
+    private static void drawHeaders(PrintStream out, boolean isNormalPerspective) {
+        String[] normalHeaders = {" a", "b", "c", "d", "e", "f", "g", "h"};
+        String[] altHeaders = {" h", "g", "f", "e", "d", "c", "b", "a"};
+        String[] headers = isNormalPerspective ? normalHeaders : altHeaders;
 
+        out.print(SET_BG_COLOR_DARK_GREY + "   ");
+        for (String header : headers) {
+            out.print(header + "  ");
+        }
+        out.print("  " + RESET_BG_COLOR + "\n");
+    }
 
-    public static String getInitialBoardState() {
-        var out = new ByteArrayOutputStream();
-        var printStream = new PrintStream(out, true, StandardCharsets.UTF_8);
-        drawChessboardAltOrientation(printStream);
-        drawChessboard(printStream);
-        return out.toString(StandardCharsets.UTF_8);
+    private static void drawRowLabel(PrintStream out, int row, boolean isNormalPerspective) {
+        out.print(SET_BG_COLOR_DARK_GREY + " " + getRowLabel(row, isNormalPerspective) + " " + RESET_BG_COLOR);
+    }
+
+    private static void drawSquare(PrintStream out, int row, int col) {
+        if ((row + col) % 2 == 0) {
+            out.print(SET_BG_COLOR_LIGHT_GREY);
+        } else {
+            out.print(SET_BG_COLOR_BLACK);
+        }
+    }
+
+    private static String getPieceAt(ChessGame chessGame, int row, int col, boolean isNormal) {
+        ChessPosition position = isNormal
+                ? new ChessPosition(BOARD_SIZE_IN_SQUARES - row, col + 1)
+                : new ChessPosition(row + 1, BOARD_SIZE_IN_SQUARES - col);
+
+        ChessPiece piece = chessGame.getBoard().getPiece(position);
+        if (piece == null) {
+            return EMPTY;
+        }
+
+        switch (piece.getPieceType()) {
+            case KING:
+                return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? WHITE_KING : BLACK_KING;
+            case QUEEN:
+                return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? WHITE_QUEEN : BLACK_QUEEN;
+            case ROOK:
+                return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? WHITE_ROOK : BLACK_ROOK;
+            case BISHOP:
+                return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? WHITE_BISHOP : BLACK_BISHOP;
+            case KNIGHT:
+                return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? WHITE_KNIGHT : BLACK_KNIGHT;
+            case PAWN:
+                return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? WHITE_PAWN : BLACK_PAWN;
+            default:
+                return EMPTY;
+        }
+    }
+
+    private static int getRowLabel(int row, boolean isNormal) {
+        return isNormal ? BOARD_SIZE_IN_SQUARES - row : row + 1;
+    }
+
+    private static void resetColors(PrintStream out) {
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
+        out.print(RESET_BG_COLOR);
+        out.print(RESET_TEXT_COLOR);
     }
 }

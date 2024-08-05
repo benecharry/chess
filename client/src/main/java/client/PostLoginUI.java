@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import exception.InvalidParameters;
 import exception.ResponseException;
 import request.CreateGameRequest;
@@ -171,7 +172,10 @@ public class PostLoginUI extends SharedUI {
             if (databaseGameID == null) {
                 throw new InvalidParameters("Game ID not found.");
             }
-            return GameplayUI.getInitialBoardState();
+            ChessGame chessGame = new ChessGame();
+            GameplayUI.drawInitialBoardState(System.out, chessGame);
+
+            return "";
         }
         throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'observe'" +
                 RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + " followed by the " + SET_TEXT_BOLD + "<ID>" +
