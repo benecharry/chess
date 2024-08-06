@@ -19,18 +19,19 @@ public class GameplayUI {
         out.print(ERASE_SCREEN);
 
         ChessGame chessGame = new ChessGame();
-        drawInitialBoardState(out, chessGame);
+        drawInitialBoardState(out, chessGame, ChessGame.TeamColor.WHITE);
 
         resetColors(out);
     }
 
     //Only for the initial board.
 
-    public static void drawInitialBoardState(PrintStream out, ChessGame chessGame) {
+    public static void drawInitialBoardState(PrintStream out, ChessGame chessGame, ChessGame.TeamColor playerColor) {
         out.print(ERASE_SCREEN);
-        drawChessboard(out, chessGame, false);
-        out.print(SET_BG_COLOR_BLACK + "                              " + RESET_BG_COLOR + "\n");
-        drawChessboard(out, chessGame, true);
+        //drawChessboard(out, chessGame, false);
+        //out.print(SET_BG_COLOR_BLACK + "                              " + RESET_BG_COLOR + "\n");
+        out.println();
+        drawChessboard(out, chessGame, playerColor == ChessGame.TeamColor.WHITE);
         resetColors(out);
     }
 
@@ -45,7 +46,6 @@ public class GameplayUI {
             for (int col = 0; col < BOARD_SIZE_IN_SQUARES; col++) {
                 drawSquare(out, row, col);
                 out.print(getPieceAt(chessGame, row, col, isNormalPerspective));
-                //out.print(" ");
             }
             drawRowLabel(out, row, isNormalPerspective);
             out.println();

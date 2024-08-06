@@ -19,6 +19,7 @@ import java.util.HashMap;
 public class PostLoginUI extends SharedUI {
     private HashMap<Integer, Integer> localGameIDs;
     private int nextLocalID;
+    private ChessGame.TeamColor playerColor;
 
     public PostLoginUI(String serverUrl, String authToken) {
         super(serverUrl);
@@ -129,6 +130,7 @@ public class PostLoginUI extends SharedUI {
         if (params.length == 2) {
             int clientGameID = Integer.parseInt(params[0]);
             String playerColor = params[1];
+            this.playerColor = ChessGame.TeamColor.valueOf(playerColor.toUpperCase());
             Integer databaseGameID = localGameIDs.get(clientGameID);
             if (databaseGameID == null) {
                 throw new InvalidParameters("Game ID not found.");
@@ -173,7 +175,7 @@ public class PostLoginUI extends SharedUI {
                 throw new InvalidParameters("Game ID not found.");
             }
             ChessGame chessGame = new ChessGame();
-            GameplayUI.drawInitialBoardState(System.out, chessGame);
+            GameplayUI.drawInitialBoardState(System.out, chessGame, ChessGame.TeamColor.WHITE);
 
             return "";
         }
