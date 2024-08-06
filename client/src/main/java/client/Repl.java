@@ -22,12 +22,11 @@ public class Repl {
             try {
                 result = currentUI.eval(line);
                 System.out.print(RESET_TEXT_COLOR + result + RESET_TEXT_COLOR);
+
                 if (result.equals("quit")) {
                     break;
-                } else if (currentUI instanceof PreLoginUI && currentUI.getState() == State.LOGGEDIN) {
-                    currentUI = new PostLoginUI(currentUI.getServerUrl(), currentUI.getAuthToken());
-                } else if (currentUI instanceof PostLoginUI && currentUI.getState() == State.LOGGEDOUT) {
-                    currentUI = new PreLoginUI(currentUI.getServerUrl());
+                } else {
+                    handleStateTransitions();
                 }
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -37,9 +36,30 @@ public class Repl {
         System.out.println();
     }
 
+    private void handleStateTransitions() {
+        if (currentUI.getState() == State.LOGGEDIN) {
+            if (currentUI instanceof PreLoginUI) {
+                currentUI = new PostLoginUI(currentUI.getServerUrl(), currentUI.getAuthToken());
+            } else if (currentUI instanceof GameplayUI) {
+                currentUI = new PostLoginUI(currentUI.getServerUrl(), currentUI.getAuthToken());
+            }
+        } else if (currentUI.getState() == State.INGAME) {
+            if (currentUI instanceof PostLoginUI) {
+                PostLoginUI postLoginUI = (PostLoginUI) currentUI;
+                currentUI = new GameplayUI(currentUI.getServerUrl(), currentUI.getAuthToken(), postLoginUI.getPlayerColor());
+            }
+        } else if (currentUI.getState() == State.LOGGEDOUT) {
+            if (currentUI instanceof PostLoginUI) {
+                currentUI = new PreLoginUI(currentUI.getServerUrl());
+            }
+        }
+    }
+
     private void printPrompt() {
         if (currentUI.getState() == State.LOGGEDOUT) {
             System.out.print(RESET_TEXT_COLOR + "\n[LOGGED_OUT] >>> " + SET_TEXT_COLOR_GREEN);
+        } else if (currentUI.getState() == State.INGAME) {
+            System.out.print(RESET_TEXT_COLOR + "\n[IN_GAME] >>> " + SET_TEXT_COLOR_GREEN);
         } else {
             System.out.print(RESET_TEXT_COLOR + "\n[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN);
         }

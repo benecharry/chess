@@ -119,7 +119,7 @@ public class PostLoginUI extends SharedUI {
         System.out.println("ID");
         for (ListGamesResult.GameDetails game : result.games()) {
             localGameIDs.put(nextLocalID, game.gameID());
-            resultString.append(String.format("%d. Name: %s\n     White Player: %s\n     Black Player: %s\n",
+            resultString.append(String.format("%d. Game name: %s\n      White player: %s\n      Black player: %s\n",
                     nextLocalID++, game.gameName(), game.whiteUsername(), game.blackUsername()));
         }
         return resultString.toString();
@@ -158,6 +158,7 @@ public class PostLoginUI extends SharedUI {
 
             JoinGameRequest request = new JoinGameRequest(playerColor, databaseGameID, authToken);
             JoinGameResult result = server.joinGame(request);
+            this.setState(State.INGAME);
             return String.format("You have joined the game with ID: %d as %s.", clientGameID, playerColor);
         }
         throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'join'" +
@@ -176,8 +177,7 @@ public class PostLoginUI extends SharedUI {
             }
             ChessGame chessGame = new ChessGame();
             GameplayUI.drawInitialBoardState(System.out, chessGame, ChessGame.TeamColor.WHITE);
-
-            return "";
+            return "You are observing the game with ID: " + clientGameID;
         }
         throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'observe'" +
                 RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + " followed by the " + SET_TEXT_BOLD + "<ID>" +
@@ -188,5 +188,9 @@ public class PostLoginUI extends SharedUI {
         if (state == State.LOGGEDOUT) {
             throw new InvalidParameters("You must sign in first.");
         }
+    }
+
+    public ChessGame.TeamColor getPlayerColor() {
+        return playerColor;
     }
 }
