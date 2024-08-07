@@ -116,7 +116,7 @@ public class PostLoginUI extends SharedUI {
             return "No games have been created yet.";
         }
 
-        System.out.println("ID");
+        System.out.println(SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "ID" + RESET_TEXT_COLOR);
         for (ListGamesResult.GameDetails game : result.games()) {
             localGameIDs.put(nextLocalID, game.gameID());
             resultString.append(String.format("%d. Game name: %s\n      White player: %s\n      Black player: %s\n",
@@ -176,7 +176,7 @@ public class PostLoginUI extends SharedUI {
                 throw new InvalidParameters("Game ID not found.");
             }
             ChessGame chessGame = new ChessGame();
-            GameplayUI.drawInitialBoardState(System.out, chessGame, ChessGame.TeamColor.WHITE);
+            GameplayUI.drawChessboard(System.out, chessGame, true);
             return "You are observing the game with ID: " + clientGameID;
         }
         throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'observe'" +

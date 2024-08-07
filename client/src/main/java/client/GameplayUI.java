@@ -4,6 +4,10 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.InvalidParameters;
+import exception.ResponseException;
+import server.ServerFacade;
+import websocket.WebSocketFacade;
+
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -18,6 +22,7 @@ public class GameplayUI extends SharedUI {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private ChessGame chessGame;
     private ChessGame.TeamColor playerColor;
+    private WebSocketFacade ws;
 
     public GameplayUI(String serverUrl, String authToken, ChessGame.TeamColor playerColor) {
         super(serverUrl);
@@ -32,6 +37,7 @@ public class GameplayUI extends SharedUI {
         //resetColors(out);
     }
 
+    @Override
     public String eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
@@ -54,40 +60,36 @@ public class GameplayUI extends SharedUI {
                     throw new InvalidParameters(cmd + ". Please try a valid option. Type " + SET_TEXT_COLOR_BLUE +
                             SET_TEXT_BOLD + "'help'" + RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + " to see the menu.");
             }
+        } catch (ResponseException ex) {
+            return ex.getMessage();
         } catch (InvalidParameters e) {
-            throw new RuntimeException(e);
+            return String.format("%sInvalid input: %s%s", SET_TEXT_COLOR_YELLOW, e.getMessage(), RESET_TEXT_COLOR);
         }
     }
 
-    public String redrawChessBoard() {
-        return "";
+    public String redrawChessBoard() throws ResponseException, InvalidParameters {
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        out.print(ERASE_SCREEN);
+        drawChessboard(out, chessGame, playerColor == ChessGame.TeamColor.WHITE);
+        resetColors(out);
+        return "You redrew the chessboard.";
     }
 
-    public String leaveGame() {
+    public String leaveGame() throws ResponseException, InvalidParameters {
         this.setState(State.LOGGEDIN);
         return "You have left the game.";
     }
 
-    public String makeMove(String... params) {
+    public String makeMove(String... params) throws ResponseException, InvalidParameters {
         return "";
     }
 
-    public String resignGame() {
+    public String resignGame() throws ResponseException, InvalidParameters {
         return "";
     }
 
-    public String highlightLegalMoves(String... params) {
+    public String highlightLegalMoves(String... params) throws ResponseException, InvalidParameters {
         return "";
-    }
-
-    //Only for the initial board.
-    public static void drawInitialBoardState(PrintStream out, ChessGame chessGame, ChessGame.TeamColor playerColor) {
-        out.print(ERASE_SCREEN);
-        //drawChessboard(out, chessGame, false);
-        //out.print(SET_BG_COLOR_BLACK + "                              " + RESET_BG_COLOR + "\n");
-        out.println();
-        drawChessboard(out, chessGame, playerColor == ChessGame.TeamColor.WHITE);
-        resetColors(out);
     }
 
     public static void drawChessboard(PrintStream out, ChessGame chessGame, boolean isPlayerPerspective) {
@@ -105,7 +107,6 @@ public class GameplayUI extends SharedUI {
             drawRowLabel(out, row, isPlayerPerspective);
             out.println();
         }
-
         drawHeaders(out, isPlayerPerspective);
     }
 
