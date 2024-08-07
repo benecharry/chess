@@ -1,5 +1,7 @@
 package server.websocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
@@ -13,29 +15,42 @@ import java.io.IOException;
 @WebSocket
 public class WebSocketHandler {
 
-    @OnWebSocketMessage
-    public void onMessage(Session session, String message) {
-        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+    private final ConnectionManager connections = new ConnectionManager();
 
-        switch (command.getCommandType()) {
+    @OnWebSocketMessage
+    public void onMessage(Session session, String message) throws IOException {
+        UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
+        switch (userGameCommand.getCommandType()) {
             case CONNECT:
-                handleConnect(session, command);
+                connect(session, userGameCommand);
                 break;
             case MAKE_MOVE:
-                handleMakeMove(session, command);
+                makeMove(session, userGameCommand);
                 break;
             case LEAVE:
-                handleLeave(session, command);
+                leave(session, userGameCommand);
                 break;
             case RESIGN:
-                handleResign(session, command);
+                resign(session, userGameCommand);
                 break;
             default:
-                sendErrorMessage(session, "Unknown command type: " + command.getCommandType());
+                sendErrorMessage(session, "Unknown command type: " + userGameCommand.getCommandType());
         }
     }
 
-    private void handleConnect(Session session, UserGameCommand command) {
-        sendNotificationMessage(session, "User connected to game " + command.getGameID());
+    //Missing
+    //        LOAD_GAME,
+    //        ERROR,
+    //        NOTIFICATION
+
+    //All server messages must include a
+    // serverMessageType field and should
+    // inherit from the ServerMessage class.
+    // This field must be set to the corresponding ServerMessageType.
+
+    private void connect(Session session, UserGameCommand command) throws IOException {
+        ServerMessage notification = new ServerMessage(ServerMessageType.NOTIFICATION);
+        notification.setMessage(command.getAuthToken() + " has joined the game.");
+        connections.broadcast(command.getAuthToken(), notification);
     }
 }

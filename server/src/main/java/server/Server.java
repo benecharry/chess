@@ -41,9 +41,7 @@ public class Server {
         //TO-DO
         // Register your endpoints and handle exceptions here.
         serverHandler.createRoutes();
-        //This line initializes the server and can be removed once you have a functioning endpoint 
-        //Spark.init();
-
+        //This line initializes the server and can be removed once you have a functioning endpoint
         //TO-DO
         // Check if the databse already exist.
         //Make sure all tables are in there. Create if not exist table and or database.

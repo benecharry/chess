@@ -4,7 +4,6 @@ import server.ServerFacade;
 import static ui.EscapeSequences.*;
 
 public abstract class SharedUI {
-    //Mutation?
     protected State state = State.LOGGEDOUT;
     protected final ServerFacade server;
     protected String authToken;

@@ -1,10 +1,16 @@
 package client;
 
+import chess.ChessGame;
+import websocket.ServerMessageHandler;
+import websocket.WebSocketFacade;
+
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
-public class Repl {
+public class Repl{
     private SharedUI currentUI;
+    private WebSocketFacade webSocketFacade;
+    private ServerMessageHandler serverMessageHandler;
 
     public Repl(String serverUrl) {
         currentUI = new PreLoginUI(serverUrl);
@@ -46,7 +52,12 @@ public class Repl {
         } else if (currentUI.getState() == State.INGAME) {
             if (currentUI instanceof PostLoginUI) {
                 PostLoginUI postLoginUI = (PostLoginUI) currentUI;
-                currentUI = new GameplayUI(currentUI.getServerUrl(), currentUI.getAuthToken(), postLoginUI.getPlayerColor());
+                try {
+                    webSocketFacade = new WebSocketFacade(currentUI.getServerUrl(), this);
+                    currentUI = new GameplayUI(currentUI.getServerUrl(), currentUI.getAuthToken(), postLoginUI.getPlayerColor(), webSocketFacade);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         } else if (currentUI.getState() == State.LOGGEDOUT) {
             if (currentUI instanceof PostLoginUI) {
