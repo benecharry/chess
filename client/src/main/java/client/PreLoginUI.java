@@ -11,7 +11,6 @@ import static ui.EscapeSequences.*;
 import java.util.Arrays;
 
 public class PreLoginUI extends SharedUI {
-
     public PreLoginUI(String serverUrl) {
         super(serverUrl);
     }
@@ -41,7 +40,6 @@ public class PreLoginUI extends SharedUI {
             return String.format("%sInvalid input: %s%s", SET_TEXT_COLOR_YELLOW, e.getMessage(), RESET_TEXT_COLOR);
         }
     }
-
 
     public String register(String... params) throws ResponseException, InvalidParameters {
         if (params.length == 3) {

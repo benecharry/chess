@@ -5,20 +5,22 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.InvalidParameters;
 import exception.ResponseException;
-import server.ServerFacade;
+import websocket.GameHandler;
 import websocket.WebSocketFacade;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
-
+import javax.websocket.Session;
+import javax.websocket.CloseReason;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import static ui.EscapeSequences.*;
 
-public class GameplayUI extends SharedUI {
-
-    //Avoid client side and server side at the same.
-
+public class GameplayUI extends SharedUI implements GameHandler {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private ChessGame chessGame;
     private ChessGame.TeamColor playerColor;
@@ -29,12 +31,7 @@ public class GameplayUI extends SharedUI {
         this.state = State.INGAME;
         this.authToken = authToken;
         this.playerColor = playerColor;
-
-        //var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        //out.print(ERASE_SCREEN);
         this.chessGame = new ChessGame();
-        //drawInitialBoardState(out, chessGame, playerColor);
-        //resetColors(out);
     }
 
     @Override
@@ -81,14 +78,17 @@ public class GameplayUI extends SharedUI {
     }
 
     public String makeMove(String... params) throws ResponseException, InvalidParameters {
+        // TO-DO
         return "";
     }
 
     public String resignGame() throws ResponseException, InvalidParameters {
+        // TO-DO
         return "";
     }
 
     public String highlightLegalMoves(String... params) throws ResponseException, InvalidParameters {
+        // TO-DO
         return "";
     }
 
@@ -171,5 +171,45 @@ public class GameplayUI extends SharedUI {
         out.print(SET_TEXT_COLOR_WHITE);
         out.print(RESET_BG_COLOR);
         out.print(RESET_TEXT_COLOR);
+    }
+
+    @Override
+    public void onOpen(Session session) {
+        System.out.println("WebSocket connection opened: " + session.getId());
+    }
+
+    @Override
+    public void onClose(Session session, CloseReason closeReason) {
+        System.out.println("WebSocket connection closed: " + session.getId() + " Reason: " + closeReason);
+    }
+
+    @Override
+    public void onError(Session session, Throwable thr) {
+        System.err.println("WebSocket error for session " + session.getId() + ": " + thr.getMessage());
+        thr.printStackTrace();
+    }
+
+    @Override
+    public void processMessage(ServerMessage serverMessage) {
+        switch (serverMessage.getServerMessageType()) {
+            case LOAD_GAME:
+                if (serverMessage instanceof LoadGameMessage) {
+                    LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
+                    System.out.println("Game loaded: " + loadGameMessage.getGame());
+                }
+                break;
+            case ERROR:
+                if (serverMessage instanceof ErrorMessage) {
+                    ErrorMessage errorMessage = (ErrorMessage) serverMessage;
+                    System.out.println("Error: " + errorMessage.getErrorMessage());
+                }
+                break;
+            case NOTIFICATION:
+                if (serverMessage instanceof NotificationMessage) {
+                    NotificationMessage notificationMessage = (NotificationMessage) serverMessage;
+                    System.out.println("Notification: " + notificationMessage.getMessage());
+                }
+                break;
+        }
     }
 }

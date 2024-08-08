@@ -12,21 +12,28 @@ import result.JoinGameResult;
 import result.ListGamesResult;
 import result.LogoutResult;
 import server.ServerFacade;
-import websocket.ServerMessageHandler;
+import websocket.GameHandler;
 import websocket.WebSocketFacade;
+import websocket.messages.ServerMessage;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 
-import static ui.EscapeSequences.*;
 
+
+import javax.websocket.Session;
+import javax.websocket.CloseReason;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class PostLoginUI extends SharedUI {
+import static ui.EscapeSequences.*;
+
+public class PostLoginUI extends SharedUI implements GameHandler {
     private HashMap<Integer, Integer> localGameIDs;
     private int nextLocalID;
     private ChessGame.TeamColor playerColor;
     private WebSocketFacade ws;
-    private ServerMessageHandler serverMessageHandler;
     private ServerFacade server;
 
     public PostLoginUI(String serverUrl, String authToken) {
@@ -75,7 +82,7 @@ public class PostLoginUI extends SharedUI {
                     return help();
                 default:
                     throw new InvalidParameters(cmd + ". Please try a valid option. Type " + SET_TEXT_COLOR_BLUE +
-                            SET_TEXT_BOLD + "'help'" + RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + " to see the menu." );
+                            SET_TEXT_BOLD + "'help'" + RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + " to see the menu.");
             }
         } catch (ResponseException | IOException ex) {
             return ex.getMessage();
@@ -172,8 +179,8 @@ public class PostLoginUI extends SharedUI {
                 ws.close();
             }
 
-            ws = new WebSocketFacade(serverUrl, serverMessageHandler);
-            ws.connect(authToken, databaseGameID, playerColor);
+            ws = new WebSocketFacade(serverUrl, this);
+            ws.connect(authToken, databaseGameID);
 
             this.setState(State.INGAME);
             return String.format("You have joined the game with ID: %d as %s.", clientGameID, playerColor);
@@ -184,7 +191,7 @@ public class PostLoginUI extends SharedUI {
                 "<white>" + RESET_TEXT_BOLD_FAINT + " or " + SET_TEXT_BOLD + "<black>" + RESET_TEXT_BOLD_FAINT + ".");
     }
 
-    public String observeGame(String... params) throws ResponseException, InvalidParameters {
+    public String observeGame(String... params) throws ResponseException, InvalidParameters, IOException {
         assertSignedIn();
         if (params.length == 1) {
             int clientGameID = Integer.parseInt(params[0]);
@@ -192,10 +199,18 @@ public class PostLoginUI extends SharedUI {
             if (databaseGameID == null) {
                 throw new InvalidParameters("Game ID not found.");
             }
-            ChessGame chessGame = new ChessGame();
-            GameplayUI.drawChessboard(System.out, chessGame, true);
+
+            if (ws != null) {
+                ws.close();
+            }
+
+            ws = new WebSocketFacade(serverUrl, this);
+            ws.connect(authToken, databaseGameID);
+
+            this.setState(State.INGAME);
             return "You are observing the game with ID: " + clientGameID;
         }
+
         throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'observe'" +
                 RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + " followed by the " + SET_TEXT_BOLD + "<ID>" +
                 RESET_TEXT_BOLD_FAINT + " of the game you want to observe");
@@ -209,5 +224,45 @@ public class PostLoginUI extends SharedUI {
 
     public ChessGame.TeamColor getPlayerColor() {
         return playerColor;
+    }
+
+    @Override
+    public void onOpen(Session session) {
+        System.out.println("WebSocket connection opened: " + session.getId());
+    }
+
+    @Override
+    public void onClose(Session session, CloseReason closeReason) {
+        System.out.println("WebSocket connection closed: " + session.getId() + " Reason: " + closeReason);
+    }
+
+    @Override
+    public void onError(Session session, Throwable thr) {
+        System.err.println("WebSocket error for session " + session.getId() + ": " + thr.getMessage());
+        thr.printStackTrace();
+    }
+
+    @Override
+    public void processMessage(ServerMessage serverMessage) {
+        switch (serverMessage.getServerMessageType()) {
+            case LOAD_GAME:
+                if (serverMessage instanceof LoadGameMessage) {
+                    LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
+                    System.out.println("Game loaded: " + loadGameMessage.getGame());
+                }
+                break;
+            case ERROR:
+                if (serverMessage instanceof ErrorMessage) {
+                    ErrorMessage errorMessage = (ErrorMessage) serverMessage;
+                    System.out.println("Error: " + errorMessage.getErrorMessage());
+                }
+                break;
+            case NOTIFICATION:
+                if (serverMessage instanceof NotificationMessage) {
+                    NotificationMessage notificationMessage = (NotificationMessage) serverMessage;
+                    System.out.println("Notification: " + notificationMessage.getMessage());
+                }
+                break;
+        }
     }
 }
