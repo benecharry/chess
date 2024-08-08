@@ -1,8 +1,10 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import dataaccess.AuthDataSQLDataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.GameDataSQLDataAccess;
+import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.UserGameCommand;
@@ -20,6 +22,7 @@ public class WebSocketHandler {
 
     private final WebSocketSessions sessions = new WebSocketSessions();
     private GameDataSQLDataAccess gameDataSQLDataAccess = new GameDataSQLDataAccess();
+    private AuthDataSQLDataAccess authDataSQLDataAccess = new AuthDataSQLDataAccess();
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -39,10 +42,12 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String string) throws IOException {
-        //Troubleshooting
+        // Log the received message
         System.out.println("Message received: " + string);
-        UserGameCommand userGameCommand = new Gson().fromJson(string, UserGameCommand.class);
         try {
+            UserGameCommand userGameCommand = new Gson().fromJson(string, UserGameCommand.class);
+            System.out.println("Deserialized command: " + userGameCommand);
+
             switch (userGameCommand.getCommandType()) {
                 case CONNECT:
                     connect(userGameCommand, session);
@@ -65,47 +70,77 @@ public class WebSocketHandler {
         }
     }
 
+
+    //No more messages that it should receive!.
+    //No JSON but actual message. TO-DO.
+
     private void connect(UserGameCommand command, Session session) throws IOException, DataAccessException {
-        String authToken = command.getAuthToken();
-        Integer gameID = command.getGameID();
+        AuthData authData = validateAuthToken(command.getAuthToken(), session);
+        if (authData == null) return;
 
-        if (authToken == null || authToken.isEmpty()) {
-            sendError(new ErrorMessage("Invalid authentication token."), session);
-            return;
+        GameData game = validateGameID(command.getGameID(), session);
+        if (game == null) return;
+
+        String whiteUsername = game.whiteUsername();
+        String blackUsername = game.blackUsername();
+
+        sessions.addSessionToGame(game.gameID(), session);
+
+        String role;
+        if (authData.username().equals(whiteUsername)) {
+            role = "white player";
+        } else if (authData.username().equals(blackUsername)) {
+            role = "black player";
+        } else {
+            role = "observer";
         }
-
-        if (gameID == null || gameID <= 0) {
-            sendError(new ErrorMessage("Invalid game ID."), session);
-            return;
-        }
-
-        GameData game = gameDataSQLDataAccess.getGame(gameID);
-        if (game == null) {
-            sendError(new ErrorMessage("Game not found."), session);
-            return;
-        }
-
-        sessions.addSessionToGame(gameID, session);
-
-        String message = String.format("%s has joined the game.", authToken);
-        ServerMessage notification = new NotificationMessage(message);
-        broadcastMessage(gameID, notification, session);
-
 
         ServerMessage loadGameMessage = new LoadGameMessage(game);
         sendMessage(loadGameMessage, session);
+
+        String message = String.format("%s has joined the game as %s.", authData.username(), role);
+        ServerMessage notification = new NotificationMessage(message);
+        broadcastMessage(game.gameID(), notification, session);
     }
+
 
     private void makeMove(UserGameCommand command, Session session) {
         // Placeholder for makeMove logic
     }
 
     private void leaveGame(UserGameCommand command, Session session) {
-        // Placeholder for leaveGame logic
+        //
     }
 
-    private void resignGame(UserGameCommand command, Session session) {
-        // Placeholder for resignGame logic
+    private void resignGame(UserGameCommand command, Session session) throws IOException, DataAccessException {
+        //
+    }
+
+    private AuthData validateAuthToken(String authToken, Session session) throws IOException, DataAccessException {
+        if (authToken == null || authToken.isEmpty()) {
+            sendError(new ErrorMessage("Invalid authentication token."), session);
+            return null;
+        }
+
+        AuthData authData = authDataSQLDataAccess.getAuth(authToken);
+        if (authData == null) {
+            sendError(new ErrorMessage("Invalid authentication token."), session);
+            return null;
+        }
+        return authData;
+    }
+
+    private GameData validateGameID(Integer gameID, Session session) throws IOException, DataAccessException {
+        if (gameID == null || gameID <= 0) {
+            sendError(new ErrorMessage("Invalid game ID."), session);
+            return null;
+        }
+        GameData game = gameDataSQLDataAccess.getGame(gameID);
+        if (game == null) {
+            sendError(new ErrorMessage("Game not found."), session);
+            return null;
+        }
+        return game;
     }
 
     private void sendMessage(ServerMessage message, Session session) throws IOException {

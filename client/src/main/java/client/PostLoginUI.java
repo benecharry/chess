@@ -35,6 +35,7 @@ public class PostLoginUI extends SharedUI implements GameHandler {
     private ChessGame.TeamColor playerColor;
     private WebSocketFacade ws;
     private ServerFacade server;
+    private int currentGameID;
 
     public PostLoginUI(String serverUrl, String authToken) {
         super(serverUrl);
@@ -175,15 +176,17 @@ public class PostLoginUI extends SharedUI implements GameHandler {
             JoinGameRequest request = new JoinGameRequest(playerColor, databaseGameID, authToken);
             JoinGameResult result = server.joinGame(request);
 
-            if (ws != null) {
-                ws.close();
+            if (ws == null) {
+                ws = new WebSocketFacade(serverUrl, this);
+                ws.connect(authToken, databaseGameID);
             }
 
-            ws = new WebSocketFacade(serverUrl, this);
-            ws.connect(authToken, databaseGameID);
+            this.currentGameID = databaseGameID;
 
+            ws.connect(authToken, databaseGameID);
             this.setState(State.INGAME);
-            return String.format("You have joined the game with ID: %d as %s.", clientGameID, playerColor);
+
+            return String.format("You have joined the game with ID: %d as the %s player.", clientGameID, playerColor);
         }
         throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'join'" +
                 RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + ", followed by the " + SET_TEXT_BOLD + "<ID>" +
@@ -200,12 +203,12 @@ public class PostLoginUI extends SharedUI implements GameHandler {
                 throw new InvalidParameters("Game ID not found.");
             }
 
-            if (ws != null) {
-                ws.close();
+            if (ws == null) {
+                ws = new WebSocketFacade(serverUrl, this);
+                ws.connect(authToken, databaseGameID);
             }
 
-            ws = new WebSocketFacade(serverUrl, this);
-            ws.connect(authToken, databaseGameID);
+            this.currentGameID = databaseGameID;
 
             this.setState(State.INGAME);
             return "You are observing the game with ID: " + clientGameID;
@@ -226,20 +229,23 @@ public class PostLoginUI extends SharedUI implements GameHandler {
         return playerColor;
     }
 
+    public int getCurrentGameID() {
+        return currentGameID;
+    }
+
     @Override
     public void onOpen(Session session) {
-        System.out.println("WebSocket connection opened: " + session.getId());
+        //System.out.println("Succesfully connected to the game: " + session.getId());
     }
 
     @Override
     public void onClose(Session session, CloseReason closeReason) {
-        System.out.println("WebSocket connection closed: " + session.getId() + " Reason: " + closeReason);
+        System.out.println("\nConnection to the game closed. Thanks for playing.");
     }
 
     @Override
     public void onError(Session session, Throwable thr) {
-        System.err.println("WebSocket error for session " + session.getId() + ": " + thr.getMessage());
-        thr.printStackTrace();
+        //
     }
 
     @Override

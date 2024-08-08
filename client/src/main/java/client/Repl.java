@@ -48,12 +48,7 @@ public class Repl {
         } else if (currentUI.getState() == State.INGAME) {
             if (currentUI instanceof PostLoginUI) {
                 PostLoginUI postLoginUI = (PostLoginUI) currentUI;
-                try {
-                    webSocketFacade = new WebSocketFacade(currentUI.getServerUrl(), postLoginUI);
-                    currentUI = new GameplayUI(currentUI.getServerUrl(), currentUI.getAuthToken(), postLoginUI.getPlayerColor());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                currentUI = new GameplayUI(currentUI.getServerUrl(), currentUI.getAuthToken(), postLoginUI.getPlayerColor(), postLoginUI.getCurrentGameID(), webSocketFacade);
             }
         } else if (currentUI.getState() == State.LOGGEDOUT) {
             if (currentUI instanceof PostLoginUI) {

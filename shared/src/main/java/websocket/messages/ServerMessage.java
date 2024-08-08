@@ -11,18 +11,27 @@ import java.util.Objects;
 public class ServerMessage {
     ServerMessageType serverMessageType;
 
+    public ServerMessage() {
+        // Default
+    }
+
+
     public enum ServerMessageType {
         LOAD_GAME,
         ERROR,
         NOTIFICATION
     }
 
-    public ServerMessage(ServerMessageType type) {
-        this.serverMessageType = type;
+    public ServerMessage(ServerMessageType serverMessageType) {
+        this.serverMessageType = serverMessageType;
     }
 
     public ServerMessageType getServerMessageType() {
-        return this.serverMessageType;
+        return serverMessageType;
+    }
+
+    public void setServerMessageType(ServerMessageType serverMessageType) {
+        this.serverMessageType = serverMessageType;
     }
 
     @Override
