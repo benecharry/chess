@@ -1,9 +1,7 @@
 package websocket;
 
-import chess.ChessGame;
+import websocket.messages.ServerMessage;
 
 public interface ServerMessageHandler {
-    void handleLoadGame(ChessGame game);
-    void handleError(String errorMessage);
-    void handleNotification(String message);
-}
+    void notify(ServerMessage serverMessage);
+    }

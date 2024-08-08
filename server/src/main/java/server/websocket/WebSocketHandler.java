@@ -1,8 +1,8 @@
 package server.websocket;
 
-import chess.ChessGame;
-import chess.ChessMove;
 import com.google.gson.Gson;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 import websocket.messages.ServerMessage.ServerMessageType;
@@ -22,35 +22,46 @@ public class WebSocketHandler {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
         switch (userGameCommand.getCommandType()) {
             case CONNECT:
-                connect(session, userGameCommand);
+                connect(userGameCommand, session);
                 break;
             case MAKE_MOVE:
-                makeMove(session, userGameCommand);
+                makeMove(userGameCommand, session);
                 break;
             case LEAVE:
-                leave(session, userGameCommand);
+                leave(userGameCommand, session);
                 break;
             case RESIGN:
-                resign(session, userGameCommand);
+                resign(userGameCommand, session);
                 break;
-            default:
-                sendErrorMessage(session, "Unknown command type: " + userGameCommand.getCommandType());
         }
     }
 
-    //Missing
-    //        LOAD_GAME,
-    //        ERROR,
-    //        NOTIFICATION
+    private void connect(UserGameCommand command, Session session) throws IOException {
+        String authToken = command.getAuthToken();
+        Integer gameID = command.getGameID();
 
-    //All server messages must include a
-    // serverMessageType field and should
-    // inherit from the ServerMessage class.
-    // This field must be set to the corresponding ServerMessageType.
+        connections.add(authToken, session);
+        ServerMessage loadGameMessage = new ServerMessage(ServerMessageType.LOAD_GAME);
 
-    private void connect(Session session, UserGameCommand command) throws IOException {
+        session.getRemote().sendString(new Gson().toJson(loadGameMessage));
+
+        String message = String.format("%s has joined the game.", authToken);
+        //System.out.println("Message to be sent: " + message);
+
         ServerMessage notification = new ServerMessage(ServerMessageType.NOTIFICATION);
-        notification.setMessage(command.getAuthToken() + " has joined the game.");
-        connections.broadcast(command.getAuthToken(), notification);
+        notification.setMessage(message);
+        connections.broadcast(authToken, notification);
+    }
+
+    private void makeMove(UserGameCommand command, Session session) throws IOException {
+        // Implementation for makeMove
+    }
+
+    private void leave(UserGameCommand command, Session session) throws IOException {
+        // Implementation for leave
+    }
+
+    private void resign(UserGameCommand command, Session session) throws IOException {
+        // Implementation for resign
     }
 }

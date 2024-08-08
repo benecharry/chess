@@ -7,8 +7,8 @@ public class ServerMain {
         //var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         //System.out.println("♕ 240 Chess Server: " + piece)
         Server server = new Server();
-        Spark.webSocket("/ws", WebSocketHandler.class);
         server.run(8080);
         //Spark.init();
+        //System.out.println("Server running on port: " + port);
     }
 }

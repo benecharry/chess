@@ -1,6 +1,5 @@
 package websocket;
 
-import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import websocket.commands.UserGameCommand;
@@ -13,8 +12,8 @@ import java.net.URISyntaxException;
 
 @ClientEndpoint
 public class WebSocketFacade extends Endpoint {
-    private Session session;
-    private ServerMessageHandler serverMessageHandler;
+    Session session;
+    ServerMessageHandler serverMessageHandler;
 
     public WebSocketFacade(String url, ServerMessageHandler serverMessageHandler) throws ResponseException {
         try {
@@ -23,79 +22,38 @@ public class WebSocketFacade extends Endpoint {
             this.serverMessageHandler = serverMessageHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            container.connectToServer(this, socketURI);
+            this.session = container.connectToServer(this, socketURI);
 
-            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
-                @Override
-                public void onMessage(String message) {
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    switch (serverMessage.getServerMessageType()) {
-                        case LOAD_GAME:
-                            serverMessageHandler.handleLoadGame(serverMessage.getGame());
-                            break;
-                        case ERROR:
-                            serverMessageHandler.handleError(serverMessage.getErrorMessage());
-                            break;
-                        case NOTIFICATION:
-                            serverMessageHandler.handleNotification(serverMessage.getMessage());
-                            break;
-                    }
-                }
+            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
+                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                serverMessageHandler.notify(serverMessage);
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void connect(String authToken, Integer gameID, String playerColor) throws ResponseException {
-        try {
-            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
-            userGameCommand.setPlayerColor(playerColor);
-            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
-
-    public void makeMove(String authToken, Integer gameID, ChessMove move) throws ResponseException {
-        try {
-            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
-            userGameCommand.setMove(move);
-            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
-
-    public void leave(String authToken, Integer gameID) throws ResponseException {
-        try {
-            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
-            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
-            this.session.close();
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
-
-    public void resign(String authToken, Integer gameID) throws ResponseException {
-        try {
-            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
-            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
-
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
-        this.session = session;
     }
 
-    public void send(Object message) throws IOException {
-        this.session.getBasicRemote().sendText(new Gson().toJson(message));
+    public void connect(String authToken, Integer gameID, String playerColor) throws ResponseException {
+        if (session == null) {
+            throw new ResponseException(500, "WebSocket connection is not established.");
+        }
+        try {
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            String connectMessage = new Gson().toJson(userGameCommand);
+            System.out.println("Sending connect command: " + connectMessage); // Log outgoing messages
+            this.session.getBasicRemote().sendText(connectMessage);
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
     public void close() throws IOException {
-        this.session.close();
+        if (session != null) {
+            this.session.close();
+        }
     }
 }

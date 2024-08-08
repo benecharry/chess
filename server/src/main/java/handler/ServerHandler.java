@@ -2,6 +2,7 @@ package handler;
 
 import exception.ResponseException;
 import manager.ServiceManager;
+import server.websocket.WebSocketHandler;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
@@ -14,6 +15,7 @@ public class ServerHandler {
     }
 
     public  void createRoutes() {
+        Spark.webSocket("/ws", WebSocketHandler.class);
         var registerService = serviceManager.getRegisterService();
         Spark.post("/user", new RegisterHandler(registerService));
         var loginService = serviceManager.getLoginService();

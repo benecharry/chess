@@ -37,7 +37,7 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        Spark.staticFiles.location("web");
+        Spark.staticFiles.location("/web");
         //TO-DO
         // Register your endpoints and handle exceptions here.
         serverHandler.createRoutes();

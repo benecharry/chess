@@ -11,8 +11,13 @@ import result.CreateGameResult;
 import result.JoinGameResult;
 import result.ListGamesResult;
 import result.LogoutResult;
+import server.ServerFacade;
+import websocket.ServerMessageHandler;
+import websocket.WebSocketFacade;
+
 import static ui.EscapeSequences.*;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -20,6 +25,9 @@ public class PostLoginUI extends SharedUI {
     private HashMap<Integer, Integer> localGameIDs;
     private int nextLocalID;
     private ChessGame.TeamColor playerColor;
+    private WebSocketFacade ws;
+    private ServerMessageHandler serverMessageHandler;
+    private ServerFacade server;
 
     public PostLoginUI(String serverUrl, String authToken) {
         super(serverUrl);
@@ -27,6 +35,7 @@ public class PostLoginUI extends SharedUI {
         this.state = State.LOGGEDIN;
         this.localGameIDs = new HashMap<>();
         this.nextLocalID = 1;
+        server = new ServerFacade(serverUrl);
         initializeLocalGameIDs();
     }
 
@@ -68,7 +77,7 @@ public class PostLoginUI extends SharedUI {
                     throw new InvalidParameters(cmd + ". Please try a valid option. Type " + SET_TEXT_COLOR_BLUE +
                             SET_TEXT_BOLD + "'help'" + RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + " to see the menu." );
             }
-        } catch (ResponseException ex) {
+        } catch (ResponseException | IOException ex) {
             return ex.getMessage();
         } catch (InvalidParameters e) {
             return String.format("%sInvalid input: %s%s", SET_TEXT_COLOR_YELLOW, e.getMessage(), RESET_TEXT_COLOR);
@@ -125,7 +134,7 @@ public class PostLoginUI extends SharedUI {
         return resultString.toString();
     }
 
-    public String joinGame(String... params) throws ResponseException, InvalidParameters {
+    public String joinGame(String... params) throws ResponseException, InvalidParameters, IOException {
         assertSignedIn();
         if (params.length == 2) {
             int clientGameID = Integer.parseInt(params[0]);
@@ -158,6 +167,14 @@ public class PostLoginUI extends SharedUI {
 
             JoinGameRequest request = new JoinGameRequest(playerColor, databaseGameID, authToken);
             JoinGameResult result = server.joinGame(request);
+
+            if (ws != null) {
+                ws.close();
+            }
+
+            ws = new WebSocketFacade(serverUrl, serverMessageHandler);
+            ws.connect(authToken, databaseGameID, playerColor);
+
             this.setState(State.INGAME);
             return String.format("You have joined the game with ID: %d as %s.", clientGameID, playerColor);
         }

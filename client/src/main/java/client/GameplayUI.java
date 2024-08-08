@@ -24,7 +24,7 @@ public class GameplayUI extends SharedUI {
     private ChessGame.TeamColor playerColor;
     private WebSocketFacade ws;
 
-    public GameplayUI(String serverUrl, String authToken, ChessGame.TeamColor playerColor, WebSocketFacade webSocketFacade) {
+    public GameplayUI(String serverUrl, String authToken, ChessGame.TeamColor playerColor) {
         super(serverUrl);
         this.state = State.INGAME;
         this.authToken = authToken;

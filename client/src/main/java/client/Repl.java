@@ -1,16 +1,15 @@
 package client;
 
-import chess.ChessGame;
 import websocket.ServerMessageHandler;
 import websocket.WebSocketFacade;
+import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
-public class Repl{
+public class Repl implements ServerMessageHandler {
     private SharedUI currentUI;
     private WebSocketFacade webSocketFacade;
-    private ServerMessageHandler serverMessageHandler;
 
     public Repl(String serverUrl) {
         currentUI = new PreLoginUI(serverUrl);
@@ -54,7 +53,7 @@ public class Repl{
                 PostLoginUI postLoginUI = (PostLoginUI) currentUI;
                 try {
                     webSocketFacade = new WebSocketFacade(currentUI.getServerUrl(), this);
-                    currentUI = new GameplayUI(currentUI.getServerUrl(), currentUI.getAuthToken(), postLoginUI.getPlayerColor(), webSocketFacade);
+                    currentUI = new GameplayUI(currentUI.getServerUrl(), currentUI.getAuthToken(), postLoginUI.getPlayerColor());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -74,5 +73,10 @@ public class Repl{
         } else {
             System.out.print(RESET_TEXT_COLOR + "\n[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN);
         }
+    }
+
+    public void notify(ServerMessage serverMessage) {
+        System.out.println(serverMessage.getMessage());
+        printPrompt();
     }
 }
