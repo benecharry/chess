@@ -15,11 +15,13 @@ public class UserGameCommand {
     private final String authToken;
 
     private final Integer gameID;
+    private String role;
 
-    public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
+    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, String role) {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
+        this.role = role;
     }
 
     public enum CommandType {
@@ -39,6 +41,14 @@ public class UserGameCommand {
 
     public Integer getGameID() {
         return gameID;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     @Override

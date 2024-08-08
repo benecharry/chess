@@ -3,11 +3,6 @@ package websocket.messages;
 public class NotificationMessage extends ServerMessage {
     private String message;
 
-    public NotificationMessage() {
-        // Required for deserialization
-        super(ServerMessageType.NOTIFICATION);
-    }
-
     public NotificationMessage(String message) {
         super(ServerMessageType.NOTIFICATION);
         this.message = message;
@@ -19,5 +14,10 @@ public class NotificationMessage extends ServerMessage {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        return "Notification: " + message;
     }
 }

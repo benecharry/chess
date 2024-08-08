@@ -149,6 +149,7 @@ public class PostLoginUI extends SharedUI implements GameHandler {
             String playerColor = params[1];
             this.playerColor = ChessGame.TeamColor.valueOf(playerColor.toUpperCase());
             Integer databaseGameID = localGameIDs.get(clientGameID);
+
             if (databaseGameID == null) {
                 throw new InvalidParameters("Game ID not found.");
             }
@@ -178,15 +179,17 @@ public class PostLoginUI extends SharedUI implements GameHandler {
 
             if (ws == null) {
                 ws = new WebSocketFacade(serverUrl, this);
-                ws.connect(authToken, databaseGameID);
             }
 
             this.currentGameID = databaseGameID;
 
-            ws.connect(authToken, databaseGameID);
-            this.setState(State.INGAME);
+            //String joinMessage = String.format("You have joined the game with ID %d as the %s player.", clientGameID, playerColor);
+            //System.out.println(joinMessage);
 
-            return String.format("You have joined the game with ID: %d as the %s player.", clientGameID, playerColor);
+            ws.connect(authToken, databaseGameID, playerColor);
+
+            this.setState(State.INGAME);
+            return "";
         }
         throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'join'" +
                 RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + ", followed by the " + SET_TEXT_BOLD + "<ID>" +
@@ -205,13 +208,14 @@ public class PostLoginUI extends SharedUI implements GameHandler {
 
             if (ws == null) {
                 ws = new WebSocketFacade(serverUrl, this);
-                ws.connect(authToken, databaseGameID);
             }
 
             this.currentGameID = databaseGameID;
+            ws.connect(authToken, databaseGameID, "observer");
 
             this.setState(State.INGAME);
-            return "You are observing the game with ID: " + clientGameID;
+            return "";
+            //return "You are observing the game with ID: " + clientGameID;
         }
 
         throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'observe'" +
@@ -254,7 +258,8 @@ public class PostLoginUI extends SharedUI implements GameHandler {
             case LOAD_GAME:
                 if (serverMessage instanceof LoadGameMessage) {
                     LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
-                    System.out.println("Game loaded: " + loadGameMessage.getGame());
+                    System.out.println("Game loaded");
+                    System.out.println(loadGameMessage.toString());
                 }
                 break;
             case ERROR:
@@ -266,8 +271,11 @@ public class PostLoginUI extends SharedUI implements GameHandler {
             case NOTIFICATION:
                 if (serverMessage instanceof NotificationMessage) {
                     NotificationMessage notificationMessage = (NotificationMessage) serverMessage;
-                    System.out.println("Notification: " + notificationMessage.getMessage());
+                    System.out.println(notificationMessage.toString());
                 }
+                break;
+            default:
+                System.out.println("Unknown message type: " + serverMessage);
                 break;
         }
     }

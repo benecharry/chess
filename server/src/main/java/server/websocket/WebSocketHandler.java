@@ -81,35 +81,27 @@ public class WebSocketHandler {
         GameData game = validateGameID(command.getGameID(), session);
         if (game == null) return;
 
-        String whiteUsername = game.whiteUsername();
-        String blackUsername = game.blackUsername();
+        String role = command.getRole();
+        if (role == null) {
+            throw new DataAccessException("Role not specified.");
+        }
 
         sessions.addSessionToGame(game.gameID(), session);
 
-        String role;
-        if (authData.username().equals(whiteUsername)) {
-            role = "white player";
-        } else if (authData.username().equals(blackUsername)) {
-            role = "black player";
-        } else {
-            role = "observer";
-        }
-
-        ServerMessage loadGameMessage = new LoadGameMessage(game);
+        ServerMessage loadGameMessage = new LoadGameMessage(game, role);
         sendMessage(loadGameMessage, session);
 
-        String message = String.format("%s has joined the game as %s.", authData.username(), role);
+        String message = String.format("%s has joined the game as the %s player.", authData.username(), role);
         ServerMessage notification = new NotificationMessage(message);
         broadcastMessage(game.gameID(), notification, session);
     }
-
 
     private void makeMove(UserGameCommand command, Session session) {
         // Placeholder for makeMove logic
     }
 
     private void leaveGame(UserGameCommand command, Session session) {
-        //
+        // Placeholder for leaveGame logic
     }
 
     private void resignGame(UserGameCommand command, Session session) throws IOException, DataAccessException {

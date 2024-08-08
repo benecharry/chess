@@ -1,8 +1,13 @@
 package websocket;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import exception.ResponseException;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -12,8 +17,8 @@ import java.net.URISyntaxException;
 
 @ClientEndpoint
 public class WebSocketFacade extends Endpoint {
-    Session session;
-    GameHandler gameHandler;
+    private Session session;
+    private GameHandler gameHandler;
 
     public WebSocketFacade(String url, GameHandler gameHandler) throws ResponseException {
         try {
@@ -24,9 +29,29 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
-            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                gameHandler.processMessage(serverMessage);
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
+                public void onMessage(String message) {
+                    JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
+                    ServerMessage.ServerMessageType type = ServerMessage.ServerMessageType.valueOf(jsonObject.get("serverMessageType").getAsString());
+
+                    ServerMessage serverMessage;
+                    switch (type) {
+                        case LOAD_GAME:
+                            serverMessage = new Gson().fromJson(message, LoadGameMessage.class);
+                            break;
+                        case ERROR:
+                            serverMessage = new Gson().fromJson(message, ErrorMessage.class);
+                            break;
+                        case NOTIFICATION:
+                            serverMessage = new Gson().fromJson(message, NotificationMessage.class);
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unknown message type: " + type);
+                    }
+
+                    gameHandler.processMessage(serverMessage);
+                }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -49,12 +74,12 @@ public class WebSocketFacade extends Endpoint {
         gameHandler.onError(session, thr);
     }
 
-    public void connect(String authToken, Integer gameID) throws ResponseException {
+    public void connect(String authToken, Integer gameID, String role) throws ResponseException {
         if (session == null) {
             throw new ResponseException(500, "WebSocket connection is not established.");
         }
         try {
-            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, role);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -69,9 +94,9 @@ public class WebSocketFacade extends Endpoint {
         sendMessage(command);
     }
 
-    public void resignGame(String authToken, Integer gameID) throws ResponseException {
+    public void resignGame(String authToken, Integer gameID, String role) throws ResponseException {
         try {
-            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID, role);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());

@@ -119,7 +119,7 @@ public class GameplayUI extends SharedUI implements GameHandler {
             case LOAD_GAME:
                 if (serverMessage instanceof LoadGameMessage) {
                     LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
-                    System.out.println("Game loaded: " + loadGameMessage.getGame());
+                    System.out.println(loadGameMessage.toString());
                 }
                 break;
             case ERROR:
@@ -131,8 +131,11 @@ public class GameplayUI extends SharedUI implements GameHandler {
             case NOTIFICATION:
                 if (serverMessage instanceof NotificationMessage) {
                     NotificationMessage notificationMessage = (NotificationMessage) serverMessage;
-                    System.out.println("Notification: " + notificationMessage.getMessage());
+                    System.out.println(notificationMessage.toString());
                 }
+                break;
+            default:
+                System.out.println("Unknown message type: " + serverMessage);
                 break;
         }
     }
