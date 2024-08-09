@@ -6,7 +6,6 @@ import chess.ChessPosition;
 import exception.InvalidParameters;
 import exception.ResponseException;
 import websocket.GameHandler;
-import websocket.WebSocketFacade;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -24,21 +23,18 @@ import java.util.stream.Collectors;
 import static ui.EscapeSequences.*;
 
 public class GameplayUI extends SharedUI implements GameHandler {
-
-    private WebSocketFacade ws;
     private int gameID;
     private ChessGame chessGame;
     private ChessGame.TeamColor playerColor;
     private Collection<ChessPosition> highlightPositions;
 
-    public GameplayUI(String serverUrl, String authToken, ChessGame.TeamColor playerColor, int gameID, WebSocketFacade ws) {
+    public GameplayUI(String serverUrl, String authToken, ChessGame.TeamColor playerColor, int gameID) {
         super(serverUrl);
         this.state = State.INGAME;
         this.authToken = authToken;
         this.playerColor = playerColor;
         this.chessGame = new ChessGame();
         this.gameID = gameID;
-        this.ws = ws;
         this.highlightPositions = Collections.emptyList();
     }
 

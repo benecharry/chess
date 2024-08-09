@@ -1,12 +1,10 @@
 package client;
 
-import websocket.WebSocketFacade;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class Repl {
     private SharedUI currentUI;
-    private WebSocketFacade webSocketFacade;
 
     public Repl(String serverUrl) {
         currentUI = new PreLoginUI(serverUrl);
@@ -48,7 +46,7 @@ public class Repl {
         } else if (currentUI.getState() == State.INGAME) {
             if (currentUI instanceof PostLoginUI) {
                 PostLoginUI postLoginUI = (PostLoginUI) currentUI;
-                currentUI = new GameplayUI(currentUI.getServerUrl(), currentUI.getAuthToken(), postLoginUI.getPlayerColor(), postLoginUI.getCurrentGameID(), webSocketFacade);
+                currentUI = new GameplayUI(currentUI.getServerUrl(), currentUI.getAuthToken(), postLoginUI.getPlayerColor(), postLoginUI.getCurrentGameID());
             }
         } else if (currentUI.getState() == State.LOGGEDOUT) {
             if (currentUI instanceof PostLoginUI) {

@@ -19,8 +19,6 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
-
-
 import javax.websocket.Session;
 import javax.websocket.CloseReason;
 import java.io.IOException;
@@ -33,7 +31,6 @@ public class PostLoginUI extends SharedUI implements GameHandler {
     private HashMap<Integer, Integer> localGameIDs;
     private int nextLocalID;
     private ChessGame.TeamColor playerColor;
-    private WebSocketFacade ws;
     private ServerFacade server;
     private int currentGameID;
 
@@ -183,8 +180,6 @@ public class PostLoginUI extends SharedUI implements GameHandler {
             }
 
             this.currentGameID = databaseGameID;
-
-            GameplayUI gameplayUI = new GameplayUI(serverUrl, authToken, this.playerColor, databaseGameID, ws);
             this.setState(State.INGAME);
             return "";
         }
@@ -209,8 +204,6 @@ public class PostLoginUI extends SharedUI implements GameHandler {
             }
 
             this.currentGameID = databaseGameID;
-
-            GameplayUI gameplayUI = new GameplayUI(serverUrl, authToken, this.playerColor, databaseGameID, ws);
             this.setState(State.INGAME);
             return "";
         }

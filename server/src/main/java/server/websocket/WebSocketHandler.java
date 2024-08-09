@@ -185,13 +185,14 @@ public class WebSocketHandler {
         GameData updatedGame = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), chessGame);
         gameDataSQLDataAccess.updateGame(updatedGame);
 
-        ServerMessage resigningUserMessage = new NotificationMessage(resigningUser);
-        sendMessage(resigningUserMessage, session);
+        String resigningUserMessage = String.format("You have resigned. The game is over.");
+        ServerMessage resigningUserNotification = new NotificationMessage(resigningUserMessage);
+        sendMessage(resigningUserNotification, session);
 
         String message = String.format("%s has resigned. The game is over.", resigningUser);
         ServerMessage notification = new NotificationMessage(message);
         broadcastMessage(game.gameID(), notification, session);
-
+        //Not so sure about this.
         session.close();
     }
 

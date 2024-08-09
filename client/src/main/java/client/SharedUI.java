@@ -1,6 +1,8 @@
 package client;
 
 import server.ServerFacade;
+import websocket.WebSocketFacade;
+
 import static ui.EscapeSequences.*;
 
 public abstract class SharedUI {
@@ -8,6 +10,7 @@ public abstract class SharedUI {
     protected final ServerFacade server;
     protected String authToken;
     protected final String serverUrl;
+    protected static WebSocketFacade ws;
 
     public SharedUI(String serverUrl) {
         this.serverUrl = serverUrl;
