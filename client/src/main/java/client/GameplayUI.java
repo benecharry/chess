@@ -74,6 +74,7 @@ public class GameplayUI extends SharedUI implements GameHandler {
     }
 
     public String leaveGame() throws ResponseException, InvalidParameters {
+        ws.leaveGame(authToken, gameID);
         this.setState(State.LOGGEDIN);
         return "You have left the game.";
     }
@@ -84,11 +85,7 @@ public class GameplayUI extends SharedUI implements GameHandler {
     }
 
     public String resignGame() throws ResponseException, InvalidParameters {
-        //if (this.state != State.INGAME) {
-        //    throw new InvalidParameters("You are not currently in a game.");
-        //}
-        //ws.resignGame(authToken, gameID);
-        //return "You have resigned from the game.";
+        // TO-DO
         return "";
     }
 

@@ -144,7 +144,7 @@ public class PostLoginUI extends SharedUI implements GameHandler {
 
     public String joinGame(String... params) throws ResponseException, InvalidParameters, IOException {
         assertSignedIn();
-        if (params.length == 2) {  // Note: We no longer need to check for playerColor in WebSocket
+        if (params.length == 2) {
             int clientGameID = Integer.parseInt(params[0]);
             String playerColor = params[1];
             this.playerColor = ChessGame.TeamColor.valueOf(playerColor.toUpperCase());
@@ -179,13 +179,12 @@ public class PostLoginUI extends SharedUI implements GameHandler {
 
             if (ws == null) {
                 ws = new WebSocketFacade(serverUrl, this);
+                ws.connect(authToken, databaseGameID);
             }
 
             this.currentGameID = databaseGameID;
 
-            // Connect without needing to pass the playerColor (role) anymore
-            ws.connect(authToken, databaseGameID);
-
+            GameplayUI gameplayUI = new GameplayUI(serverUrl, authToken, this.playerColor, databaseGameID, ws);
             this.setState(State.INGAME);
             return "";
         }
@@ -206,12 +205,12 @@ public class PostLoginUI extends SharedUI implements GameHandler {
 
             if (ws == null) {
                 ws = new WebSocketFacade(serverUrl, this);
+                ws.connect(authToken, databaseGameID);
             }
 
             this.currentGameID = databaseGameID;
 
-            ws.connect(authToken, databaseGameID);
-
+            GameplayUI gameplayUI = new GameplayUI(serverUrl, authToken, this.playerColor, databaseGameID, ws);
             this.setState(State.INGAME);
             return "";
         }

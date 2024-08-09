@@ -81,43 +81,78 @@ public class WebSocketHandler {
         GameData game = validateGameID(command.getGameID(), session);
         if (game == null) return;
 
-        String role = null;
         String joiningUser = authData.username();
         String whitePlayer = game.whiteUsername();
         String blackPlayer = game.blackUsername();
+        String assignedRole = "";
 
-        if (whitePlayer == null && joiningUser.equals(command.getAuthToken())) {
-            role = "white";
-        } else if (blackPlayer == null && joiningUser.equals(command.getAuthToken())) {
-            role = "black";
-        } else if (joiningUser.equals(whitePlayer)) {
-            role = "white";
+        if (joiningUser.equals(whitePlayer)) {
+            assignedRole = "white";
         } else if (joiningUser.equals(blackPlayer)) {
-            role = "black";
+            assignedRole = "black";
         } else {
-            role = "observer";
+            if (whitePlayer == null) {
+                assignedRole = "white";
+                GameData updatedGame = new GameData(game.gameID(), joiningUser, blackPlayer, game.gameName(), game.game());
+                gameDataSQLDataAccess.updateGame(updatedGame);
+                game = updatedGame;
+            } else if (blackPlayer == null) {
+                assignedRole = "black";
+                GameData updatedGame = new GameData(game.gameID(), whitePlayer, joiningUser, game.gameName(), game.game());
+                gameDataSQLDataAccess.updateGame(updatedGame);
+                game = updatedGame;
+            } else {
+                assignedRole = "observer";
+            }
         }
-
-        System.out.println("Assigned Role: " + role);
 
         sessions.addSessionToGame(game.gameID(), session);
 
-        ServerMessage loadGameMessage = new LoadGameMessage(game, role);
+        ServerMessage loadGameMessage = new LoadGameMessage(game, assignedRole);
         sendMessage(loadGameMessage, session);
 
-        String message = String.format("%s has joined the game as %s.", authData.username(), role);
+        String message = String.format("%s has joined the game as %s.", joiningUser, assignedRole);
         ServerMessage notification = new NotificationMessage(message);
         broadcastMessage(game.gameID(), notification, session);
     }
-
 
     private void makeMove(UserGameCommand command, Session session) {
         // Placeholder for makeMove logic
     }
 
-    private void leaveGame(UserGameCommand command, Session session) {
-        // Placeholder for leaveGame logic
+    private void leaveGame(UserGameCommand command, Session session) throws IOException, DataAccessException {
+        AuthData authData = validateAuthToken(command.getAuthToken(), session);
+        if (authData == null) return;
+
+        GameData game = validateGameID(command.getGameID(), session);
+        if (game == null) return;
+
+        String leavingUser = authData.username();
+        String role;
+
+        if (leavingUser.equals(game.whiteUsername())) {
+            role = "white";
+            GameData updatedGame = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
+            gameDataSQLDataAccess.updateGame(updatedGame);
+            game = updatedGame;
+        } else if (leavingUser.equals(game.blackUsername())) {
+            role = "black";
+            GameData updatedGame = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
+            gameDataSQLDataAccess.updateGame(updatedGame);
+            game = updatedGame;
+        } else {
+            role = "observer";
+        }
+
+        sessions.removeSessionFromGame(game.gameID(), session);
+
+        String message = String.format("%s has left the game as %s.", leavingUser, role);
+        ServerMessage notification = new NotificationMessage(message);
+        broadcastMessage(game.gameID(), notification, session);
+
+        session.close();
     }
+
 
     private void resignGame(UserGameCommand command, Session session) throws IOException, DataAccessException {
         //

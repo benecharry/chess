@@ -90,8 +90,16 @@ public class WebSocketFacade extends Endpoint {
         sendMessage(command);
     }
 
-    public void leaveGame(UserGameCommand command) throws ResponseException {
-        sendMessage(command);
+    public void leaveGame(String authToken, Integer gameID) throws ResponseException {
+        if (session == null) {
+            throw new ResponseException(500, "WebSocket connection is not established.");
+        }
+        try {
+            UserGameCommand leaveCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(leaveCommand));
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
     public void resignGame(String authToken, Integer gameID) throws ResponseException {
