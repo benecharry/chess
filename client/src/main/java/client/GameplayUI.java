@@ -85,8 +85,12 @@ public class GameplayUI extends SharedUI implements GameHandler {
     }
 
     public String resignGame() throws ResponseException, InvalidParameters {
-        // TO-DO
-        return "";
+        if (ws == null) {
+            throw new IllegalStateException("WebSocket connection is not initialized.");
+        }
+        ws.resignGame(authToken, gameID);
+        this.setState(State.LOGGEDIN);
+        return "You have resigned from the game.";
     }
 
     public String highlightLegalMoves(String... params) throws ResponseException, InvalidParameters {

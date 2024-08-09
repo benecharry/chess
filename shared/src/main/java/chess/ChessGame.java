@@ -17,6 +17,7 @@ public class ChessGame {
     private ChessBoard board;
     private boolean isANewGame;
     private boolean ignoreCheckForValidMoves;
+    private boolean isGameOver;
 
     public ChessGame() {
         this.board = new ChessBoard();
@@ -52,6 +53,14 @@ public class ChessGame {
     public enum TeamColor {
         WHITE,
         BLACK
+    }
+
+    public boolean isGameOver() {
+        return isGameOver;
+    }
+
+    public void setGameOver(boolean isGameOver) {
+        this.isGameOver = isGameOver;
     }
 
     public void switchTeamTurn(){

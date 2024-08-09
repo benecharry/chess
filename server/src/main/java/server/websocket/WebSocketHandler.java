@@ -13,6 +13,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 import org.eclipse.jetty.websocket.api.Session;
+import chess.ChessGame;
 
 import java.io.IOException;
 import java.util.*;
@@ -155,7 +156,43 @@ public class WebSocketHandler {
 
 
     private void resignGame(UserGameCommand command, Session session) throws IOException, DataAccessException {
-        //
+        AuthData authData = validateAuthToken(command.getAuthToken(), session);
+        if (authData == null) {
+            sendError(new ErrorMessage("Invalid authentication token."), session);
+            return;
+        }
+
+        GameData game = validateGameID(command.getGameID(), session);
+        if (game == null) {
+            sendError(new ErrorMessage("Invalid game ID."), session);
+            return;
+        }
+
+        ChessGame chessGame = game.game();
+        if (chessGame.isGameOver()) {
+            sendError(new ErrorMessage("The game is already over."), session);
+            return;
+        }
+
+        String resigningUser = authData.username();
+
+        if (!resigningUser.equals(game.whiteUsername()) && !resigningUser.equals(game.blackUsername())) {
+            sendError(new ErrorMessage("Observers cannot resign the game."), session);
+            return;
+        }
+        chessGame.setGameOver(true);
+
+        GameData updatedGame = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), chessGame);
+        gameDataSQLDataAccess.updateGame(updatedGame);
+
+        ServerMessage resigningUserMessage = new NotificationMessage(resigningUser);
+        sendMessage(resigningUserMessage, session);
+
+        String message = String.format("%s has resigned. The game is over.", resigningUser);
+        ServerMessage notification = new NotificationMessage(message);
+        broadcastMessage(game.gameID(), notification, session);
+
+        session.close();
     }
 
     private AuthData validateAuthToken(String authToken, Session session) throws IOException, DataAccessException {
