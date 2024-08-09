@@ -5,6 +5,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 
 import java.io.PrintStream;
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
@@ -12,7 +13,7 @@ import static ui.EscapeSequences.RESET_TEXT_COLOR;
 public class BoardUI {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
 
-    public static void drawChessboard(PrintStream out, ChessGame chessGame, boolean isPlayerPerspective) {
+    public static void drawChessboard(PrintStream out, ChessGame chessGame, boolean isPlayerPerspective, Collection<ChessPosition> highlightPositions) {
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
 
@@ -21,7 +22,15 @@ public class BoardUI {
         for (int row = 0; row < BOARD_SIZE_IN_SQUARES; row++) {
             drawRowLabel(out, row, isPlayerPerspective);
             for (int col = 0; col < BOARD_SIZE_IN_SQUARES; col++) {
-                drawSquare(out, row, col);
+                ChessPosition currentPosition = calculatePosition(row, col, isPlayerPerspective);
+
+                boolean isHighlighted = highlightPositions.contains(currentPosition);
+                ChessPiece piece = chessGame.getBoard().getPiece(currentPosition);
+                boolean isPieceLocation = false;
+                if (piece != null) {
+                    isPieceLocation = highlightPositions.contains(currentPosition);
+                }
+                drawSquare(out, row, col, isHighlighted, isPieceLocation);
                 out.print(getPieceAt(chessGame, row, col, isPlayerPerspective));
             }
             drawRowLabel(out, row, isPlayerPerspective);
@@ -29,6 +38,22 @@ public class BoardUI {
         }
         drawHeaders(out, isPlayerPerspective);
     }
+
+    private static ChessPosition calculatePosition(int row, int col, boolean isPlayerPerspective) {
+        int boardRow;
+        int boardCol;
+
+        if (isPlayerPerspective) {
+            boardRow = BOARD_SIZE_IN_SQUARES - row;
+            boardCol = col + 1;
+        } else {
+            boardRow = row + 1;
+            boardCol = BOARD_SIZE_IN_SQUARES - col;
+        }
+
+        return new ChessPosition(boardRow, boardCol);
+    }
+
 
     private static void drawHeaders(PrintStream out, boolean isPlayerPerspective) {
         String[] normalHeaders = {" a", "b", "c", "d", "e", "f", "g", "h"};
@@ -46,9 +71,17 @@ public class BoardUI {
         out.print(SET_BG_COLOR_DARK_GREY + " " + getRowLabel(row, isPlayerPerspective) + " " + RESET_BG_COLOR);
     }
 
-    private static void drawSquare(PrintStream out, int row, int col) {
-        if ((row + col) % 2 == 0) {
-            out.print(SET_BG_COLOR_LIGHT_GREY);
+    private static void drawSquare(PrintStream out, int row, int col, boolean isHighlighted, boolean isPieceLocation) {
+        if (isPieceLocation) {
+            out.print(SET_BG_COLOR_YELLOW);
+        } else if (isHighlighted) {
+            if ((row + col) % 2 == 0) {
+                out.print(SET_BG_COLOR_GREEN);
+            } else {
+                out.print(SET_BG_COLOR_DARK_GREEN);
+            }
+        } else if ((row + col) % 2 == 0) {
+            out.print(SET_BG_COLOR_WHITE);
         } else {
             out.print(SET_BG_COLOR_BLACK);
         }

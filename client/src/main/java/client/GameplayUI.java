@@ -1,6 +1,8 @@
 package client;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import exception.InvalidParameters;
 import exception.ResponseException;
 import websocket.GameHandler;
@@ -15,6 +17,9 @@ import javax.websocket.CloseReason;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 import static ui.EscapeSequences.*;
 
@@ -24,6 +29,7 @@ public class GameplayUI extends SharedUI implements GameHandler {
     private int gameID;
     private ChessGame chessGame;
     private ChessGame.TeamColor playerColor;
+    private Collection<ChessPosition> highlightPositions;
 
     public GameplayUI(String serverUrl, String authToken, ChessGame.TeamColor playerColor, int gameID, WebSocketFacade ws) {
         super(serverUrl);
@@ -33,6 +39,7 @@ public class GameplayUI extends SharedUI implements GameHandler {
         this.chessGame = new ChessGame();
         this.gameID = gameID;
         this.ws = ws;
+        this.highlightPositions = Collections.emptyList();
     }
 
     @Override
@@ -68,7 +75,7 @@ public class GameplayUI extends SharedUI implements GameHandler {
     public String redrawChessBoard() throws ResponseException, InvalidParameters {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-        BoardUI.drawChessboard(out, chessGame, playerColor == ChessGame.TeamColor.WHITE);
+        BoardUI.drawChessboard(out, chessGame, playerColor == ChessGame.TeamColor.WHITE, highlightPositions);
         BoardUI.resetColors(out);
         return "You redrew the chessboard.";
     }
@@ -94,8 +101,19 @@ public class GameplayUI extends SharedUI implements GameHandler {
     }
 
     public String highlightLegalMoves(String... params) throws ResponseException, InvalidParameters {
-        // TO-DO
-        return "";
+        if (params.length != 1) {
+            throw new InvalidParameters("You can only provide one position. Try again.");
+        }
+
+        ChessPosition position = new ChessPosition(params[0]);
+        Collection<ChessMove> validMoves = chessGame.validMoves(position);
+        highlightPositions = validMoves.stream()
+                .map(ChessMove::getEndPosition)
+                .collect(Collectors.toList());
+        highlightPositions.add(position);
+        redrawChessBoard();
+
+        return "Legal moves for piece at " + params[0];
     }
 
     @Override
