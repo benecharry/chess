@@ -15,6 +15,7 @@ public abstract class SharedUI {
     protected String authToken;
     protected final String serverUrl;
     protected static WebSocketFacade ws;
+    protected static boolean hasJoinedGame;
 
     public SharedUI(String serverUrl) {
         this.serverUrl = serverUrl;
@@ -117,7 +118,6 @@ public abstract class SharedUI {
                 break;
         }
     }
-
 
     public State getState() {
         return state;

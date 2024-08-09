@@ -76,15 +76,9 @@ public class BoardUI {
         if (isPieceLocation) {
             out.print(SET_BG_COLOR_YELLOW);
         } else if (isHighlighted) {
-            if ((row + col) % 2 == 0) {
-                out.print(SET_BG_COLOR_GREEN);
-            } else {
-                out.print(SET_BG_COLOR_DARK_GREEN);
-            }
-        } else if ((row + col) % 2 == 0) {
-            out.print(SET_BG_COLOR_WHITE);
+            out.print((row + col) % 2 == 0 ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN);
         } else {
-            out.print(SET_BG_COLOR_BLACK);
+            out.print((row + col) % 2 == 0 ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_BLACK);
         }
     }
 

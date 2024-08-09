@@ -5,11 +5,20 @@ import model.GameData;
 public class LoadGameMessage extends ServerMessage {
     private GameData game;
     private String role;
+    private boolean isJoinNotification;
+
 
     public LoadGameMessage(GameData game, String role) {
         super(ServerMessageType.LOAD_GAME);
         this.game = game;
         this.role = role;
+    }
+
+    public LoadGameMessage(GameData game, String role, boolean isJoinNotification) {
+        super(ServerMessageType.LOAD_GAME);
+        this.game = game;
+        this.role = role;
+        this.isJoinNotification = isJoinNotification;
     }
 
     public GameData getGame() {
@@ -28,9 +37,20 @@ public class LoadGameMessage extends ServerMessage {
         this.role = role;
     }
 
+    public boolean isJoinNotification() {
+        return isJoinNotification;
+    }
+
+    public void setJoinNotification(boolean joinNotification) {
+        isJoinNotification = joinNotification;
+    }
+
     @Override
     public String toString() {
-        return String.format("You just joined the game with ID %d as the %s.", game.gameID(), role);
-
+        if (isJoinNotification) {
+            return String.format("You just joined the game with ID %d as the %s.", game.gameID(), role);
+        } else {
+            return "Game loaded";
+        }
     }
 }

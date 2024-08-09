@@ -1,5 +1,7 @@
 package server.websocket;
 
+import chess.ChessPiece;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.AuthDataSQLDataAccess;
 import dataaccess.DataAccessException;
@@ -14,6 +16,7 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 import org.eclipse.jetty.websocket.api.Session;
 import chess.ChessGame;
+import chess.ChessMove;
 
 import java.io.IOException;
 import java.util.*;
@@ -27,27 +30,27 @@ public class WebSocketHandler {
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        System.out.println("Session connected.");
+        //System.out.println("Session connected.");
     }
 
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
-        System.out.println("Session closed.");
+        //System.out.println("Session closed.");
         sessions.removeSession(session);
     }
 
     @OnWebSocketError
     public void onError(Session session, Throwable error) {
-        System.out.println("WebSocket error: " + error.getMessage());
+        //System.out.println("WebSocket error: " + error.getMessage());
     }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String string) throws IOException {
         // Log the received message
-        System.out.println("Message received: " + string);
+        //System.out.println("Message received: " + string);
         try {
             UserGameCommand userGameCommand = new Gson().fromJson(string, UserGameCommand.class);
-            System.out.println("Deserialized command: " + userGameCommand);
+            //System.out.println("Deserialized command: " + userGameCommand);
 
             switch (userGameCommand.getCommandType()) {
                 case CONNECT:
@@ -70,10 +73,6 @@ public class WebSocketHandler {
             System.out.println("Data access exception: " + e.getMessage());
         }
     }
-
-
-    //No more messages that it should receive!.
-    //No JSON but actual message. TO-DO.
 
     private void connect(UserGameCommand command, Session session) throws IOException, DataAccessException {
         AuthData authData = validateAuthToken(command.getAuthToken(), session);
@@ -109,7 +108,7 @@ public class WebSocketHandler {
 
         sessions.addSessionToGame(game.gameID(), session);
 
-        ServerMessage loadGameMessage = new LoadGameMessage(game, assignedRole);
+        ServerMessage loadGameMessage = new LoadGameMessage(game, assignedRole, true);
         sendMessage(loadGameMessage, session);
 
         String message = String.format("%s has joined the game as %s.", joiningUser, assignedRole);
@@ -117,9 +116,62 @@ public class WebSocketHandler {
         broadcastMessage(game.gameID(), notification, session);
     }
 
-    private void makeMove(UserGameCommand command, Session session) {
-        // Placeholder for makeMove logic
+    private void makeMove(UserGameCommand command, Session session) throws IOException, DataAccessException {
+        AuthData authData = validateAuthToken(command.getAuthToken(), session);
+        if (authData == null) {return;}
+
+        GameData game = validateGameID(command.getGameID(), session);
+        if (game == null) {return;}
+
+        ChessGame chessGame = game.game();
+
+        if (chessGame.isGameOver()) {
+            ErrorMessage errorMessage = new ErrorMessage("The game is already over.");
+            sendError(errorMessage, session);
+            return;
+        }
+
+        boolean isObserver = !authData.username().equals(game.whiteUsername()) &&
+                !authData.username().equals(game.blackUsername());
+        if (isObserver) {
+            ErrorMessage errorMessage = new ErrorMessage("Observers cannot make moves.");
+            sendError(errorMessage, session);
+            return;
+        }
+
+        ChessMove move = command.getMove();
+        ChessPiece piece = chessGame.getBoard().getPiece(move.getStartPosition());
+
+        if (piece == null || piece.getTeamColor() != chessGame.getTeamTurn()) {
+            ErrorMessage errorMessage = new ErrorMessage("Error: It's not your turn or you're trying to move your opponent's piece.");
+            sendError(errorMessage, session);
+            return;
+        }
+
+        try {
+            chessGame.makeMove(move);
+
+            GameData updatedGame = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), chessGame);
+            gameDataSQLDataAccess.updateGame(updatedGame);
+
+            String pieceType = piece.getPieceType().name().toLowerCase();
+            String playerColor = piece.getTeamColor().name().toLowerCase();
+
+            ServerMessage loadGameMessage = new LoadGameMessage(updatedGame, playerColor, false);
+            broadcastMessage(game.gameID(), loadGameMessage, null);
+
+            String moveMessage = String.format("%s (%s) moved their %s from %s to %s.",
+                    authData.username(), playerColor, pieceType,
+                    move.getStartPosition().toString(), move.getEndPosition().toString());
+            ServerMessage moveNotification = new NotificationMessage(moveMessage);
+            broadcastMessage(game.gameID(), moveNotification, session);
+
+        } catch (InvalidMoveException e) {
+            ErrorMessage errorMessage = new ErrorMessage("Invalid move: " + e.getMessage());
+            sendError(errorMessage, session);
+        }
     }
+
 
     private void leaveGame(UserGameCommand command, Session session) throws IOException, DataAccessException {
         AuthData authData = validateAuthToken(command.getAuthToken(), session);

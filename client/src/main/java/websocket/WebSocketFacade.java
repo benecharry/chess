@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -86,8 +87,16 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void makeMove(UserGameCommand command) throws ResponseException {
-        sendMessage(command);
+    public void makeMove(String authToken, Integer gameID, ChessMove move) throws ResponseException {
+        if (session == null) {
+            throw new ResponseException(500, "WebSocket connection is not established.");
+        }
+        try {
+            UserGameCommand makeMoveCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(makeMoveCommand));
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
     public void leaveGame(String authToken, Integer gameID) throws ResponseException {

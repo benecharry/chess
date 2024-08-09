@@ -31,6 +31,7 @@ public class PostLoginUI extends SharedUI implements GameHandler {
     private ChessGame.TeamColor playerColor;
     private ServerFacade server;
     private int currentGameID;
+    private boolean hasJoinedGame;
 
     public PostLoginUI(String serverUrl, String authToken) {
         super(serverUrl);
@@ -39,6 +40,7 @@ public class PostLoginUI extends SharedUI implements GameHandler {
         this.localGameIDs = new HashMap<>();
         this.nextLocalID = 1;
         server = new ServerFacade(serverUrl);
+        hasJoinedGame = false;
         initializeLocalGameIDs();
     }
 
@@ -237,11 +239,6 @@ public class PostLoginUI extends SharedUI implements GameHandler {
     @Override
     public void onError(Session session, Throwable thr) {
         //
-    }
-
-    @Override
-    protected void onGameLoaded(LoadGameMessage loadGameMessage) {
-        System.out.println("Game loaded");
     }
 
     @Override

@@ -2,7 +2,9 @@ package client;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
+import chess.InvalidMoveException;
 import exception.InvalidParameters;
 import exception.ResponseException;
 import websocket.GameHandler;
@@ -66,11 +68,16 @@ public class GameplayUI extends SharedUI implements GameHandler {
     }
 
     public String redrawChessBoard() throws ResponseException, InvalidParameters {
+        clearHighlights();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
         BoardUI.drawChessboard(out, chessGame, playerColor == ChessGame.TeamColor.WHITE, highlightPositions);
         BoardUI.resetColors(out);
         return "You redrew the chessboard.";
+    }
+
+    public void clearHighlights() {
+        highlightPositions = Collections.emptyList();
     }
 
     public String leaveGame() throws ResponseException, InvalidParameters {
@@ -80,8 +87,33 @@ public class GameplayUI extends SharedUI implements GameHandler {
     }
 
     public String makeMove(String... params) throws ResponseException, InvalidParameters {
-        // TO-DO
-        return "";
+        if(params.length != 2){
+            throw new InvalidParameters("You need to provide two directions. Please try again.");
+        }
+
+        ChessPosition startPosition = new ChessPosition(params[0]);
+        ChessPosition endPosition = new ChessPosition(params[1]);
+
+        ChessPiece piece = chessGame.getBoard().getPiece(startPosition);
+        if (piece == null) {
+            return "No piece at the giving starting position.";
+        }
+
+        ChessMove move = new ChessMove(startPosition, endPosition, null);
+        try {
+            chessGame.makeMove(move);
+        } catch (InvalidMoveException e) {
+            return "Invalid move: " + e.getMessage();
+        }
+
+        ws.makeMove(authToken, gameID, move);
+
+        redrawChessBoard();
+
+        return String.format("Moved %s %s from %s to %s.",
+                piece.getTeamColor().name().toLowerCase(),
+                piece.getPieceType().name().toLowerCase(),
+                params[0], params[1]);
     }
 
     public String resignGame() throws ResponseException, InvalidParameters {
@@ -100,10 +132,12 @@ public class GameplayUI extends SharedUI implements GameHandler {
 
         ChessPosition position = new ChessPosition(params[0]);
         Collection<ChessMove> validMoves = chessGame.validMoves(position);
+
         highlightPositions = validMoves.stream()
                 .map(ChessMove::getEndPosition)
                 .collect(Collectors.toList());
         highlightPositions.add(position);
+
         redrawChessBoard();
 
         return "Legal moves for piece at " + params[0];
@@ -118,6 +152,7 @@ public class GameplayUI extends SharedUI implements GameHandler {
     public void onClose(Session session, CloseReason closeReason) {
         System.out.println("WebSocket connection closed: " + session.getId() + " Reason: " + closeReason);
     }
+
 
     @Override
     public void onError(Session session, Throwable thr) {

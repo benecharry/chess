@@ -14,7 +14,7 @@ public class ServiceManager {
     private final CreateGameService createGameService;
     private final JoinGameService joinGameService;
     private final ClearApplicationService clearApplicationService;
-/// YAY! FIX
+
     public ServiceManager(UserDataDataAccess userDataDataAccess, AuthDataDataAccess authDataDataAccess, GameDataDataAccess gameDataDataAccess) {
         this.userDataDataAccess = userDataDataAccess;
         this.authDataDataAccess = authDataDataAccess;
