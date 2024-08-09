@@ -175,6 +175,18 @@ public class WebSocketHandler {
             ServerMessage moveNotification = new NotificationMessage(moveMessage);
             broadcastMessage(game.gameID(), moveNotification, session);
 
+            ChessGame.TeamColor opponentColor = chessGame.getOpponentColor(piece.getTeamColor());
+            if (chessGame.isInCheckmate(opponentColor)) {
+                broadcastMessage(game.gameID(), new NotificationMessage("Checkmate! " +
+                        opponentColor.name().toLowerCase() + " loses. Game over."), null);
+            } else if (chessGame.isInStalemate(opponentColor)) {
+                broadcastMessage(game.gameID(), new NotificationMessage("Stalemate! The game is a draw."),
+                        null);
+            } else if (chessGame.isInCheck(opponentColor)) {
+                broadcastMessage(game.gameID(), new NotificationMessage(opponentColor.name().toLowerCase() +
+                        " is in check."), null);
+            }
+
         } catch (InvalidMoveException e) {
             ErrorMessage errorMessage = new ErrorMessage("Invalid move: " + e.getMessage());
             sendError(errorMessage, session);

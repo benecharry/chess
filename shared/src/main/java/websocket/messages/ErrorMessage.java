@@ -5,19 +5,19 @@ public class ErrorMessage extends ServerMessage {
 
     public ErrorMessage(String errorMessage) {
         super(ServerMessageType.ERROR);
-        this.errorMessage = errorMessage;
+        if (!errorMessage.toLowerCase().contains("error")) {
+            this.errorMessage = "Error: " + errorMessage;
+        } else {
+            this.errorMessage = errorMessage;
+        }
     }
 
     public String getErrorMessage() {
         return errorMessage;
     }
 
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
     @Override
     public String toString() {
-        return "Error: " + errorMessage;
+        return errorMessage;
     }
 }

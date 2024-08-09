@@ -123,20 +123,4 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    private void sendMessage(UserGameCommand command) throws ResponseException {
-        if (session == null) {
-            throw new ResponseException(500, "WebSocket connection is not established.");
-        }
-        try {
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
-
-    public void close() throws IOException {
-        if (session != null) {
-            this.session.close();
-        }
-    }
 }

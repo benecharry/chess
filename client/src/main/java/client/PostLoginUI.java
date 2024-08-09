@@ -88,8 +88,8 @@ public class PostLoginUI extends SharedUI implements GameHandler {
             return String.format("%sInvalid input: %s%s", SET_TEXT_COLOR_YELLOW, e.getMessage(), RESET_TEXT_COLOR);
         } catch (NumberFormatException e) {
             return String.format("%sInvalid input. Game <ID> should be a number.%s", SET_TEXT_COLOR_YELLOW, RESET_TEXT_COLOR);
-        } catch (NullPointerException e) {
-            return String.format("%sInvalid input. Game <ID> not found.%s", SET_TEXT_COLOR_YELLOW, RESET_TEXT_COLOR);
+        } catch (NullPointerException | IllegalArgumentException e) {
+            return String.format("%sInvalid input. Try again.%s", SET_TEXT_COLOR_YELLOW, RESET_TEXT_COLOR);
         }
     }
 

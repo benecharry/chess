@@ -68,7 +68,7 @@ public class ChessGame {
         this.isANewGame = false;
     }
 
-    private TeamColor getOpponentColor(TeamColor teamColor) {
+    public TeamColor getOpponentColor(TeamColor teamColor) {
         TeamColor colorOfOpponent = null;
         if(teamColor == TeamColor.WHITE){
             colorOfOpponent = TeamColor.BLACK;
@@ -172,6 +172,18 @@ public class ChessGame {
         }
 
         switchTeamTurn();
+
+        TeamColor opponentColor = getOpponentColor(piece.getTeamColor());
+
+        if (isInCheckmate(opponentColor)) {
+            setGameOver(true);
+            System.out.println(opponentColor.name().toLowerCase() + " is in checkmate. Game over.");
+        } else if (isInStalemate(opponentColor)) {
+            setGameOver(true);
+            System.out.println(opponentColor.name().toLowerCase() + " is in stalemate. Game over.");
+        } else if (isInCheck(opponentColor)) {
+            System.out.println(opponentColor.name().toLowerCase() + " is in check.");
+        }
     }
 
     // TO-DO

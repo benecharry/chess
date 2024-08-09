@@ -111,6 +111,14 @@ public class GameplayUI extends SharedUI implements GameHandler {
 
         ws.makeMove(authToken, gameID, move);
 
+        if (chessGame.isInCheckmate(chessGame.getTeamTurn())) {
+            chessGame.setGameOver(true);
+            return "Checkmate! " + piece.getTeamColor().name().toLowerCase() + " wins.";
+        } else if (chessGame.isInStalemate(chessGame.getTeamTurn())) {
+            chessGame.setGameOver(true);
+            return "Stalemate! The game is a draw.";
+        }
+
         return String.format("Moved %s %s from %s to %s.",
                 piece.getTeamColor().name().toLowerCase(),
                 piece.getPieceType().name().toLowerCase(),
@@ -139,7 +147,10 @@ public class GameplayUI extends SharedUI implements GameHandler {
                 .collect(Collectors.toList());
         highlightPositions.add(position);
 
-        redrawChessBoard();
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        out.print(ERASE_SCREEN);
+        BoardUI.drawChessboard(out, chessGame, playerColor == ChessGame.TeamColor.WHITE, highlightPositions);
+        BoardUI.resetColors(out);
 
         return "Legal moves for piece at " + params[0];
     }
@@ -152,13 +163,18 @@ public class GameplayUI extends SharedUI implements GameHandler {
     @Override
     protected void onGameLoaded(LoadGameMessage loadGameMessage) {
         this.chessGame = loadGameMessage.getGame().game();
-
+        this.playerColor = ChessGame.TeamColor.valueOf(loadGameMessage.getRole().toUpperCase());
         try {
             redrawChessBoard();
         } catch (ResponseException | InvalidParameters e) {
             System.err.println("Error redrawing chessboard: " + e.getMessage());
         }
-        System.out.println(loadGameMessage.toString());
+
+        if (loadGameMessage.isJoinNotification()) {
+            System.out.println(loadGameMessage.toString());
+        } else {
+            System.out.println("Game loaded.");
+        }
     }
 
     @Override
