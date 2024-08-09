@@ -13,7 +13,8 @@ import static ui.EscapeSequences.RESET_TEXT_COLOR;
 public class BoardUI {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
 
-    public static void drawChessboard(PrintStream out, ChessGame chessGame, boolean isPlayerPerspective, Collection<ChessPosition> highlightPositions) {
+    public static void drawChessboard(PrintStream out, ChessGame chessGame, boolean isPlayerPerspective,
+                                      Collection<ChessPosition> highlightPositions) {
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
 

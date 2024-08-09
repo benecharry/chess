@@ -6,9 +6,6 @@ import chess.ChessPosition;
 import exception.InvalidParameters;
 import exception.ResponseException;
 import websocket.GameHandler;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.Session;
@@ -130,28 +127,6 @@ public class GameplayUI extends SharedUI implements GameHandler {
 
     @Override
     public void processMessage(ServerMessage serverMessage) {
-        switch (serverMessage.getServerMessageType()) {
-            case LOAD_GAME:
-                if (serverMessage instanceof LoadGameMessage) {
-                    LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
-                    System.out.println(loadGameMessage.toString());
-                }
-                break;
-            case ERROR:
-                if (serverMessage instanceof ErrorMessage) {
-                    ErrorMessage errorMessage = (ErrorMessage) serverMessage;
-                    System.out.println("Error: " + errorMessage.getErrorMessage());
-                }
-                break;
-            case NOTIFICATION:
-                if (serverMessage instanceof NotificationMessage) {
-                    NotificationMessage notificationMessage = (NotificationMessage) serverMessage;
-                    System.out.println(notificationMessage.toString());
-                }
-                break;
-            default:
-                System.out.println("Unknown message type: " + serverMessage);
-                break;
-        }
+        handleServerMessage(serverMessage);
     }
 }

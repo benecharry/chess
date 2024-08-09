@@ -77,10 +77,10 @@ public class WebSocketHandler {
 
     private void connect(UserGameCommand command, Session session) throws IOException, DataAccessException {
         AuthData authData = validateAuthToken(command.getAuthToken(), session);
-        if (authData == null) return;
+        if (authData == null) {return;}
 
         GameData game = validateGameID(command.getGameID(), session);
-        if (game == null) return;
+        if (game == null) {return;}
 
         String joiningUser = authData.username();
         String whitePlayer = game.whiteUsername();
@@ -123,10 +123,10 @@ public class WebSocketHandler {
 
     private void leaveGame(UserGameCommand command, Session session) throws IOException, DataAccessException {
         AuthData authData = validateAuthToken(command.getAuthToken(), session);
-        if (authData == null) return;
+        if (authData == null) {return;}
 
         GameData game = validateGameID(command.getGameID(), session);
-        if (game == null) return;
+        if (game == null) {return;}
 
         String leavingUser = authData.username();
         String role;

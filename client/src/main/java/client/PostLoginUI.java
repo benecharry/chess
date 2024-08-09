@@ -15,9 +15,7 @@ import server.ServerFacade;
 import websocket.GameHandler;
 import websocket.WebSocketFacade;
 import websocket.messages.ServerMessage;
-import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
 
 import javax.websocket.Session;
 import javax.websocket.CloseReason;
@@ -242,30 +240,12 @@ public class PostLoginUI extends SharedUI implements GameHandler {
     }
 
     @Override
+    protected void onGameLoaded(LoadGameMessage loadGameMessage) {
+        System.out.println("Game loaded");
+    }
+
+    @Override
     public void processMessage(ServerMessage serverMessage) {
-        switch (serverMessage.getServerMessageType()) {
-            case LOAD_GAME:
-                if (serverMessage instanceof LoadGameMessage) {
-                    LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
-                    System.out.println("Game loaded");
-                    System.out.println(loadGameMessage.toString());
-                }
-                break;
-            case ERROR:
-                if (serverMessage instanceof ErrorMessage) {
-                    ErrorMessage errorMessage = (ErrorMessage) serverMessage;
-                    System.out.println("Error: " + errorMessage.getErrorMessage());
-                }
-                break;
-            case NOTIFICATION:
-                if (serverMessage instanceof NotificationMessage) {
-                    NotificationMessage notificationMessage = (NotificationMessage) serverMessage;
-                    System.out.println(notificationMessage.toString());
-                }
-                break;
-            default:
-                System.out.println("Unknown message type: " + serverMessage);
-                break;
-        }
+        handleServerMessage(serverMessage);
     }
 }

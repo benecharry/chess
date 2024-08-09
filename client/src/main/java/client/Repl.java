@@ -46,7 +46,8 @@ public class Repl {
         } else if (currentUI.getState() == State.INGAME) {
             if (currentUI instanceof PostLoginUI) {
                 PostLoginUI postLoginUI = (PostLoginUI) currentUI;
-                currentUI = new GameplayUI(currentUI.getServerUrl(), currentUI.getAuthToken(), postLoginUI.getPlayerColor(), postLoginUI.getCurrentGameID());
+                currentUI = new GameplayUI(currentUI.getServerUrl(), currentUI.getAuthToken(),
+                        postLoginUI.getPlayerColor(), postLoginUI.getCurrentGameID());
             }
         } else if (currentUI.getState() == State.LOGGEDOUT) {
             if (currentUI instanceof PostLoginUI) {

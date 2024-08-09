@@ -2,6 +2,10 @@ package client;
 
 import server.ServerFacade;
 import websocket.WebSocketFacade;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import static ui.EscapeSequences.*;
 
@@ -82,6 +86,38 @@ public abstract class SharedUI {
                 return "Invalid state.";
         }
     }
+
+    protected void onGameLoaded(LoadGameMessage loadGameMessage) {
+        //Subclasses will override this.
+    }
+
+    public void handleServerMessage(ServerMessage serverMessage) {
+        switch (serverMessage.getServerMessageType()) {
+            case LOAD_GAME:
+                if (serverMessage instanceof LoadGameMessage) {
+                    LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
+                    onGameLoaded(loadGameMessage);
+                    System.out.println(loadGameMessage.toString());
+                }
+                break;
+            case ERROR:
+                if (serverMessage instanceof ErrorMessage) {
+                    ErrorMessage errorMessage = (ErrorMessage) serverMessage;
+                    System.out.println("Error: " + errorMessage.getErrorMessage());
+                }
+                break;
+            case NOTIFICATION:
+                if (serverMessage instanceof NotificationMessage) {
+                    NotificationMessage notificationMessage = (NotificationMessage) serverMessage;
+                    System.out.println(notificationMessage.toString());
+                }
+                break;
+            default:
+                System.out.println("Unknown message type: " + serverMessage);
+                break;
+        }
+    }
+
 
     public State getState() {
         return state;
