@@ -7,7 +7,6 @@ public class LoadGameMessage extends ServerMessage {
     private String role;
     private boolean isJoinNotification;
 
-
     public LoadGameMessage(GameData game, String role) {
         super(ServerMessageType.LOAD_GAME);
         this.game = game;
@@ -48,7 +47,7 @@ public class LoadGameMessage extends ServerMessage {
     @Override
     public String toString() {
         if (isJoinNotification) {
-            return String.format("You just joined the game with ID %d as the %s.", game.gameID(), role);
+            return String.format("You have joined the game with ID %d as the %s.", game.gameID(), role);
         } else {
             return "Game loaded";
         }

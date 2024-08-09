@@ -92,4 +92,9 @@ public class ChessPiece {
     public int hashCode() {
         return Objects.hash(pieceColor, type);
     }
+
+    @Override
+    public String toString() {
+        return pieceColor.name().toLowerCase() + " " + type.name().toLowerCase();
+    }
 }

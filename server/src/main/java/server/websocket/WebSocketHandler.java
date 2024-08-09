@@ -20,6 +20,7 @@ import chess.ChessMove;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @WebSocket
 public class WebSocketHandler {
@@ -27,6 +28,8 @@ public class WebSocketHandler {
     private final WebSocketSessions sessions = new WebSocketSessions();
     private GameDataSQLDataAccess gameDataSQLDataAccess = new GameDataSQLDataAccess();
     private AuthDataSQLDataAccess authDataSQLDataAccess = new AuthDataSQLDataAccess();
+
+    private final Map<Session, ChessGame.TeamColor> playerRoles = new ConcurrentHashMap<>();
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -84,37 +87,42 @@ public class WebSocketHandler {
         String joiningUser = authData.username();
         String whitePlayer = game.whiteUsername();
         String blackPlayer = game.blackUsername();
-        String assignedRole = "";
+        ChessGame.TeamColor assignedRole = null;
 
         if (joiningUser.equals(whitePlayer)) {
-            assignedRole = "white";
+            assignedRole = ChessGame.TeamColor.WHITE;
         } else if (joiningUser.equals(blackPlayer)) {
-            assignedRole = "black";
+            assignedRole = ChessGame.TeamColor.BLACK;
         } else {
             if (whitePlayer == null) {
-                assignedRole = "white";
+                assignedRole = ChessGame.TeamColor.WHITE;
                 GameData updatedGame = new GameData(game.gameID(), joiningUser, blackPlayer, game.gameName(), game.game());
                 gameDataSQLDataAccess.updateGame(updatedGame);
                 game = updatedGame;
             } else if (blackPlayer == null) {
-                assignedRole = "black";
+                assignedRole = ChessGame.TeamColor.BLACK;
                 GameData updatedGame = new GameData(game.gameID(), whitePlayer, joiningUser, game.gameName(), game.game());
                 gameDataSQLDataAccess.updateGame(updatedGame);
                 game = updatedGame;
             } else {
-                assignedRole = "observer";
+                assignedRole = null;
             }
+        }
+
+        if (assignedRole != null) {
+            playerRoles.put(session, assignedRole);
         }
 
         sessions.addSessionToGame(game.gameID(), session);
 
-        ServerMessage loadGameMessage = new LoadGameMessage(game, assignedRole, true);
+        ServerMessage loadGameMessage = new LoadGameMessage(game, assignedRole != null ? assignedRole.name().toLowerCase() : "observer", true);
         sendMessage(loadGameMessage, session);
 
-        String message = String.format("%s has joined the game as %s.", joiningUser, assignedRole);
+        String message = String.format("%s has joined the game as %s.", joiningUser, assignedRole != null ? assignedRole.name().toLowerCase() : "observer");
         ServerMessage notification = new NotificationMessage(message);
         broadcastMessage(game.gameID(), notification, session);
     }
+
 
     private void makeMove(UserGameCommand command, Session session) throws IOException, DataAccessException {
         AuthData authData = validateAuthToken(command.getAuthToken(), session);
@@ -124,6 +132,7 @@ public class WebSocketHandler {
         if (game == null) {return;}
 
         ChessGame chessGame = game.game();
+        ChessGame.TeamColor playerRole = playerRoles.get(session);
 
         if (chessGame.isGameOver()) {
             ErrorMessage errorMessage = new ErrorMessage("The game is already over.");
@@ -142,8 +151,8 @@ public class WebSocketHandler {
         ChessMove move = command.getMove();
         ChessPiece piece = chessGame.getBoard().getPiece(move.getStartPosition());
 
-        if (piece == null || piece.getTeamColor() != chessGame.getTeamTurn()) {
-            ErrorMessage errorMessage = new ErrorMessage("Error: It's not your turn or you're trying to move your opponent's piece.");
+        if (piece == null || piece.getTeamColor() != playerRole) {
+            ErrorMessage errorMessage = new ErrorMessage("Error: You're trying to move your opponent's piece.");
             sendError(errorMessage, session);
             return;
         }
@@ -171,7 +180,6 @@ public class WebSocketHandler {
             sendError(errorMessage, session);
         }
     }
-
 
     private void leaveGame(UserGameCommand command, Session session) throws IOException, DataAccessException {
         AuthData authData = validateAuthToken(command.getAuthToken(), session);
@@ -245,7 +253,7 @@ public class WebSocketHandler {
         ServerMessage notification = new NotificationMessage(message);
         broadcastMessage(game.gameID(), notification, session);
         //Not so sure about this.
-        session.close();
+        //session.close();
     }
 
     private AuthData validateAuthToken(String authToken, Session session) throws IOException, DataAccessException {

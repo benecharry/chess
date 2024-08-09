@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
+import websocket.messages.LoadGameMessage;
 
 import static ui.EscapeSequences.*;
 
@@ -64,6 +65,8 @@ public class GameplayUI extends SharedUI implements GameHandler {
             return ex.getMessage();
         } catch (InvalidParameters e) {
             return String.format("%sInvalid input: %s%s", SET_TEXT_COLOR_YELLOW, e.getMessage(), RESET_TEXT_COLOR);
+        } catch (IllegalArgumentException e) {
+            return "%sInvalid input.";
         }
     }
 
@@ -108,8 +111,6 @@ public class GameplayUI extends SharedUI implements GameHandler {
 
         ws.makeMove(authToken, gameID, move);
 
-        redrawChessBoard();
-
         return String.format("Moved %s %s from %s to %s.",
                 piece.getTeamColor().name().toLowerCase(),
                 piece.getPieceType().name().toLowerCase(),
@@ -149,10 +150,21 @@ public class GameplayUI extends SharedUI implements GameHandler {
     }
 
     @Override
+    protected void onGameLoaded(LoadGameMessage loadGameMessage) {
+        this.chessGame = loadGameMessage.getGame().game();
+
+        try {
+            redrawChessBoard();
+        } catch (ResponseException | InvalidParameters e) {
+            System.err.println("Error redrawing chessboard: " + e.getMessage());
+        }
+        System.out.println(loadGameMessage.toString());
+    }
+
+    @Override
     public void onClose(Session session, CloseReason closeReason) {
         System.out.println("WebSocket connection closed: " + session.getId() + " Reason: " + closeReason);
     }
-
 
     @Override
     public void onError(Session session, Throwable thr) {
