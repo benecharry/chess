@@ -81,20 +81,35 @@ public class WebSocketHandler {
         GameData game = validateGameID(command.getGameID(), session);
         if (game == null) return;
 
-        String role = command.getRole();
-        if (role == null) {
-            throw new DataAccessException("Role not specified.");
+        String role = null;
+        String joiningUser = authData.username();
+        String whitePlayer = game.whiteUsername();
+        String blackPlayer = game.blackUsername();
+
+        if (whitePlayer == null && joiningUser.equals(command.getAuthToken())) {
+            role = "white";
+        } else if (blackPlayer == null && joiningUser.equals(command.getAuthToken())) {
+            role = "black";
+        } else if (joiningUser.equals(whitePlayer)) {
+            role = "white";
+        } else if (joiningUser.equals(blackPlayer)) {
+            role = "black";
+        } else {
+            role = "observer";
         }
+
+        System.out.println("Assigned Role: " + role);
 
         sessions.addSessionToGame(game.gameID(), session);
 
         ServerMessage loadGameMessage = new LoadGameMessage(game, role);
         sendMessage(loadGameMessage, session);
 
-        String message = String.format("%s has joined the game as the %s player.", authData.username(), role);
+        String message = String.format("%s has joined the game as %s.", authData.username(), role);
         ServerMessage notification = new NotificationMessage(message);
         broadcastMessage(game.gameID(), notification, session);
     }
+
 
     private void makeMove(UserGameCommand command, Session session) {
         // Placeholder for makeMove logic

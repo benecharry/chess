@@ -144,7 +144,7 @@ public class PostLoginUI extends SharedUI implements GameHandler {
 
     public String joinGame(String... params) throws ResponseException, InvalidParameters, IOException {
         assertSignedIn();
-        if (params.length == 2) {
+        if (params.length == 2) {  // Note: We no longer need to check for playerColor in WebSocket
             int clientGameID = Integer.parseInt(params[0]);
             String playerColor = params[1];
             this.playerColor = ChessGame.TeamColor.valueOf(playerColor.toUpperCase());
@@ -183,10 +183,8 @@ public class PostLoginUI extends SharedUI implements GameHandler {
 
             this.currentGameID = databaseGameID;
 
-            //String joinMessage = String.format("You have joined the game with ID %d as the %s player.", clientGameID, playerColor);
-            //System.out.println(joinMessage);
-
-            ws.connect(authToken, databaseGameID, playerColor);
+            // Connect without needing to pass the playerColor (role) anymore
+            ws.connect(authToken, databaseGameID);
 
             this.setState(State.INGAME);
             return "";
@@ -211,13 +209,12 @@ public class PostLoginUI extends SharedUI implements GameHandler {
             }
 
             this.currentGameID = databaseGameID;
-            ws.connect(authToken, databaseGameID, "observer");
+
+            ws.connect(authToken, databaseGameID);
 
             this.setState(State.INGAME);
             return "";
-            //return "You are observing the game with ID: " + clientGameID;
         }
-
         throw new InvalidParameters("Try again by typing " + SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD + "'observe'" +
                 RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_YELLOW + " followed by the " + SET_TEXT_BOLD + "<ID>" +
                 RESET_TEXT_BOLD_FAINT + " of the game you want to observe");

@@ -30,7 +30,7 @@ public class LoadGameMessage extends ServerMessage {
 
     @Override
     public String toString() {
-        return String.format("You just joined the game with ID %d as the %s .", game.gameID(), role);
+        return String.format("You just joined the game with ID %d as the %s.", game.gameID(), role);
 
     }
 }
