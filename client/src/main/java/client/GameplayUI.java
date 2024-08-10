@@ -108,7 +108,7 @@ public class GameplayUI extends SharedUI implements GameHandler {
 
         ChessPiece piece = chessGame.getBoard().getPiece(startPosition);
         if (piece == null) {
-            return "No piece at the giving starting position.";
+            return "No piece at the giving starting position. Try again.";
         }
 
         ChessMove move = new ChessMove(startPosition, endPosition, null);

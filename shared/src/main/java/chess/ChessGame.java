@@ -52,7 +52,8 @@ public class ChessGame {
      */
     public enum TeamColor {
         WHITE,
-        BLACK
+        BLACK,
+        OBSERVER
     }
 
     public boolean isGameOver() {
@@ -145,6 +146,10 @@ public class ChessGame {
 
         if(piece.getTeamColor() != teamTurn){
             throw new InvalidMoveException("It's not your turn.");
+        }
+
+        if(isGameOver){
+            throw new InvalidMoveException("The game is over. Please type <help> to see all the commands");
         }
 
         Collection<ChessMove> validMoves = validMoves(startPosition);

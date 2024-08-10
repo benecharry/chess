@@ -94,7 +94,9 @@ public class WebSocketHandler {
         } else if (joiningUser.equals(blackPlayer)) {
             assignedRole = ChessGame.TeamColor.BLACK;
         } else {
-            if (whitePlayer == null) {
+            if (whitePlayer == null && blackPlayer == null) {
+                assignedRole = ChessGame.TeamColor.OBSERVER;
+            } else if (whitePlayer == null) {
                 assignedRole = ChessGame.TeamColor.WHITE;
                 GameData updatedGame = new GameData(game.gameID(), joiningUser, blackPlayer, game.gameName(), game.game());
                 gameDataSQLDataAccess.updateGame(updatedGame);
@@ -105,21 +107,21 @@ public class WebSocketHandler {
                 gameDataSQLDataAccess.updateGame(updatedGame);
                 game = updatedGame;
             } else {
-                assignedRole = null;
+                assignedRole = ChessGame.TeamColor.OBSERVER;
             }
         }
 
-        if (assignedRole != null) {
-            playerRoles.put(session, assignedRole);
-        }
+        playerRoles.put(session, assignedRole);
 
         sessions.addSessionToGame(game.gameID(), session);
 
-        ServerMessage loadGameMessage = new LoadGameMessage(game, assignedRole != null ? assignedRole.name().toLowerCase() : "observer", true);
+        String roleName = assignedRole.name().toLowerCase();
+
+        ServerMessage loadGameMessage = new LoadGameMessage(game, roleName, true);
         sendMessage(loadGameMessage, session);
 
         String message = String.format("%s has joined the game as %s. " +
-                "Please type <help> to see the game commands.", joiningUser, assignedRole != null ? assignedRole.name().toLowerCase() : "observer");
+                "Please type <help> to see the game commands.", joiningUser, roleName);
         ServerMessage notification = new NotificationMessage(message);
         broadcastMessage(game.gameID(), notification, session);
     }
@@ -254,6 +256,7 @@ public class WebSocketHandler {
             sendError(new ErrorMessage("Observers cannot resign the game. Please type <help> to see the game commands."), session);
             return;
         }
+
         chessGame.setGameOver(true);
 
         GameData updatedGame = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), chessGame);
@@ -266,8 +269,8 @@ public class WebSocketHandler {
         ServerMessage resigningUserNotification = new NotificationMessage(resigningUserMessage);
         sendMessage(resigningUserNotification, session);
 
-        String message = String.format("%s has resigned. The game is over. " +
-                "Please type <help> to see the game commands.", resigningUser);
+        String message = String.format("The %s player, %s has resigned. The game is over. " +
+                "Please type <help> to see the game commands.", playerColor, resigningUser);
         ServerMessage notification = new NotificationMessage(message);
         broadcastMessage(game.gameID(), notification, session);
         //Not so sure about this.
