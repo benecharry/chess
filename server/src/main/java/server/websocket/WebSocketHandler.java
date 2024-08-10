@@ -118,7 +118,8 @@ public class WebSocketHandler {
         ServerMessage loadGameMessage = new LoadGameMessage(game, assignedRole != null ? assignedRole.name().toLowerCase() : "observer", true);
         sendMessage(loadGameMessage, session);
 
-        String message = String.format("%s has joined the game as %s.", joiningUser, assignedRole != null ? assignedRole.name().toLowerCase() : "observer");
+        String message = String.format("%s has joined the game as %s. " +
+                "Please type <help> to see the game commands.", joiningUser, assignedRole != null ? assignedRole.name().toLowerCase() : "observer");
         ServerMessage notification = new NotificationMessage(message);
         broadcastMessage(game.gameID(), notification, session);
     }
@@ -169,7 +170,8 @@ public class WebSocketHandler {
             ServerMessage loadGameMessage = new LoadGameMessage(updatedGame, playerColor, false);
             broadcastMessage(game.gameID(), loadGameMessage, null);
 
-            String moveMessage = String.format("%s (%s) moved their %s from %s to %s.",
+            String moveMessage = String.format("%s (%s) moved their %s from %s to %s. It's your turn. " +
+                            "If you need help, please type <help> to see the game commands.",
                     authData.username(), playerColor, pieceType,
                     move.getStartPosition().toString(), move.getEndPosition().toString());
             ServerMessage moveNotification = new NotificationMessage(moveMessage);
@@ -219,7 +221,7 @@ public class WebSocketHandler {
 
         sessions.removeSessionFromGame(game.gameID(), session);
 
-        String message = String.format("%s has left the game as %s.", leavingUser, role);
+        String message = String.format("%s has left the game as %s. Please type <help> to see the game commands.", leavingUser, role);
         ServerMessage notification = new NotificationMessage(message);
         broadcastMessage(game.gameID(), notification, session);
 
@@ -242,14 +244,14 @@ public class WebSocketHandler {
 
         ChessGame chessGame = game.game();
         if (chessGame.isGameOver()) {
-            sendError(new ErrorMessage("The game is already over."), session);
+            sendError(new ErrorMessage("The game is already over. Please type <help> to see the game commands."), session);
             return;
         }
 
         String resigningUser = authData.username();
 
         if (!resigningUser.equals(game.whiteUsername()) && !resigningUser.equals(game.blackUsername())) {
-            sendError(new ErrorMessage("Observers cannot resign the game."), session);
+            sendError(new ErrorMessage("Observers cannot resign the game. Please type <help> to see the game commands."), session);
             return;
         }
         chessGame.setGameOver(true);
@@ -257,11 +259,15 @@ public class WebSocketHandler {
         GameData updatedGame = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), chessGame);
         gameDataSQLDataAccess.updateGame(updatedGame);
 
-        String resigningUserMessage = String.format("You have resigned. The game is over.");
+        String playerColor = resigningUser.equals(game.whiteUsername()) ? "white" : "black";
+
+        String resigningUserMessage = String.format("You have resigned. The game is over. " +
+                "Please type <help> to see the game commands.");
         ServerMessage resigningUserNotification = new NotificationMessage(resigningUserMessage);
         sendMessage(resigningUserNotification, session);
 
-        String message = String.format("%s has resigned. The game is over.", resigningUser);
+        String message = String.format("%s has resigned. The game is over. " +
+                "Please type <help> to see the game commands.", resigningUser);
         ServerMessage notification = new NotificationMessage(message);
         broadcastMessage(game.gameID(), notification, session);
         //Not so sure about this.

@@ -99,6 +99,10 @@ public class GameplayUI extends SharedUI implements GameHandler {
             throw new InvalidParameters("You need to provide two directions. Please try again.");
         }
 
+        if (playerColor == null) {
+            throw new InvalidParameters("Sorry. You cannot play. You are an observer.");
+        }
+
         ChessPosition startPosition = new ChessPosition(params[0]);
         ChessPosition endPosition = new ChessPosition(params[1]);
 
@@ -132,12 +136,9 @@ public class GameplayUI extends SharedUI implements GameHandler {
     }
 
     public String resignGame() throws ResponseException, InvalidParameters {
-        if (ws == null) {
-            throw new IllegalStateException("WebSocket connection is not initialized.");
-        }
         ws.resignGame(authToken, gameID);
         this.setState(State.LOGGEDIN);
-        return "You have resigned from the game.";
+        return "";
     }
 
     public String highlightLegalMoves(String... params) throws ResponseException, InvalidParameters {
