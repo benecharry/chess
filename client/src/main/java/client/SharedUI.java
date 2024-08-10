@@ -92,10 +92,6 @@ public abstract class SharedUI {
         //
     }
 
-    protected void onMoveProcessed() {
-        //
-    }
-
     public void handleServerMessage(ServerMessage serverMessage) {
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:

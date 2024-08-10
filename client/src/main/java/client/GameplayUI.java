@@ -179,15 +179,6 @@ public class GameplayUI extends SharedUI implements GameHandler {
     }
 
     @Override
-    public void onMoveProcessed() {
-        try {
-            redrawChessBoard();
-        } catch (ResponseException | InvalidParameters e) {
-            System.err.println("Error redrawing chessboard: " + e.getMessage());
-        }
-    }
-
-    @Override
     public void onClose(Session session, CloseReason closeReason) {
         //
     }
