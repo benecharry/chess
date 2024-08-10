@@ -8,6 +8,7 @@ import chess.InvalidMoveException;
 import exception.InvalidParameters;
 import exception.ResponseException;
 import websocket.GameHandler;
+import websocket.WebSocketFacade;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.Session;
@@ -28,7 +29,7 @@ public class GameplayUI extends SharedUI implements GameHandler {
     private ChessGame.TeamColor playerColor;
     private Collection<ChessPosition> highlightPositions;
 
-    public GameplayUI(String serverUrl, String authToken, ChessGame.TeamColor playerColor, int gameID) {
+    public GameplayUI(String serverUrl, String authToken, ChessGame.TeamColor playerColor, int gameID) throws ResponseException {
         super(serverUrl);
         this.state = State.INGAME;
         this.authToken = authToken;
@@ -36,6 +37,10 @@ public class GameplayUI extends SharedUI implements GameHandler {
         this.chessGame = new ChessGame();
         this.gameID = gameID;
         this.highlightPositions = Collections.emptyList();
+        if (ws == null) {
+            ws = new WebSocketFacade(serverUrl, this);
+            ws.connect(authToken, gameID);
+        }
     }
 
     @Override
@@ -73,8 +78,8 @@ public class GameplayUI extends SharedUI implements GameHandler {
     public String redrawChessBoard() throws ResponseException, InvalidParameters {
         clearHighlights();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        out.print(ERASE_SCREEN);
-        BoardUI.drawChessboard(out, chessGame, playerColor == ChessGame.TeamColor.WHITE, highlightPositions);
+        boolean isWhitePerspective = (playerColor == ChessGame.TeamColor.WHITE);
+        BoardUI.drawChessboard(out, chessGame, isWhitePerspective, highlightPositions);
         BoardUI.resetColors(out);
         return "You redrew the chessboard.";
     }
@@ -103,6 +108,7 @@ public class GameplayUI extends SharedUI implements GameHandler {
         }
 
         ChessMove move = new ChessMove(startPosition, endPosition, null);
+
         try {
             chessGame.makeMove(move);
         } catch (InvalidMoveException e) {
@@ -157,29 +163,32 @@ public class GameplayUI extends SharedUI implements GameHandler {
 
     @Override
     public void onOpen(Session session) {
-        System.out.println("GamePlay WebSocket connection opened: " + session.getId());
+        //
     }
 
     @Override
     protected void onGameLoaded(LoadGameMessage loadGameMessage) {
         this.chessGame = loadGameMessage.getGame().game();
-        this.playerColor = ChessGame.TeamColor.valueOf(loadGameMessage.getRole().toUpperCase());
+        try {
+            System.out.println();
+            redrawChessBoard();
+        } catch (ResponseException | InvalidParameters e) {
+            System.err.println("Error redrawing chessboard: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onMoveProcessed() {
         try {
             redrawChessBoard();
         } catch (ResponseException | InvalidParameters e) {
             System.err.println("Error redrawing chessboard: " + e.getMessage());
         }
-
-        if (loadGameMessage.isJoinNotification()) {
-            System.out.println(loadGameMessage.toString());
-        } else {
-            System.out.println("Game loaded.");
-        }
     }
 
     @Override
     public void onClose(Session session, CloseReason closeReason) {
-        System.out.println("WebSocket connection closed: " + session.getId() + " Reason: " + closeReason);
+        //
     }
 
     @Override

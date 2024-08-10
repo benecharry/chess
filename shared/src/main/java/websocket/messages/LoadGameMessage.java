@@ -47,6 +47,7 @@ public class LoadGameMessage extends ServerMessage {
     @Override
     public String toString() {
         if (isJoinNotification) {
+            //System.out.println();
             return String.format("You have joined the game with ID %d as the %s.", game.gameID(), role);
         } else {
             return "Game loaded";

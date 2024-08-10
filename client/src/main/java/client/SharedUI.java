@@ -89,7 +89,11 @@ public abstract class SharedUI {
     }
 
     protected void onGameLoaded(LoadGameMessage loadGameMessage) {
-        //Subclasses will override this.
+        //
+    }
+
+    protected void onMoveProcessed() {
+        //
     }
 
     public void handleServerMessage(ServerMessage serverMessage) {

@@ -13,9 +13,7 @@ import result.ListGamesResult;
 import result.LogoutResult;
 import server.ServerFacade;
 import websocket.GameHandler;
-import websocket.WebSocketFacade;
 import websocket.messages.ServerMessage;
-import websocket.messages.LoadGameMessage;
 
 import javax.websocket.Session;
 import javax.websocket.CloseReason;
@@ -174,11 +172,6 @@ public class PostLoginUI extends SharedUI implements GameHandler {
             JoinGameRequest request = new JoinGameRequest(playerColor, databaseGameID, authToken);
             JoinGameResult result = server.joinGame(request);
 
-            if (ws == null) {
-                ws = new WebSocketFacade(serverUrl, this);
-                ws.connect(authToken, databaseGameID);
-            }
-
             this.currentGameID = databaseGameID;
             this.setState(State.INGAME);
             return "";
@@ -198,11 +191,6 @@ public class PostLoginUI extends SharedUI implements GameHandler {
                 throw new InvalidParameters("Game ID not found.");
             }
 
-            if (ws == null) {
-                ws = new WebSocketFacade(serverUrl, this);
-                ws.connect(authToken, databaseGameID);
-            }
-
             this.currentGameID = databaseGameID;
             this.setState(State.INGAME);
             return "";
@@ -212,7 +200,7 @@ public class PostLoginUI extends SharedUI implements GameHandler {
                 RESET_TEXT_BOLD_FAINT + " of the game you want to observe");
     }
 
-    private void assertSignedIn() throws ResponseException, InvalidParameters {
+    private void assertSignedIn() throws InvalidParameters {
         if (state == State.LOGGEDOUT) {
             throw new InvalidParameters("You must sign in first.");
         }

@@ -25,10 +25,6 @@ public class ServerMessage {
         return this.serverMessageType;
     }
 
-    public void setServerMessageType(ServerMessageType serverMessageType) {
-        this.serverMessageType = serverMessageType;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

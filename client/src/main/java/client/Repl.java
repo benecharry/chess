@@ -1,5 +1,7 @@
 package client;
 
+import exception.ResponseException;
+
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
@@ -36,7 +38,7 @@ public class Repl {
         System.out.println();
     }
 
-    private void handleStateTransitions() {
+    private void handleStateTransitions() throws ResponseException {
         if (currentUI.getState() == State.LOGGEDIN) {
             if (currentUI instanceof PreLoginUI) {
                 currentUI = new PostLoginUI(currentUI.getServerUrl(), currentUI.getAuthToken());

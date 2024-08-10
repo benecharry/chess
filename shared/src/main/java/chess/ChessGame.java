@@ -160,7 +160,7 @@ public class ChessGame {
         }
 
         if(!isValidMove){
-            throw new InvalidMoveException("Invalid move of" + piece + ".");
+            throw new InvalidMoveException("Invalid move of " + piece + ".");
         }
 
         board.addPiece(startPosition, null);
